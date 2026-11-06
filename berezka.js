@@ -7,6 +7,8 @@
 // @run-at       document-start
 // @grant        GM_getValue
 // @grant        GM_setValue
+// @updateURL    https://raw.githubusercontent.com/USERNAME/my-tampermonkey-scripts/main/berezka.js
+// @downloadURL  https://raw.githubusercontent.com/USERNAME/my-tampermonkey-scripts/main/berezka.js
 // ==/UserScript==
 (function bzMain() {
   'use strict';
