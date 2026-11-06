@@ -1,14 +1,13 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
-// @namespace    bz-order-sort
+// @namespace    https://github.com/blooder9/my
 // @version      3.12
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
-// @grant        GM_getValue
 // @grant        GM_setValue
-// @updateURL    https://raw.githubusercontent.com/USERNAME/my-tampermonkey-scripts/main/berezka.js
-// @downloadURL  https://raw.githubusercontent.com/USERNAME/my-tampermonkey-scripts/main/berezka.js
+// @updateURL    https://raw.githubusercontent.com/blooder9/berezka-repository/main/berezka.js
+// @downloadURL  https://raw.githubusercontent.com/blooder9/berezka-repository/main/berezka.js
 // ==/UserScript==
 (function bzMain() {
   'use strict';
