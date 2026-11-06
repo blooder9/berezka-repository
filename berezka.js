@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.14
+// @version      3.15
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -17,7 +17,7 @@
   var SKEY = 'bz-sort-v3', LKEY = 'bz-last-order';
   // Палитра: графит и тёплое золото.
   var P = { bg: '#0b0d10', bar: '#0f1216', s1: '#12151a', s2: '#1a1e25', line: '#262b33', tx: '#eceae4', mu: '#8e939c', gold: '#d6b36a', gold2: '#e8cd92', fg: '#1a1406', err: '#e58a84' };
-  var VER = '3.15';
+  var VER = '3.16';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o' };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -1243,29 +1243,19 @@
     var ti = [].filter.call(document.querySelectorAll('input[type=text],input:not([type]),input[type=number],input[type=tel]'), function (i) { return !inBar(i); })[0];
     var sb = form && form.querySelector('input[type=submit],button[type=submit],button:not([type])');
     if (form && ti && sb && form.contains(ti) && form.querySelectorAll('table').length <= 1 && tx(form).length < 220) {
-      var ft = form.querySelector('table'); if (ft) { ft.classList.add('bz-ordtbl'); }
-      form.classList.add('bz-ordform');
-      ti.classList.add('bz-ordin'); sb.classList.add('bz-go');
-      if (!ti.placeholder) { ti.placeholder = 'Номер заказа'; }
-      try { ti.setAttribute('inputmode', 'numeric'); ti.setAttribute('autocomplete', 'off'); } catch (e) {}
+      // Блок «Введите номер заказа для сборки» скрыт по просьбе пользователя (в обычном режиме сайт не меняется).
+      form.classList.add('bz-gone');
       var hh = [].filter.call(document.querySelectorAll('h1,h2,h3,h4,b,strong,p,div,font,span,center'), function (e) {
         return !inBar(e) && !form.contains(e) && !e.querySelector('input,select,form,table,div,p') && /^Введите номер заказа/i.test(tx(e)) && tx(e).length < 80;
       })[0];
-      if (hh) {
-        hh.classList.add('bz-ordh'); hh.textContent = tx(hh).replace(/\s*:\s*$/, '');
-        form.insertBefore(hh, form.firstChild);
-      }
-      ti.parentNode.insertBefore(mkDiv('bz-lab', 'Номер заказа'), ti);
-      var seg = mkDiv('bz-seg'), sync = function () { [].forEach.call(seg.children, function (b, i) { b.classList.toggle('on', i === sel.selectedIndex); }); };
-      [].forEach.call(sel.options, function (o, i) {
-        var b = document.createElement('button'); b.type = 'button'; b.className = 'bz bz-chip'; b.textContent = o.text.trim();
-        b.style.setProperty('--c', TYPEC[b.textContent.toLowerCase()] || typeColor(b.textContent));
-        b.addEventListener('click', function () { sel.selectedIndex = i; sel.dispatchEvent(new Event('change', { bubbles: true })); sync(); });
-        seg.appendChild(b);
+      if (hh) { hh.classList.add('bz-gone'); }
+      [form, hh].forEach(function (el) {
+        if (!el) { return; }
+        ['previousSibling', 'nextSibling'].forEach(function (d) {
+          var q = el[d];
+          while (q && ((q.nodeType === 3 && !q.nodeValue.trim()) || (q.nodeType === 1 && /^(BR|HR)$/.test(q.tagName)))) { if (q.nodeType === 1) { q.style.display = 'none'; } q = q[d]; }
+        });
       });
-      sel.parentNode.insertBefore(mkDiv('bz-lab', 'Тип заказа'), sel);
-      sel.parentNode.insertBefore(seg, sel);
-      sel.classList.add('bz-hide'); sync();
     } else {
       sel.classList.add('bz-ord');
       if (ti) { ti.classList.add('bz-ord'); }
