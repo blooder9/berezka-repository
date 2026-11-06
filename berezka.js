@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.13
+// @version      3.14
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -17,7 +17,7 @@
   var SKEY = 'bz-sort-v3', LKEY = 'bz-last-order';
   // Палитра: графит и тёплое золото.
   var P = { bg: '#0b0d10', bar: '#0f1216', s1: '#12151a', s2: '#1a1e25', line: '#262b33', tx: '#eceae4', mu: '#8e939c', gold: '#d6b36a', gold2: '#e8cd92', fg: '#1a1406', err: '#e58a84' };
-  var VER = '3.13';
+  var VER = '3.15';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o' };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -141,8 +141,8 @@
     '.bz-note br,table.bz-scanbox + br{display:none}',
 
     // поля ввода и кнопки (размеры сайта не меняем)
-    'input:not(.bz)[type=text],input:not(.bz):not([type]),input:not(.bz)[type=number],input:not(.bz)[type=search],input:not(.bz)[type=tel]{background:' + P.s1 + ' !important;color:' + P.tx + ' !important;border:2px solid #2d333c !important;border-radius:14px !important;padding:.3em .6em !important;box-sizing:border-box;max-width:100%}',
-    'input:not(.bz)[type=text]:focus,input:not(.bz):not([type]):focus,input:not(.bz)[type=number]:focus{border-color:' + P.gold + ' !important;outline:none;box-shadow:0 0 0 4px rgba(214,179,106,.22)}',
+    'input:not(.bz)[type=text],input:not(.bz):not([type]),input:not(.bz)[type=number],input:not(.bz)[type=search],input:not(.bz)[type=tel],input:not(.bz)[type=password],input:not(.bz)[type=email]{background:' + P.s1 + ' !important;color:' + P.tx + ' !important;border:2px solid #2d333c !important;border-radius:14px !important;padding:.3em .6em !important;box-sizing:border-box;max-width:100%}',
+    'input:not(.bz)[type=text]:focus,input:not(.bz):not([type]):focus,input:not(.bz)[type=number]:focus,input:not(.bz)[type=password]:focus,input:not(.bz)[type=email]:focus{border-color:' + P.gold + ' !important;outline:none;box-shadow:0 0 0 4px rgba(214,179,106,.22)}',
     'input:not(.bz)[type=submit],input:not(.bz)[type=button],button:not(.bz){background:' + GRAD + ' !important;color:' + P.fg + ' !important;border:0 !important;border-radius:16px !important;font-weight:700 !important;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.4)}',
     'input:not(.bz).bz-sec[type=button],input:not(.bz).bz-sec[type=submit],button:not(.bz).bz-sec{background:' + P.s2 + ' !important;color:' + P.tx + ' !important;border:2px solid #343a44 !important;box-shadow:none !important}',
 
@@ -301,54 +301,59 @@
     'form.bz-ordform .bz-ordh{display:block;margin:0 0 22px !important;font-size:34px !important;font-weight:700 !important;line-height:1.25;text-align:left !important;color:' + P.tx + ' !important}',
     '.bz-lab{margin:0 0 10px;font-size:22px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:' + P.mu + '}',
     'form.bz-ordform input.bz-ordin{display:block;width:100% !important;height:108px;margin:0 0 24px !important;font-size:46px !important;font-weight:600 !important;letter-spacing:.04em;text-align:left}',
-    '.bz-seg{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 28px}',
-    'button.bz-chip{flex:1 1 auto;min-width:0;min-height:88px;padding:0 28px;border-radius:16px;font-family:inherit;font-size:30px;font-weight:700;color:' + P.tx + ';background:' + P.s2 + ';border:2px solid #343a44;cursor:pointer;-webkit-appearance:none;appearance:none}',
-    'button.bz-chip.on{background:' + GRAD + ';color:' + P.fg + ';border-color:transparent;box-shadow:0 4px 14px rgba(0,0,0,.4)}',
+    '.bz-seg{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 30px}',
+    'button.bz-chip{display:flex;align-items:center;justify-content:center;gap:10px;min-width:0;min-height:96px;padding:0 20px;border-radius:18px;font-family:inherit;font-size:27px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:rgb(var(--c));background:rgba(var(--c),.14);border:2px solid rgba(var(--c),.55);cursor:pointer;-webkit-appearance:none;appearance:none}',
+    'button.bz-chip.on{background:rgb(var(--c));color:#10131a;border-color:rgb(var(--c));box-shadow:0 4px 14px rgba(0,0,0,.4)}',
+    'button.bz-chip.on::before{content:"";width:12px;height:22px;margin:-6px 4px 0 0;border-right:4px solid #10131a;border-bottom:4px solid #10131a;transform:rotate(40deg) scale(.8)}',
     'form.bz-ordform input.bz-go{display:block;width:100% !important;height:108px !important;margin:0 !important;font-size:38px !important;letter-spacing:.06em}',
     'select.bz-hide{display:none !important}',
     'input.bz-search{display:block;width:100% !important;height:92px;margin:0 0 18px !important;font-size:34px !important;font-weight:500 !important}',
     '.bz-listh{margin:6px 0 14px !important;font-size:26px !important;font-weight:700 !important;letter-spacing:.12em;text-transform:uppercase;text-align:left !important;color:' + P.mu + ' !important}',
     '.bz-listh b{color:' + P.gold + '}',
     '.bz-empty{padding:28px 10px;text-align:center;font-size:28px;color:' + P.mu + '}',
+    // страница входа
+    'body.bz-loginpg{text-align:center}',
+    'img.bz-lglogo{display:block;box-sizing:content-box;width:auto !important;max-width:62% !important;height:auto !important;max-height:150px;margin:36px auto 26px !important;padding:16px 28px;background:#fff;border-radius:22px}',
+    '.bz-lgh{display:block;margin:0 0 28px !important;font-size:38px !important;font-weight:800 !important;line-height:1.25;color:' + P.gold2 + ' !important;text-align:center !important}',
+    '.bz-login{display:block;box-sizing:border-box;width:100%;max-width:820px;margin:0 auto 34px;padding:30px 28px 34px;background:' + P.s1 + ';border:1px solid ' + P.line + ';border-left:8px solid ' + P.gold + ';border-radius:24px;text-align:left}',
+    '.bz-login br{display:none}',
+    '.bz-login table,.bz-login tbody,.bz-login tr,.bz-login td,.bz-login th{display:block !important;box-sizing:border-box;width:100% !important;margin:0 !important;padding:0 !important;border:0 !important;border-spacing:0 !important;background:transparent !important}',
+    'table.bz-login{padding:30px 28px 34px !important;background:' + P.s1 + ' !important}',
+    '.bz-login .bz-rx{display:none !important}',
+    '.bz-login .bz-lab{margin:18px 0 10px !important;text-align:left !important;font-size:22px !important;font-weight:700 !important;letter-spacing:.1em;text-transform:uppercase;color:' + P.mu + ' !important}',
+    '.bz-login input[type=text],.bz-login input[type=email],.bz-login input[type=password],.bz-login input:not([type]){display:block;width:100% !important;height:104px;margin:0 0 6px !important;font-size:40px !important}',
+    '.bz-pw{position:relative}',
+    '.bz-pw input{padding-right:120px !important}',
+    'button.bz-pwb{position:absolute;right:6px;top:0;display:flex;align-items:center;justify-content:center;width:100px;height:104px;margin:0;padding:0;background:none;border:0;color:' + P.mu + ';font-size:34px;cursor:pointer}',
+    '.bz-login .bz-lgo{display:block;width:100% !important;height:108px !important;margin:28px 0 0 !important;font-size:38px !important;letter-spacing:.06em}',
     // правка «Доступно на полке»
     '.bz-avl{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;min-width:0}',
     '#editArea{margin-top:16px !important;padding:18px;background:' + P.s1 + ';border:1px solid ' + P.line + ';border-radius:22px}',
     '#editArea input[type=text]{display:block;width:100% !important;box-sizing:border-box;height:96px;margin:0 0 14px !important;font-size:38px !important}',
     '#editArea button{height:88px;margin:0 12px 0 0 !important;padding:0 32px !important;font-size:30px !important}',
     'body.bz-paint tr.bz-r > td,body.bz-paint tr.bz-d > td,body.bz-paint table.bz-item td{cursor:pointer}',
-    // таблицы-списки: строка = карточка
-    'table.bz-rt{display:block;width:100% !important;max-width:100%;margin:0 0 20px;border:0 !important;border-spacing:0 !important;background:none !important}',
-    'table.bz-rt > tbody,table.bz-rt > thead{display:block}',
-    'table.bz-rt tr.bz-rh{display:none !important}',
-    'table.bz-rt tr.bz-rr{display:flex;flex-wrap:wrap;align-items:flex-start;gap:16px 24px;box-sizing:border-box;margin:0 0 18px;padding:24px 24px 22px 28px;background:' + P.s1 + ';border:1px solid ' + P.line + ';border-left:8px solid rgb(var(--c));border-radius:22px}',
-    'table.bz-rt tr.bz-rr > td{display:block;box-sizing:border-box;order:3;flex:1 1 calc(50% - 24px);min-width:0;padding:0 !important;border:0 !important;background:transparent !important;font-size:30px;font-weight:600;line-height:1.25;color:' + P.tx + ';text-align:left !important;word-break:break-word}',
-    'table.bz-rt td[data-l]::before{content:attr(data-l);display:block;margin:0 0 4px;font-size:20px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:' + P.mu + '}',
-    'table.bz-rt td[data-l=""]::before{display:none}',
-    'table.bz-rt td.bz-rx{display:none !important}',
-    'table.bz-rt tr.bz-rr > td.bz-rk{order:0;flex:1 1 50%;font-family:' + MONO + ';font-size:44px;font-weight:700;color:' + P.gold2 + '}',
-    'table.bz-rt tr.bz-rr > td.bz-rk::before{display:none}',
-    'table.bz-rt tr.bz-rr > td.bz-rs{order:1;flex:none;margin-left:auto;padding:6px 20px !important;border-radius:999px;font-size:22px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:rgba(var(--c),.2) !important;border:1px solid rgba(var(--c),.55) !important;color:rgb(var(--c)) !important}',
-    'table.bz-rt td.bz-rs::before{display:none}',
-    'table.bz-rt tr.bz-rr > td.bz-rw{order:2;flex:1 1 100%;font-size:36px;font-weight:700}',
-    'table.bz-rt tr.bz-rr > td.bz-rc{order:4;flex:1 1 100%;font-size:27px;font-weight:500;color:' + P.mu + '}',
-    'table.bz-rt tr.bz-rr > td.bz-ra{order:10;flex:1 1 100%;display:flex;flex-wrap:wrap;gap:12px}',
-    'table.bz-rt td.bz-ra::before{flex:0 0 100%;margin:0}',
+    // таблицы-списки: та же таблица, что и на сайте, но аккуратная: своя прокрутка, закреплённый первый столбец
+    '.bz-tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 0 24px;background:' + P.s1 + ';border:1px solid ' + P.line + ';border-radius:20px}',
+    'table.bz-rt{display:table;width:max-content;min-width:100%;margin:0;border-collapse:separate !important;border-spacing:0 !important;border:0 !important;background:none !important}',
+    'table.bz-rt td{border:0 !important;border-bottom:1px solid ' + P.line + ' !important;text-align:left !important;vertical-align:middle}',
+    'table.bz-rt tr:last-child > td{border-bottom:0 !important}',
+    'table.bz-rt tr.bz-rh > td{padding:18px 20px !important;background:' + P.s2 + ' !important;font-size:20px !important;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:' + P.mu + ' !important;vertical-align:bottom;min-width:110px;border-bottom:1px solid #343a44 !important}',
+    'table.bz-rt tr.bz-rr > td{padding:18px 20px !important;background-color:' + P.s1 + ' !important;background-image:linear-gradient(rgba(var(--c),.08),rgba(var(--c),.08)) !important;font-size:26px;font-weight:500;line-height:1.25;color:' + P.tx + ' !important;white-space:nowrap}',
+    'table.bz-rt tr.bz-rr > td.bz-rx{color:#4b515b !important}',
+    'table.bz-rt tr.bz-rr > td.bz-rw{font-weight:700}',
+    'table.bz-rt tr.bz-rr > td.bz-rc{white-space:normal;min-width:220px;color:' + P.mu + ' !important}',
+    'table.bz-rt tr.bz-rr > td.bz-ra{white-space:normal;min-width:200px}',
     'table.bz-rt td.bz-ra hr,table.bz-rt td.bz-ra br{display:none !important}',
-    'a.bz-ab{display:inline-flex;align-items:center;justify-content:center;flex:1 1 auto;box-sizing:border-box;min-height:76px;padding:0 26px;border-radius:16px;background:rgba(var(--c),.14);border:2px solid rgba(var(--c),.55);color:rgb(var(--c)) !important;font-size:25px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;text-decoration:none !important;white-space:nowrap}',
+    'table.bz-rt tr > td:first-child{position:sticky;left:0;z-index:2;box-shadow:inset 6px 0 0 rgb(var(--c,142,147,156)),8px 0 10px -8px rgba(0,0,0,.7)}',
+    'table.bz-rt tr.bz-rh > td:first-child{box-shadow:8px 0 10px -8px rgba(0,0,0,.7)}',
+    'table.bz-rt tr.bz-rr > td.bz-rk{font-family:' + MONO + ';font-size:26px;font-weight:700;color:' + P.gold2 + ' !important;padding-left:30px !important}',
+    '.bz-pill{display:inline-block;padding:5px 16px;border-radius:999px;font-size:20px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:rgba(var(--c),.2);border:1px solid rgba(var(--c),.55);color:rgb(var(--c))}',
+    'tr.bz-rr .bz-pill{--c:inherit}',
+    'a.bz-ab{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;min-height:58px;margin:4px 6px 4px 0;padding:0 20px;border-radius:14px;background:rgba(var(--c),.14);border:2px solid rgba(var(--c),.55);color:rgb(var(--c)) !important;font-size:21px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;text-decoration:none !important;white-space:nowrap}',
     'a.bz-ab:active{background:rgba(var(--c),.3)}',
-    '.bz-ftog{display:flex;align-items:center;justify-content:center;gap:14px;box-sizing:border-box;min-height:80px;margin:0 0 16px;padding:0 28px;border-radius:16px;background:' + P.s2 + ';border:2px solid #343a44;color:' + P.tx + ';font-size:28px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;-webkit-user-select:none;user-select:none}',
-    '.bz-ftog::after{content:"";width:14px;height:14px;border-right:3px solid ' + P.gold + ';border-bottom:3px solid ' + P.gold + ';transform:translateY(-3px) rotate(45deg);transition:transform .15s}',
-    '.bz-ftog.on{border-color:' + P.gold + '}',
-    '.bz-ftog.on::after{transform:translateY(3px) rotate(225deg)}',
-    'table.bz-rt tr.bz-rf{display:none}',
-    'table.bz-rt.bz-fopen tr.bz-rf{display:flex;flex-wrap:wrap;gap:16px 22px;box-sizing:border-box;margin:0 0 20px;padding:24px;background:' + P.s1 + ';border:1px solid ' + P.gold + ';border-radius:22px}',
-    'table.bz-rt tr.bz-rf > td{display:block;box-sizing:border-box;flex:1 1 calc(50% - 22px);min-width:0;padding:0 !important;border:0 !important;background:transparent !important}',
-    'table.bz-rt tr.bz-rf > td.bz-rx{display:none !important}',
-    'table.bz-rt tr.bz-rf > td.bz-rfs{flex:1 1 100%}',
-    'table.bz-rt tr.bz-rf > td::before{content:attr(data-l);display:block;margin:0 0 8px;font-size:20px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:' + P.mu + '}',
-    'table.bz-rt tr.bz-rf > td.bz-rfs::before{display:none}',
-    'table.bz-rt tr.bz-rf input:not([type=submit]):not([type=button]),table.bz-rt tr.bz-rf select{display:block;width:100% !important;height:88px;margin:0 !important;font-size:30px !important}',
-    'table.bz-rt tr.bz-rf input[type=submit]{display:block;width:100% !important;height:96px;margin:4px 0 0 !important;font-size:32px !important}',
+    'table.bz-rt tr.bz-rf > td{padding:12px 14px !important;background:#0f1216 !important;min-width:130px;white-space:nowrap}',
+    'table.bz-rt tr.bz-rf input:not([type=submit]):not([type=button]),table.bz-rt tr.bz-rf select{display:block;width:100% !important;min-width:120px;height:68px;margin:0 !important;font-size:24px !important}',
+    'table.bz-rt tr.bz-rf input[type=submit]{height:68px;padding:0 26px !important;font-size:24px !important}',
     // ссылки-вкладки над списком
     '.bz-tabs{display:flex !important;flex-wrap:wrap;gap:12px;margin:8px 0 22px !important;text-align:left !important}',
     'a.bz-tab{display:inline-flex;align-items:center;justify-content:center;flex:1 1 auto;box-sizing:border-box;min-height:72px;padding:0 24px;border-radius:999px;background:rgba(var(--c),.1);border:2px solid rgba(var(--c),.45);color:rgb(var(--c)) !important;font-size:24px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-decoration:none !important;white-space:nowrap}',
@@ -500,6 +505,8 @@
     refresh: '<path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4.5v4.6h-4.6"/>',
     moon: '<path d="M20.2 14.2A8.2 8.2 0 0 1 9.8 3.8a8.2 8.2 0 1 0 10.4 10.4z"/>',
     sun: '<circle cx="12" cy="12" r="3.8"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/>',
+    eye: '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+    eyeoff: '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path d="M4 4l16 16"/>',
     top: '<path d="M12 19.5v-14M6 11.5l6-6 6 6"/>'
   };
   function ico(name, size) {
@@ -864,6 +871,73 @@
       a.addEventListener('click', function (e) { if (!window.confirm('Вы уверены?')) { e.preventDefault(); e.stopPropagation(); } });
     }
   }
+  // Раздел «Хенди» (терминал, сборка и т.д.) оформляется отдельно и новыми правилами не затрагивается.
+  function isHandy() {
+    if (isHandy.c !== undefined) { return isHandy.c; }
+    var r = false;
+    [].forEach.call(document.querySelectorAll('ul.main-menu > li > a'), function (a) {
+      if (/background/i.test(a.getAttribute('style') || '') && /хенди|handy/i.test(tx(a))) { r = true; }
+    });
+    if (!r) { var m = /[?&]page=([^&#]*)/.exec(location.search); r = !!(m && /^(terminal|order|order_select)$/.test(m[1])); }
+    isHandy.c = r; return r;
+  }
+  // Голубые фоны блоков и строк убираются (графики-картинки остаются).
+  function killBlue() {
+    var probe = document.createElement('i');
+    [].forEach.call(document.body.querySelectorAll('*'), function (el) {
+      if (inBar(el) || /^(IMG|SCRIPT|STYLE|INPUT|SELECT|BUTTON|A)$/.test(el.tagName) || /(^|\s)bz-/.test(el.className || '')) { return; }
+      var v = el.style.backgroundColor || el.getAttribute('bgcolor');
+      if (!v) { return; }
+      probe.style.color = ''; probe.style.color = v; if (!probe.style.color) { return; }
+      document.body.appendChild(probe);
+      var cc = getComputedStyle(probe).color; probe.remove();
+      if (hueClass(cc) === 'bz-s-blu') { el.style.setProperty('background', 'none', 'important'); el.removeAttribute('bgcolor'); }
+    });
+  }
+  // Страница входа: логотип, заголовок и карточка с полями логина и пароля (данные никуда не передаются и не сохраняются).
+  function buildLogin() {
+    var pw = document.querySelector('input[type=password]');
+    if (!pw || inBar(pw) || pw.__bzl) { return; }
+    pw.__bzl = 1;
+    document.body.classList.add('bz-loginpg');
+    var host = pw.form || pw.closest('form') || pw.closest('table');
+    if (!host) { return; }
+    host.classList.add('bz-login');
+    [].forEach.call(host.querySelectorAll('table'), function (t) { t.classList.add('bz-lgt'); });
+    var ui = host.querySelector('input[type=text],input[type=email],input:not([type])');
+    if (ui) {
+      if (!ui.getAttribute('autocomplete')) { ui.setAttribute('autocomplete', 'username'); }
+      ui.setAttribute('autocapitalize', 'none'); ui.setAttribute('autocorrect', 'off'); ui.spellcheck = false;
+      if (!ui.placeholder) { ui.placeholder = 'Логин'; }
+    }
+    if (!pw.getAttribute('autocomplete')) { pw.setAttribute('autocomplete', 'current-password'); }
+    if (!pw.placeholder) { pw.placeholder = 'Пароль'; }
+    [].forEach.call(host.querySelectorAll('td,th'), function (c) {
+      if (c.querySelector('input,select,textarea,button,table')) { return; }
+      var t = tx(c);
+      if (!t || EMPTYV.test(c.textContent)) { c.classList.add('bz-rx'); } else if (t.length < 40) { c.classList.add('bz-lab'); c.textContent = t.replace(/\s*:\s*$/, ''); }
+    });
+    [].forEach.call(host.querySelectorAll('tr'), function (r) { if (!r.querySelector('input:not([type=hidden]),select,textarea,button,td.bz-lab')) { r.classList.add('bz-rx'); } });
+    [].forEach.call(host.querySelectorAll('input[type=submit],button[type=submit],button:not([type]),input[type=button],input[type=image]'), function (b) { b.classList.add('bz-lgo'); });
+    // показать/скрыть пароль
+    var box = mkDiv('bz-pw'); pw.parentNode.insertBefore(box, pw); box.appendChild(pw);
+    var eye = document.createElement('button'); eye.type = 'button'; eye.className = 'bz bz-pwb'; eye.setAttribute('aria-label', 'Показать пароль');
+    setIco(eye, 'eye', '1.2em');
+    eye.addEventListener('click', function () {
+      var show = pw.type === 'password';
+      pw.type = show ? 'text' : 'password';
+      setIco(eye, show ? 'eyeoff' : 'eye', '1.2em'); eye.setAttribute('aria-label', show ? 'Скрыть пароль' : 'Показать пароль');
+    });
+    box.appendChild(eye);
+    // логотип и заголовок
+    var all = document.body.querySelectorAll('img,h1,h2,h3,h4,b,strong,p,div,font,span,center');
+    var head = null, logo = document.body.querySelector('img');
+    [].forEach.call(all, function (e) {
+      if (!head && !inBar(e) && e.tagName !== 'IMG' && !host.contains(e) && !e.querySelector('input,form,table,img,div,p') && /^Вход\s+в\s+аккаунт/i.test(tx(e)) && tx(e).length < 80) { head = e; }
+    });
+    if (head) { head.classList.add('bz-lgh'); head.textContent = tx(head).replace(/\s*:\s*$/, ''); }
+    if (logo && !inBar(logo) && !host.contains(logo)) { logo.classList.add('bz-lglogo'); }
+  }
   // Ряд ссылок в квадратных скобках через « | » превращается в ряд кнопок-вкладок.
   function buildTabs() {
     [].forEach.call(document.querySelectorAll('div,p,center'), function (el) {
@@ -925,13 +999,16 @@
           r.classList.add('bz-rr');
           var bg = r.cells[0].style.backgroundColor || '';
           var hue = hueClass(bg);
-          r.style.setProperty('--c', STC[hue] || '142,147,156');
+          r.style.setProperty('--c', (hue !== 'bz-s-blu' && STC[hue]) || '142,147,156');
           [].forEach.call(r.cells, function (c, i) {
             var t = tx(c), lab = labs[i], links = c.querySelectorAll('a');
             c.setAttribute('data-l', lab);
             if (!links.length && !c.querySelector('input,select,button') && EMPTYV.test(c.textContent)) { c.classList.add('bz-rx'); return; }
             if (i === 0) { c.classList.add('bz-rk'); return; }
-            if (/статус|status/i.test(lab)) { c.classList.add('bz-rs'); return; }
+            if (/статус|status/i.test(lab)) {
+              c.classList.add('bz-rs');
+              var pill = document.createElement('span'); pill.className = 'bz-pill'; pill.textContent = t; c.textContent = ''; c.appendChild(pill); return;
+            }
             if (links.length && !EMPTYV.test(t)) {
               var rest = t; [].forEach.call(links, function (a) { rest = rest.replace(tx(a), ''); });
               if (!/[\p{L}\d]/u.test(rest.replace(/[\[\]|]/g, ''))) {
@@ -952,20 +1029,12 @@
       });
       // подпись со счётчиком, поиск и сворачиваемый фильтр
       var h = prevHead(T), n = data.length, host = T.parentNode;
-      if (!n) { host.insertBefore(mkDiv('bz-empty', 'Список пуст'), T.nextSibling); }
+
       var cb = null;
       if (h) {
         h.classList.add('bz-listh');
         h.textContent = h.textContent.replace(/\s*:\s*$/, '');
         h.appendChild(document.createTextNode(' · ')); cb = document.createElement('b'); cb.textContent = n; h.appendChild(cb);
-      }
-      if (filt) {
-        var tg = mkDiv('bz-ftog', 'Фильтр');
-        tg.setAttribute('role', 'button'); tg.tabIndex = 0;
-        var go = function () { tg.classList.toggle('on', T.classList.toggle('bz-fopen')); };
-        tg.addEventListener('click', go);
-        tg.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
-        host.insertBefore(tg, T);
       }
       if (n > 5) {
         var si = document.createElement('input');
@@ -978,8 +1047,11 @@
           if (cb) { cb.textContent = q ? k + ' из ' + n : n; }
           emp.style.display = k ? 'none' : 'block';
         });
-        host.insertBefore(si, T); host.insertBefore(emp, T.nextSibling);
+        host.insertBefore(si, T); T.__emp = emp;
       }
+      var tw = mkDiv('bz-tw'); host.insertBefore(tw, T); tw.appendChild(T);
+      if (T.__emp) { host.insertBefore(T.__emp, tw.nextSibling); }
+      if (!n) { host.insertBefore(mkDiv('bz-empty', 'Список пуст'), tw.nextSibling); }
     });
   }
   // Формы с загрузкой файла и блоки «две колонки» превращаются в карточки.
@@ -1187,6 +1259,7 @@
       var seg = mkDiv('bz-seg'), sync = function () { [].forEach.call(seg.children, function (b, i) { b.classList.toggle('on', i === sel.selectedIndex); }); };
       [].forEach.call(sel.options, function (o, i) {
         var b = document.createElement('button'); b.type = 'button'; b.className = 'bz bz-chip'; b.textContent = o.text.trim();
+        b.style.setProperty('--c', TYPEC[b.textContent.toLowerCase()] || typeColor(b.textContent));
         b.addEventListener('click', function () { sel.selectedIndex = i; sel.dispatchEvent(new Event('change', { bubbles: true })); sync(); });
         seg.appendChild(b);
       });
@@ -1231,7 +1304,7 @@
   function decorate() {
     var body = document.body;
     buildDocs();
-    buildTabs();
+    if (!isHandy()) { buildTabs(); killBlue(); }
     buildTopNav();
     // заголовок заказа
     [].forEach.call(body.querySelectorAll('div,h1,h2,h3,p,center,b'), function (el) {
@@ -1363,7 +1436,7 @@
     // остальные таблицы без вложенных таблиц
     var isCtl = function (e) { return e.matches && e.matches('input[type=text],input:not([type]),input[type=number],input[type=tel],input[type=button],input[type=submit],button'); };
     [].forEach.call(document.querySelectorAll('table'), function (t) {
-      if (inBar(t) || /\bbz-(tbl|scanbox|addbox|navtbl|docsrc|topnav|hdr|ordtbl|rt|stat|skip|cols|grid|chart|upt)\b/.test(t.className)) { return; }
+      if (inBar(t) || /\bbz-(tbl|scanbox|addbox|navtbl|docsrc|topnav|hdr|ordtbl|rt|stat|skip|cols|grid|chart|upt|lgt|login)\b/.test(t.className)) { return; }
       if (t.querySelector('table') || t.querySelector('tr.bz-r') || t.closest('tr.bz-d')) { return; }
       var rowsT = [].slice.call(t.rows || []);
       var cellsT = t.querySelectorAll('td,th');
@@ -1637,7 +1710,7 @@
     window.addEventListener('orientationchange', refit);
     window.addEventListener('load', fit);
 
-    if (st.dark) { buildDash(); buildRecords(); buildForms(); buildDocs(); orderForm(); }
+    if (st.dark) { buildLogin(); if (!isHandy()) { buildDash(); buildRecords(); buildForms(); } buildDocs(); orderForm(); }
     fit(); paint(); apply();
     if (st.dark) { decorate(); restylePages(); tightenGap(); window.addEventListener('load', function () { tightenGap(); }); }
     if (st.dark) { try { noZoom(); } catch (e) {} }
