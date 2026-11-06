@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.12
+// @version      3.13
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -17,7 +17,7 @@
   var SKEY = 'bz-sort-v3', LKEY = 'bz-last-order';
   // Палитра: графит и тёплое золото.
   var P = { bg: '#0b0d10', bar: '#0f1216', s1: '#12151a', s2: '#1a1e25', line: '#262b33', tx: '#eceae4', mu: '#8e939c', gold: '#d6b36a', gold2: '#e8cd92', fg: '#1a1406', err: '#e58a84' };
-  var VER = '3.12';
+  var VER = '3.13';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o' };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -1640,6 +1640,7 @@
     if (st.dark) { buildDash(); buildRecords(); buildForms(); buildDocs(); orderForm(); }
     fit(); paint(); apply();
     if (st.dark) { decorate(); restylePages(); tightenGap(); window.addEventListener('load', function () { tightenGap(); }); }
+    if (st.dark) { try { noZoom(); } catch (e) {} }
     hasItem = !!document.querySelector('table.bz-item[data-bz-code]');
     tintItems(); paintSw(); layout();
     if (hasTable) { try { setLast(clean(location.href).href); } catch (e) {} }
@@ -1653,7 +1654,41 @@
     } catch (e) {}
   }
 
+  // Без увеличения при вводе текста: пока открыто поле, масштаб страницы закреплён на текущем значении (мета-тег живёт только это время).
+  var NOZOOM = true;
+  function noZoom() {
+    var vv = window.visualViewport;
+    if (!NOZOOM || !vv || window.__bzNZ) { return; }
+    window.__bzNZ = 1;
+    var vm = null, ex = null, old = '', tm = 0;
+    var isField = function (e) { return !!(e && e.tagName && /^(INPUT|TEXTAREA|SELECT)$/.test(e.tagName) && !/^(button|submit|checkbox|radio|hidden)$/i.test(e.type || '')); };
+    var lock = function () {
+      clearTimeout(tm);
+      var sc = vv.scale;
+      if (!sc || sc <= 0) { return; }
+      var v = sc.toFixed(4), add = 'minimum-scale=' + v + ',maximum-scale=' + v;
+      if (vm) { vm.content = (ex ? old + ',' : '') + add; return; }
+      ex = document.querySelector('meta[name=viewport]');
+      if (ex) { old = ex.getAttribute('content') || ''; vm = ex; } else { vm = document.createElement('meta'); vm.name = 'viewport'; (document.head || document.documentElement).appendChild(vm); }
+      vm.content = (ex ? old + ',' : '') + add;
+    };
+    var unlock = function () {
+      clearTimeout(tm);
+      tm = setTimeout(function () {
+        if (isField(document.activeElement)) { return; }
+        if (vm) { if (ex) { ex.setAttribute('content', old); } else { vm.remove(); } vm = null; ex = null; }
+      }, 700);
+    };
+    document.addEventListener('focusin', function (e) { if (isField(e.target) && !inBar(e.target)) { lock(); } }, true);
+    document.addEventListener('focusout', function (e) { if (isField(e.target)) { unlock(); } }, true);
+    document.addEventListener('pointerdown', function (e) {
+      var t = e.target; if (!t || !t.closest || inBar(t)) { return; }
+      var c = t.closest('input,textarea,select,button,#editBtn');
+      if (!c) { return; }
+      if (isField(c)) { lock(); } else if (/редактир|изменит/i.test(c.value || c.textContent || '')) { lock(); unlock(); }
+    }, true);
+  }
+
   function start() { build(); }
   if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', start); } else { start(); }
 })();
-
