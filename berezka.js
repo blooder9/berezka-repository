@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.15
+// @version      3.18
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -16,9 +16,17 @@
 
   var SKEY = 'bz-sort-v3', LKEY = 'bz-last-order';
   // Палитра: графит и тёплое золото.
-  var P = { bg: '#0b0d10', bar: '#0f1216', s1: '#12151a', s2: '#1a1e25', line: '#262b33', tx: '#eceae4', mu: '#8e939c', gold: '#d6b36a', gold2: '#e8cd92', fg: '#1a1406', err: '#e58a84' };
-  var VER = '3.16';
-  var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o' };
+  // Две темы: тёмная и светлая. Цвета лежат в CSS-переменных, переключение — одним атрибутом.
+  var PALS = {
+    dark: { bg: '#0b0d10', bar: '#0f1216', s1: '#12151a', s2: '#1a1e25', line: '#262b33', tx: '#eceae4', mu: '#8e939c', gold: '#d6b36a', gold2: '#e8cd92', fg: '#1a1406', err: '#e58a84',
+            ln2: '#2d333c', ln3: '#343a44', ln4: '#3a414c', t2: '#aab1bb', dim: '#5b616b', dim2: '#4b515b', act: '#1f1a10', tr: '#1d1416', ta: '#1e1912', tg: '#111d17', tb: '#121a25' },
+    light: { bg: '#f1efe9', bar: '#ffffff', s1: '#ffffff', s2: '#eeebe3', line: '#ddd8cb', tx: '#1d1f23', mu: '#666b74', gold: '#a9812f', gold2: '#8a6419', fg: '#1a1406', err: '#c2433c',
+            ln2: '#cfc9bb', ln3: '#c3bcab', ln4: '#b9b2a1', t2: '#4e535b', dim: '#b5ae9f', dim2: '#aba493', act: '#f6ecd3', tr: '#fbeceb', ta: '#fbf1e1', tg: '#e8f5ed', tb: '#e8f0fa' }
+  };
+  var P = {};
+  Object.keys(PALS.dark).forEach(function (k) { P[k] = 'var(--bz-' + k + ')'; });
+  var VER = '3.18';
+  var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o', theme: 'dark', lang: '' };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
     Object.keys(st).forEach(function (k) { if (sv[k] !== undefined) { st[k] = sv[k]; } });
@@ -118,11 +126,11 @@
     'tr.bz-r > td{background:' + P.s2 + ' !important;color:' + P.tx + ' !important;font-size:32px;font-weight:500;padding:18px 14px !important;line-height:1.25;vertical-align:middle}',
     'tr.bz-w > td{background-image:linear-gradient(rgba(255,140,0,.3),rgba(255,140,0,.3)) !important}',
     'tr.bz-v > td{background-image:linear-gradient(rgba(64,160,255,.3),rgba(64,160,255,.3)) !important}',
-    'tr.bz-s-red > td{background:#1d1416 !important}',
-    'tr.bz-s-amb > td{background:#1e1912 !important}',
-    'tr.bz-s-grn > td{background:#111d17 !important}',
-    'tr.bz-s-blu > td{background:#121a25 !important}',
-    'tr.bz-r > td:first-child{border-radius:16px 0 0 16px;font-size:26px;font-weight:600;color:' + P.mu + ' !important;text-align:center;box-shadow:inset 7px 0 0 #5b616b}',
+    'tr.bz-s-red > td{background:' + P.tr + ' !important}',
+    'tr.bz-s-amb > td{background:' + P.ta + ' !important}',
+    'tr.bz-s-grn > td{background:' + P.tg + ' !important}',
+    'tr.bz-s-blu > td{background:' + P.tb + ' !important}',
+    'tr.bz-r > td:first-child{border-radius:16px 0 0 16px;font-size:26px;font-weight:600;color:' + P.mu + ' !important;text-align:center;box-shadow:inset 7px 0 0 ' + P.dim + '}',
     'tr.bz-s-red > td:first-child{box-shadow:inset 7px 0 0 #d4655f}',
     'tr.bz-s-amb > td:first-child{box-shadow:inset 7px 0 0 #e0a458}',
     'tr.bz-s-grn > td:first-child{box-shadow:inset 7px 0 0 #58b08a}',
@@ -134,17 +142,17 @@
     'tr.bz-h td,tr.bz-h th{padding:12px 14px !important;font-size:24px !important;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:' + P.mu + ' !important;background:transparent !important;border-bottom:1px solid ' + P.line + ' !important}',
     'tr.bz-d > td{padding:0 !important;background:transparent !important}',
     'tr.bz-d table{border:0 !important;width:100% !important;margin:-2px 0 6px;border-spacing:4px 0 !important}',
-    'tr.bz-d table td{font-size:25px !important;font-weight:500;line-height:1.3;padding:10px 12px !important;border-radius:10px;background:' + P.s1 + ' !important;color:#aab1bb !important;border:1px solid ' + P.line + ' !important}',
+    'tr.bz-d table td{font-size:25px !important;font-weight:500;line-height:1.3;padding:10px 12px !important;border-radius:10px;background:' + P.s1 + ' !important;color:' + P.t2 + ' !important;border:1px solid ' + P.line + ' !important}',
     'tr.bz-e{display:none !important}',
     '.bz-arrow{white-space:nowrap}',
     'tr.bz-h td{white-space:nowrap}',
     '.bz-note br,table.bz-scanbox + br{display:none}',
 
     // поля ввода и кнопки (размеры сайта не меняем)
-    'input:not(.bz)[type=text],input:not(.bz):not([type]),input:not(.bz)[type=number],input:not(.bz)[type=search],input:not(.bz)[type=tel],input:not(.bz)[type=password],input:not(.bz)[type=email]{background:' + P.s1 + ' !important;color:' + P.tx + ' !important;border:2px solid #2d333c !important;border-radius:14px !important;padding:.3em .6em !important;box-sizing:border-box;max-width:100%}',
+    'input:not(.bz)[type=text],input:not(.bz):not([type]),input:not(.bz)[type=number],input:not(.bz)[type=search],input:not(.bz)[type=tel],input:not(.bz)[type=password],input:not(.bz)[type=email]{background:' + P.s1 + ' !important;color:' + P.tx + ' !important;border:2px solid ' + P.ln2 + ' !important;border-radius:14px !important;padding:.3em .6em !important;box-sizing:border-box;max-width:100%}',
     'input:not(.bz)[type=text]:focus,input:not(.bz):not([type]):focus,input:not(.bz)[type=number]:focus,input:not(.bz)[type=password]:focus,input:not(.bz)[type=email]:focus{border-color:' + P.gold + ' !important;outline:none;box-shadow:0 0 0 4px rgba(214,179,106,.22)}',
     'input:not(.bz)[type=submit],input:not(.bz)[type=button],button:not(.bz){background:' + GRAD + ' !important;color:' + P.fg + ' !important;border:0 !important;border-radius:16px !important;font-weight:700 !important;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.4)}',
-    'input:not(.bz).bz-sec[type=button],input:not(.bz).bz-sec[type=submit],button:not(.bz).bz-sec{background:' + P.s2 + ' !important;color:' + P.tx + ' !important;border:2px solid #343a44 !important;box-shadow:none !important}',
+    'input:not(.bz).bz-sec[type=button],input:not(.bz).bz-sec[type=submit],button:not(.bz).bz-sec{background:' + P.s2 + ' !important;color:' + P.tx + ' !important;border:2px solid ' + P.ln3 + ' !important;box-shadow:none !important}',
 
     // окно сканирования
     'table.bz-scanbox{display:block;box-sizing:border-box;width:100% !important;margin:0 0 22px !important;padding:18px;background:' + P.s1 + ';border:1px solid ' + P.line + ' !important;border-radius:22px;border-spacing:0 !important}',
@@ -253,7 +261,7 @@
     'input:not(.bz).bz-menu[type=button],input:not(.bz).bz-menu[type=submit],button:not(.bz).bz-menu{display:block;box-sizing:border-box;width:100% !important;height:118px !important;margin:0 0 16px !important;padding:0 96px 0 38px !important;text-align:left !important;font-size:36px !important;font-weight:600 !important;color:' + P.tx + ' !important;background-color:' + P.s1 + ' !important;background-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22%3E%3Cpath d=%22M9 4l8 8-8 8%22 fill=%22none%22 stroke=%22%23d6b36a%22 stroke-width=%223%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E") !important;background-repeat:no-repeat !important;background-position:right 36px center !important;background-size:24px !important;border:1px solid ' + P.line + ' !important;border-left:8px solid var(--c,' + P.gold + ') !important;border-radius:20px !important;box-shadow:none !important}',
     'input:not(.bz).bz-menu[type=button]:active,input:not(.bz).bz-menu[type=submit]:active,button:not(.bz).bz-menu:active{background-color:' + P.s2 + ' !important;border-color:' + P.gold + ' !important}',
     'input.bz-ord,select.bz-ord{display:block;box-sizing:border-box;width:100% !important;max-width:100%;height:96px;margin:14px 0 !important;font-size:36px !important}',
-    'select:not(.bz){-webkit-appearance:none;appearance:none;background-color:' + P.s2 + ' !important;background-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22%3E%3Cpath d=%22M4 9l8 8 8-8%22 fill=%22none%22 stroke=%22%23d6b36a%22 stroke-width=%223%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E") !important;background-repeat:no-repeat !important;background-position:right 26px center !important;background-size:24px !important;color:' + P.tx + ' !important;border:2px solid #2d333c !important;border-radius:14px !important;padding:0 72px 0 24px !important;min-height:96px;font-size:34px !important;max-width:100%}',
+    'select:not(.bz){-webkit-appearance:none;appearance:none;background-color:' + P.s2 + ' !important;background-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22%3E%3Cpath d=%22M4 9l8 8 8-8%22 fill=%22none%22 stroke=%22%23d6b36a%22 stroke-width=%223%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E") !important;background-repeat:no-repeat !important;background-position:right 26px center !important;background-size:24px !important;color:' + P.tx + ' !important;border:2px solid ' + P.ln2 + ' !important;border-radius:14px !important;padding:0 72px 0 24px !important;min-height:96px;font-size:34px !important;max-width:100%}',
     'th{background:transparent !important;color:' + P.mu + ' !important}',
 
     // список документов (карточки)
@@ -310,6 +318,8 @@
     'input.bz-search{display:block;width:100% !important;height:92px;margin:0 0 18px !important;font-size:34px !important;font-weight:500 !important}',
     '.bz-listh{margin:6px 0 14px !important;font-size:26px !important;font-weight:700 !important;letter-spacing:.12em;text-transform:uppercase;text-align:left !important;color:' + P.mu + ' !important}',
     '.bz-listh b{color:' + P.gold + '}',
+    '.bz-listh.bz-act{margin:6px 0 4px !important}',
+    '.bz-actd{font-weight:500;letter-spacing:.04em;text-transform:none;color:' + P.mu + '}',
     '.bz-empty{padding:28px 10px;text-align:center;font-size:28px;color:' + P.mu + '}',
     // страница входа
     'body.bz-loginpg{text-align:center}',
@@ -339,7 +349,7 @@
     'table.bz-rt tr:last-child > td{border-bottom:0 !important}',
     'table.bz-rt tr.bz-rh > td{padding:18px 20px !important;background:' + P.s2 + ' !important;font-size:20px !important;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:' + P.mu + ' !important;vertical-align:bottom;min-width:110px;border-bottom:1px solid #343a44 !important}',
     'table.bz-rt tr.bz-rr > td{padding:18px 20px !important;background-color:' + P.s1 + ' !important;background-image:linear-gradient(rgba(var(--c),.08),rgba(var(--c),.08)) !important;font-size:26px;font-weight:500;line-height:1.25;color:' + P.tx + ' !important;white-space:nowrap}',
-    'table.bz-rt tr.bz-rr > td.bz-rx{color:#4b515b !important}',
+    'table.bz-rt tr.bz-rr > td.bz-rx{color:' + P.dim2 + ' !important}',
     'table.bz-rt tr.bz-rr > td.bz-rw{font-weight:700}',
     'table.bz-rt tr.bz-rr > td.bz-rc{white-space:normal;min-width:220px;color:' + P.mu + ' !important}',
     'table.bz-rt tr.bz-rr > td.bz-ra{white-space:normal;min-width:200px}',
@@ -351,7 +361,7 @@
     'tr.bz-rr .bz-pill{--c:inherit}',
     'a.bz-ab{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;min-height:58px;margin:4px 6px 4px 0;padding:0 20px;border-radius:14px;background:rgba(var(--c),.14);border:2px solid rgba(var(--c),.55);color:rgb(var(--c)) !important;font-size:21px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;text-decoration:none !important;white-space:nowrap}',
     'a.bz-ab:active{background:rgba(var(--c),.3)}',
-    'table.bz-rt tr.bz-rf > td{padding:12px 14px !important;background:#0f1216 !important;min-width:130px;white-space:nowrap}',
+    'table.bz-rt tr.bz-rf > td{padding:12px 14px !important;background:' + P.bar + ' !important;min-width:130px;white-space:nowrap}',
     'table.bz-rt tr.bz-rf input:not([type=submit]):not([type=button]),table.bz-rt tr.bz-rf select{display:block;width:100% !important;min-width:120px;height:68px;margin:0 !important;font-size:24px !important}',
     'table.bz-rt tr.bz-rf input[type=submit]{height:68px;padding:0 26px !important;font-size:24px !important}',
     // ссылки-вкладки над списком
@@ -368,8 +378,8 @@
     'form.bz-up .bz-lab{margin:14px 0 10px !important;text-align:left !important;font-size:22px !important;font-weight:700 !important}',
     'form.bz-up select,form.bz-up input[type=text],form.bz-up input[type=date],form.bz-up input[type=file]{display:block;width:100% !important;box-sizing:border-box;height:92px;margin:0 0 6px !important;font-size:32px !important}',
     'form.bz-up input[type=submit]{display:block;width:100% !important;height:104px !important;margin:22px 0 0 !important;font-size:36px !important;letter-spacing:.06em}',
-    'input[type=date]:not(.bz){background:' + P.s2 + ' !important;color:' + P.tx + ' !important;border:2px solid #2d333c !important;border-radius:14px !important;padding:.3em .6em !important;color-scheme:dark;font-family:inherit}',
-    'input[type=file]:not(.bz){height:auto !important;padding:22px !important;background:' + P.s2 + ' !important;color:' + P.mu + ' !important;border:2px dashed #3a414c !important;border-radius:18px !important;font-size:26px !important}',
+    'input[type=date]:not(.bz){background:' + P.s2 + ' !important;color:' + P.tx + ' !important;border:2px solid ' + P.ln2 + ' !important;border-radius:14px !important;padding:.3em .6em !important;color-scheme:dark;font-family:inherit}',
+    'input[type=file]:not(.bz){height:auto !important;padding:22px !important;background:' + P.s2 + ' !important;color:' + P.mu + ' !important;border:2px dashed ' + P.ln4 + ' !important;border-radius:18px !important;font-size:26px !important}',
     'input[type=file]::file-selector-button{margin:0 22px 0 0;padding:18px 30px;border:0;border-radius:14px;background:' + GRAD + ';color:' + P.fg + ';font-family:inherit;font-size:26px;font-weight:800;cursor:pointer}',
     'table.bz-cols{display:block;width:100% !important;margin:0;border:0 !important;border-spacing:0 !important}',
     'table.bz-cols > tbody,table.bz-cols tr{display:block;width:100%}',
@@ -420,21 +430,27 @@
       'table.bz-item td.bz-c-meta.bz-m-' + k + '{background-image:' + g + ' !important}' +
       '.bz-head.bz-m-' + k + '{background-image:' + g + ' !important}';
   })).concat(Object.keys(MENUICO).map(function (k) {
-    return 'input:not(.bz).bz-menu.bz-i-' + k + '[type=button],input:not(.bz).bz-menu.bz-i-' + k + '[type=submit],button:not(.bz).bz-menu.bz-i-' + k + '{padding-left:132px !important;background-image:' + svgUri(MENUICO[k], '#d6b36a') + ',' + svgUri('<path d="M9 4l8 8-8 8"/>', '#d6b36a', 3) + ' !important;background-position:left 40px center,right 36px center !important;background-size:48px,24px !important;background-repeat:no-repeat !important}';
+    return 'input:not(.bz).bz-menu.bz-i-' + k + '[type=button],input:not(.bz).bz-menu.bz-i-' + k + '[type=submit],button:not(.bz).bz-menu.bz-i-' + k + '{padding-left:132px !important;background-image:' + svgUri(MENUICO[k], PALS[st.theme].gold) + ',' + svgUri('<path d="M9 4l8 8-8 8"/>', PALS[st.theme].gold, 3) + ' !important;background-position:left 40px center,right 36px center !important;background-size:48px,24px !important;background-repeat:no-repeat !important}';
   })).join('');
   function whenRoot(fn) {
     if (document.documentElement) { fn(); return; }
     var mo = new MutationObserver(function () { if (document.documentElement) { mo.disconnect(); fn(); } });
     mo.observe(document, { childList: true });
   }
+  if (!PALS[st.theme]) { st.theme = 'dark'; }
+  var cssv = document.createElement('style');
+  cssv.id = 'bz-vars';
+  cssv.textContent = ':root{' + Object.keys(PALS.dark).map(function (k) { return '--bz-' + k + ':' + PALS.dark[k] + ';'; }).join('') + '}' +
+    'html[data-bz=light]{' + Object.keys(PALS.light).map(function (k) { return '--bz-' + k + ':' + PALS.light[k] + ';'; }).join('') + 'color-scheme:light}';
   whenRoot(function () {
     var hd = document.head || document.documentElement;
-    hd.appendChild(css); css.disabled = !st.dark;
+    hd.appendChild(cssv); hd.appendChild(css); css.disabled = !st.dark;
+    document.documentElement.setAttribute('data-bz', st.theme);
   });
   function themeColor() {
     var m = document.querySelector('meta[name=theme-color]');
     if (!m) { m = document.createElement('meta'); m.name = 'theme-color'; (document.head || document.documentElement).appendChild(m); }
-    m.content = st.dark ? P.bar : '#ffffff';
+    m.content = st.dark ? PALS[st.theme].bar : '#ffffff';
   }
 
   // ---------- Вспомогательное ----------
@@ -505,6 +521,8 @@
     refresh: '<path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4.5v4.6h-4.6"/>',
     moon: '<path d="M20.2 14.2A8.2 8.2 0 0 1 9.8 3.8a8.2 8.2 0 1 0 10.4 10.4z"/>',
     sun: '<circle cx="12" cy="12" r="3.8"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/>',
+    globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3.2 3 3.2 15 0 18M12 3c-3.2 3-3.2 15 0 18"/>',
+    theme: '<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17a8.5 8.5 0 0 0 0-17z" fill="currentColor"/>',
     eye: '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
     eyeoff: '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path d="M4 4l16 16"/>',
     top: '<path d="M12 19.5v-14M6 11.5l6-6 6 6"/>'
@@ -520,7 +538,7 @@
   function setIco(el, name, size) { el.textContent = ''; el.appendChild(ico(name, size)); }
 
   // ---------- Панель ----------
-  var K = 1, bar, tools, chips, stats, statRow, last, bDark, bRef, bCol, fab, sbtn = {};
+  var K = 1, bar, tools, chips, stats, statRow, last, bDark, bRef, bCol, bLang, bTheme, fab, sbtn = {};
   var skeys = [['n', '№'], ['code', 'Код'], ['name', 'Название'], ['need', 'Надо'], ['have', 'Есть'], ['color', '']];
   var hasTable = false, hasItem = false, palRow, bPal, bExp, hint, swb = {}, ft = 0;
 
@@ -577,7 +595,7 @@
     if (hint) { hint.textContent = st.tool === 'x' ? 'Ластик: убирает цвет' : 'Красим: ' + PAL[st.tool].n; }
     PORD.concat(['x']).forEach(function (k) {
       var on = st.tool === k, b = swb[k];
-      b.style.borderColor = on ? P.gold2 : (k === 'x' ? '#59606b' : 'rgba(' + PAL[k].c + ',.75)');
+      b.style.borderColor = on ? P.gold2 : (k === 'x' ? P.ln3 : 'rgba(' + PAL[k].c + ',.75)');
       b.style.boxShadow = on ? '0 0 0 .16em rgba(214,179,106,.45)' : 'none';
       b.style.transform = on ? 'scale(1.07)' : 'none';
     });
@@ -613,7 +631,7 @@
   }
 
   // ---------- Копирование скрипта с отметками ----------
-  var HDR = ['// ==UserScript==', '// @name         Сортировка заказа Берёзка', '// @namespace    bz-order-sort', '// @version      __V__', '// @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.', '// @match        https://wms.berezka.cy/*', '// @run-at       document-start', '// @grant        GM_getValue', '// @grant        GM_setValue', '// ==/UserScript==', ''].join('\n');
+  var HDR = ['// ==UserScript==', '// @name         Сортировка заказа Берёзка', '// @namespace    https://github.com/blooder9/my', '// @version      __V__', '// @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.', '// @match        https://wms.berezka.cy/*', '// @run-at       document-start', '// @grant        GM_setValue', '// @updateURL    https://raw.githubusercontent.com/blooder9/berezka-repository/main/berezka.js', '// @downloadURL  https://raw.githubusercontent.com/blooder9/berezka-repository/main/berezka.js', '// ==/UserScript=='].join('\n') + '\n';
   function buildSrc() {
     var ts = MK.ts || Date.now();
     var data = JSON.stringify({ ts: ts, m: MK.m }).replace(/\*\//g, '*\\/');
@@ -680,7 +698,7 @@
       if (on) { b.__ar.appendChild(ico(st.dir > 0 ? 'up' : 'down', '1em')); }
       b.style.borderColor = on ? P.gold : P.line;
       b.style.color = on ? P.gold2 : P.tx;
-      b.style.background = on ? '#1f1a10' : P.s2;
+      b.style.background = on ? P.act : P.s2;
     });
     css.disabled = !st.dark;
     themeColor();
@@ -715,9 +733,10 @@
   }
 
   var curUs = [], wcnt = 0, vcnt = 0, sumTxt = '', paintOn = false;
+  function tl(w) { if (!st.lang) { return w; } var t = lmap(st.lang).m[lnorm(w)]; return t ? lcase(w, t) : w; }
   function statText() {
     var mc = curUs.filter(function (u) { return MK.m[u.code]; }).length;
-    return sumTxt + (wcnt ? ' · Вес ' + wcnt : '') + (vcnt ? ' · Напитки ' + vcnt : '') + (mc ? ' · Цвет ' + mc : '');
+    return sumTxt + (wcnt ? ' · ' + tl('Вес') + ' ' + wcnt : '') + (vcnt ? ' · ' + tl('Напитки') + ' ' + vcnt : '') + (mc ? ' · ' + tl('Цвет') + ' ' + mc : '');
   }
   // Цвет строки: ручная отметка важнее автоматической подсветки (вес / напитки).
   function tintRows() {
@@ -773,7 +792,7 @@
     });
     var tbl = parent.closest('table');
     if (tbl) { tbl.classList.add('bz-tbl'); }
-    sumTxt = 'Позиций ' + us.length + ' · Надо ' + Math.round(sum * 1000) / 1000;
+    sumTxt = tl('Позиций') + ' ' + us.length + ' · ' + tl('Надо') + ' ' + Math.round(sum * 1000) / 1000;
     tintRows();
     var map = ['n', 'code', 'name', 'need', 'have'];
     for (var i = 0; i < rows.length; i++) {
@@ -802,6 +821,26 @@
     while ((n = w.nextNode())) { n.nodeValue = n.nodeValue.replace(/[\[\]]/g, ''); }
   }
   function mkDiv(cls, text) { var d = document.createElement('div'); d.className = cls; if (text) { d.textContent = text; } return d; }
+  // Порядок магазинов в сборке.
+  var SHOPS = [
+    function (n) { return /makarios/.test(n); },
+    function (n) { return /germasogeia/.test(n); },
+    function (n) { return /4\s*seasons/.test(n); },
+    function (n) { return /paphos/.test(n) && !/evagora/.test(n); },
+    function (n) { return /omonia/.test(n); },
+    function (n) { return /vironis/.test(n); },
+    function (n) { return /evagora/.test(n); },
+    function (n) { return /meduz|medus/.test(n); },
+    function (n) { return /academ/.test(n); },
+    function (n) { return /marina/.test(n); },
+    function (n) { return /panteli/.test(n); },
+    function (n) { return /kennedy/.test(n); }
+  ];
+  function shopRank(name) {
+    var n = String(name || '').toLowerCase();
+    for (var i = 0; i < SHOPS.length; i++) { if (SHOPS[i](n)) { return i; } }
+    return SHOPS.length;
+  }
   // Строки «номер, дата, статус, магазин, ожидается» + ссылки типов превращаются в карточки.
   function buildDocs() {
     var DATE = /^\d{1,2}\.\d{1,2}\.\d{2,4}(\s+\d{1,2}:\d{2}(:\d{2})?)?$/;
@@ -818,6 +857,15 @@
       var dayOf = function (str) { var m = /^(\d{1,2})\.(\d{1,2})\.(\d{2,4})/.exec(str); if (!m) { return NaN; } var y = +m[3]; if (y < 100) { y += 2000; } return y * 10000 + (+m[2]) * 100 + (+m[1]); };
       var maxDay = 0;
       units.forEach(function (u) { var dd = dayOf(tx(u.cells[u.di])); if (dd > maxDay) { maxDay = dd; } });
+      // сначала актуальная дата, затем более старые; внутри дня магазины идут в заданном порядке
+      units.forEach(function (u, i) { u.ix = i; u.day = dayOf(tx(u.cells[u.di])); u.rank = shopRank(tx(u.cells[u.di + 2] || u.cells[0])); });
+      units.sort(function (a, b) {
+        var da = a.day === a.day ? a.day : 0, db = b.day === b.day ? b.day : 0;
+        return (db - da) || (a.rank - b.rank) || (a.ix - b.ix);
+      });
+      var actShops = {}, actDate = '';
+      units.forEach(function (u) { if (u.day === maxDay) { actShops[tx(u.cells[u.di + 2] || u.cells[0]).toLowerCase()] = 1; actDate = tx(u.cells[u.di]); } });
+      wrap.__act = Object.keys(actShops).length; wrap.__actDate = actDate.replace(/\s+\d{1,2}:\d{2}(:\d{2})?$/, '');
       units.forEach(function (u) {
         var c = u.cells, d = u.di;
         var txt = function (i) { return (i >= 0 && c[i]) ? tx(c[i]) : ''; };
@@ -1215,8 +1263,12 @@
     var dw = document.querySelector('.bz-docs');
     if (lh && dw) {
       lh.classList.add('bz-listh');
-      lh.textContent = 'Список документов';
-      lh.appendChild(document.createTextNode(' · '));
+      var ah = mkDiv('bz-listh bz-act');
+      ah.appendChild(document.createTextNode('Собрать магазинов: '));
+      var ab = document.createElement('b'); ab.textContent = dw.__act || 0; ah.appendChild(ab);
+      if (dw.__actDate) { var ad = document.createElement('span'); ad.className = 'bz-actd'; ad.textContent = ' · ' + dw.__actDate; ah.appendChild(ad); }
+      lh.parentNode.insertBefore(ah, lh);
+      lh.textContent = 'Всего магазинов в сборке: ';
       var cb = document.createElement('b'); cb.textContent = dw.children.length; lh.appendChild(cb);
       if (dw.children.length > 4) {
         var si = document.createElement('input');
@@ -1632,13 +1684,17 @@
     var ib = function (label, title) { var b = btn(label); b.style.minWidth = '2.6em'; b.style.minHeight = '2.4em'; b.style.padding = '0'; b.title = title; b.setAttribute('aria-label', title); return b; };
     bCol = ib('', 'Свернуть');
     bDark = ib('', 'Оформление');
+    bLang = ib('', 'Язык страницы'); bTheme = ib('', 'Светлая / тёмная тема');
+    setIco(bTheme, 'theme');
+    if (st.lang) { bLang.textContent = st.lang.toUpperCase(); bLang.style.fontWeight = '800'; bLang.style.fontSize = '.8em'; bLang.style.color = P.gold2; bLang.style.borderColor = P.gold; } else { setIco(bLang, 'globe'); }
+    bLang.title = st.lang === 'ru' ? 'Язык: русский (нажмите — English)' : st.lang === 'en' ? 'Language: English (tap — исходный)' : 'Перевод страницы: сейчас исходный (нажмите — русский)';
     bRef = ib('', 'Обновить страницу'); setIco(bRef, 'refresh');
     bPal = ib('', 'Цвета товаров');
     bPal.appendChild(mk('span', 'display:block;width:1.15em;height:1.15em;border-radius:50%;background:conic-gradient(rgb(255,140,0),rgb(64,160,255),rgb(150,225,60),rgb(168,98,255),rgb(255,64,64),rgb(255,140,0));'));
     last = btn('← К списку'); last.style.display = 'none'; last.style.flex = '0 1 auto'; last.style.minWidth = '0'; last.style.overflow = 'hidden';
     stats = mk('div', 'font-size:.88em;color:' + P.mu + ';flex:1 1 0;min-width:0;');
     var icons = mk('div', 'display:flex;gap:.4em;margin-left:auto;flex:none;');
-    icons.appendChild(bPal); icons.appendChild(bRef); icons.appendChild(bDark); icons.appendChild(bCol);
+    icons.appendChild(bPal); icons.appendChild(bRef); icons.appendChild(bLang); icons.appendChild(bTheme); icons.appendChild(bDark); icons.appendChild(bCol);
     statRow = mk('div', 'display:flex;gap:.45em;align-items:center;');
     statRow.appendChild(last); statRow.appendChild(stats); statRow.appendChild(icons);
 
@@ -1670,6 +1726,8 @@
 
     last.addEventListener('click', function () { var u = getLast(); if (u) { location.href = u; } });
     bRef.addEventListener('click', function () { try { say('Обновляю…', false); location.href = clean(location.href).href; } catch (e) { location.reload(); } });
+    bLang.addEventListener('click', function () { st.lang = st.lang === '' ? 'ru' : st.lang === 'ru' ? 'en' : ''; save(); say('Обновляю…', false); location.reload(); });
+    bTheme.addEventListener('click', function () { st.theme = st.theme === 'light' ? 'dark' : 'light'; save(); say('Обновляю…', false); location.reload(); });
     bDark.addEventListener('click', function () { st.dark = !st.dark; save(); say('Обновляю…', false); location.reload(); });
     bPal.addEventListener('click', function () { setPaint(!paintOn); });
     // В режиме окраски касание товара красит его и не открывает ссылку.
@@ -1704,6 +1762,7 @@
     fit(); paint(); apply();
     if (st.dark) { decorate(); restylePages(); tightenGap(); window.addEventListener('load', function () { tightenGap(); }); }
     if (st.dark) { try { noZoom(); } catch (e) {} }
+    try { startLang(); } catch (e) {}
     hasItem = !!document.querySelector('table.bz-item[data-bz-code]');
     tintItems(); paintSw(); layout();
     if (hasTable) { try { setLast(clean(location.href).href); } catch (e) {} }
@@ -1717,6 +1776,82 @@
     } catch (e) {}
   }
 
+  var LANGD = [["Главная", "Main"], ["Склад", "Warehouse"], ["Кухня", "Kitchen"], ["Инвентаризация", "Inventory"], ["Инветаризация", "Inventory"], ["Инструменты", "Tools"], ["Хенди", "Handy"], ["Выход", "Logout"], ["Склад Кипр", "Cyprus warehouse"], ["Кипр", "Cyprus"], ["Информация о товаре", "Product information"], ["Приемка товара", "Goods receiving"], ["Отгрузка товаров с кухни", "Shipment of kitchen goods"], ["Привязка товара", "Product linking"], ["Перемещение товара", "Moving goods"], ["Сборка заказа", "Order picking"], ["Отгрузки (в магазины)", "Shipments (to stores)"], ["Заказ на склад", "Warehouse order"], ["Приемки (на склад)", "Receipts (to warehouse)"], ["Отгрузки (кухня)", "Shipments (kitchen)"], ["Закрытие дня", "Day closing"], ["Стат.инвент.", "Inventory stats"], ["Заказ на кухню", "Kitchen order"], ["Движение товара", "Goods movement"], ["Вход в аккаунт Берёзка онлайн", "Sign in to your Berezka Online account"], ["Логин", "Login"], ["Пароль", "Password"], ["Показать пароль", "Show password"], ["Скрыть пароль", "Hide password"], ["Кол-во", "Qty"], ["Код", "Code"], ["Название", "Name"], ["Надо", "Need"], ["Есть", "Have"], ["Добавить товар в заказ", "Add product to order"], ["добавить товар", "add product"], ["Доступно на полке", "Available on shelf"], ["Помещение", "Room"], ["Ряд", "Row"], ["Стелаж", "Rack"], ["Полка", "Shelf"], ["Ед.изм", "Unit"], ["Остаток", "Stock"], ["Артикул", "Article"], ["Уже собрано", "Already picked"], ["Подтвердите количество подобранного с полки товара", "Confirm the quantity picked from the shelf"], ["Отсканируйте место хранения", "Scan the storage location"], ["Скан", "Scan"], ["Добавить", "Add"], ["НЕТ ВНАЛИЧИИ", "OUT OF STOCK"], ["ПРОПУСТИТЬ", "SKIP"], ["Собрать", "Pick"], ["Редактировать", "Edit"], ["Сохранить", "Save"], ["Отмена", "Cancel"], ["НАЧАЛО", "START"], ["НАЗАД", "BACK"], ["В НАЧАЛО", "TO START"], ["Начать", "Start"], ["Войти", "Log in"], ["← К списку", "← To list"], ["Сушняк", "Dry"], ["Сушяк", "Dry"], ["Охлажденка", "Chilled"], ["Заморозка", "Frozen"], ["Без типа", "No type"], ["Ожидается", "Expected"], ["Собрать магазинов", "Stores to pick"], ["Всего магазинов в сборке", "Total stores in picking"], ["Поиск: магазин или номер", "Search: store or number"], ["Поиск по списку", "Search the list"], ["Ничего не найдено", "Nothing found"], ["Список пуст", "The list is empty"], ["Заказ для магазина", "Order for store"], ["Инвентаризации магазинов и складов", "Store and warehouse inventories"], ["Список инвентризций", "Inventory list"], ["Список накладных", "Invoice list"], ["Отгрузки в магазины", "Shipments to stores"], ["Номер инвент.", "Inventory no."], ["Номер накладной", "Invoice number"], ["Номер документа", "Document number"], ["Дата", "Date"], ["Тип", "Type"], ["Статус", "Status"], ["Получено", "Received"], ["Скачать итоги", "Download totals"], ["От", "From"], ["До", "To"], ["Проверить", "Check"], ["Удалить", "Delete"], ["скачать", "download"], ["удалить", "delete"], ["печать", "print"], ["частичная", "partial"], ["полная", "full"], ["Склад отгрузки", "Shipping warehouse"], ["Склад приемки", "Receiving warehouse"], ["Собрано", "Collected"], ["С типом 0", "With type 0"], ["Документ", "Document"], ["Расхождения", "Discrepancies"], ["Коммент", "Comment"], ["Действия", "Actions"], ["Откатить", "Roll back"], ["ПРИНЯТЬ", "ACCEPT"], ["РЕД.", "EDIT"], ["РАЗДЕЛИТЬ", "SPLIT"], ["СПИСОК НАКЛАДНЫХ", "INVOICE LIST"], ["АРХИВ", "ARCHIVE"], ["ТЕРМИНАЛ", "TERMINAL"], ["ТОВАР ПРОПУЩЕН", "PRODUCT SKIPPED"], ["ТОВАР НЕ НАЙДЕН", "PRODUCT NOT FOUND"], ["Фильтр", "Filter"], ["Все", "All"], ["Формат", "Format"], ["Магазин", "Shop"], ["Загрузить", "Load"], ["Выберите файл полученный из МИ (перемещение товара)", "Select the file received from MI (goods transfer)"], ["Комментарии", "Comments"], ["Печать", "Print"], ["Отгрузки в магазины с кухни", "Shipments to stores from the kitchen"], ["Выберите файл, полученный из ABM", "Select the file received from ABM"], ["Создать новый документ", "Create new document"], ["Создать", "Create"], ["Дата документа", "Document date"], ["ВНИМАНИЕ! Имеются ошибки с накладным", "ATTENTION! There are errors with invoices"], ["Накладной вообще нет в МИ!", "The invoice is not in MI at all!"], ["Магазин в МИ", "Shop in MI"], ["Магазин в Базе", "Shop in the database"], ["vs Прошлый месяц", "vs Last month"], ["vs Прошлый год", "vs Last year"], ["Все магазины", "All shops"], ["Оборот за", "Turnover for"], ["Топ магазинов по продажам", "Top shops by sales"], ["Топ магазинов по валовому доходу", "Top shops by gross profit"], ["Средний чек", "Average receipt"], ["Сводная статистика по магазинам", "Summary statistics by shop"], ["оборот с начала месяца", "turnover since start of month"], ["% к прошлому месяцу", "% vs last month"], ["количество клиентов с начала месяца", "customers since start of month"], ["среднедневной оборот", "average daily turnover"], ["среднедневное количество клиентов", "average daily customers"], ["брак с начала месяца", "defects since start of month"], ["Прогноз по браку", "Defects forecast"], ["ИЗМЕНИТЬ", "CHANGE"], ["Итого за месяц", "Total for the month"], ["Сегодня", "Today"], ["В среднем в день", "Average per day"], ["Сегодняшний день ещё не завершён.", "Today is not over yet."], ["Позиций", "Items"], ["Вес", "Weight"], ["Сканируйте или введите код", "Scan or enter the code"], ["Цвет", "Colour"], ["Напитки", "Drinks"], ["Обновляю…", "Refreshing…"]];
+  var LMAP = {};
+  function lnorm(t) { return String(t).replace(/[\[\]]/g, '').replace(/\s+/g, ' ').replace(/[\s:]+$/, '').trim().toLowerCase(); }
+  function lmap(mode) {
+    if (LMAP[mode]) { return LMAP[mode]; }
+    var m = {}, keys = [];
+    LANGD.forEach(function (p) {
+      var from = mode === 'en' ? p[0] : p[1], to = mode === 'en' ? p[1] : p[0], k = lnorm(from);
+      if (!(k in m)) { m[k] = to; if (k.length >= 5) { keys.push(k); } }
+    });
+    keys.sort(function (a, b) { return b.length - a.length; });
+    LMAP[mode] = { m: m, keys: keys };
+    return LMAP[mode];
+  }
+  function lcase(src, out) {
+    var letters = src.replace(/[^\p{L}]/gu, '');
+    if (letters.length > 2 && letters === letters.toUpperCase()) { return out.toUpperCase(); }
+    if (/^\p{Ll}/u.test(src.trim())) { return out.charAt(0).toLowerCase() + out.slice(1); }
+    return out;
+  }
+  // Возвращает перевод строки или null, если ничего знакомого нет. Названия товаров и магазинов не трогаются.
+  function ltr(text, L) {
+    var core = text.trim();
+    if (!core || core.length > 160) { return null; }
+    var at = text.indexOf(core), lead = text.slice(0, at), trail = text.slice(at + core.length), m = L.m;
+    var bare = core.replace(/[\[\]]/g, '').replace(/[\s:]+$/, ''), k = lnorm(core);
+    var paren = function (s) { return s.replace(/\(([^()]+)\)/g, function (x, i) { var t = m[lnorm(i)]; return t ? '(' + lcase(i, t) + ')' : x; }); };
+    if (m[k] !== undefined) {
+      var o = lcase(bare, m[k]);
+      if (/:\s*$/.test(core)) { o += ':'; }
+      if (/^\[.*\]$/.test(core)) { o = '[' + o + ']'; }
+      return lead + o + trail;
+    }
+    var mm = /^([^:]{2,60}):\s*(.+)$/.exec(core);
+    if (mm && m[lnorm(mm[1])] !== undefined) { return lead + lcase(mm[1], m[lnorm(mm[1])]) + ': ' + paren(mm[2]) + trail; }
+    var low = core.toLowerCase();
+    for (var i = 0; i < L.keys.length; i++) {
+      var key = L.keys[i];
+      if (low.indexOf(key) === 0 && !/[\p{L}\d]/u.test(low.charAt(key.length) || ' ')) {
+        return lead + lcase(core.slice(0, key.length), m[key]) + paren(core.slice(key.length)) + trail;
+      }
+    }
+    return null;
+  }
+  function langWalk(root, L) {
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null), n, list = [];
+    while ((n = w.nextNode())) {
+      var p = n.parentNode;
+      if (!p || /^(SCRIPT|STYLE|TEXTAREA|NOSCRIPT)$/.test(p.nodeName) || !n.nodeValue.trim() || (p.closest && p.closest('.bz-brand'))) { continue; }
+      list.push(n);
+    }
+    list.forEach(function (t) { var o = ltr(t.nodeValue, L); if (o !== null && o !== t.nodeValue) { t.nodeValue = o; } });
+    // подписи кнопок-не-отправителей, подсказки и placeholder (value у submit не трогаем: сервер может его читать)
+    [].forEach.call(root.querySelectorAll('input[type=button],input[type=submit]:not([name])'), function (el) { var o = ltr(el.value || '', L); if (o !== null) { el.value = o; } });
+    [].forEach.call(root.querySelectorAll('[placeholder],[title],[aria-label]'), function (el) {
+      ['placeholder', 'title', 'aria-label'].forEach(function (a) {
+        var v = el.getAttribute(a);
+        if (v) { var o = ltr(v, L); if (o !== null && o !== v) { el.setAttribute(a, o); } }
+      });
+    });
+  }
+  function startLang() {
+    if (!st.lang || window.__bzLang) { return; }
+    window.__bzLang = 1;
+    var L = lmap(st.lang), tm = 0, mo = null;
+    var run = function () {
+      if (mo) { mo.disconnect(); }
+      try { langWalk(document.body, L); } catch (e) {}
+      var brd = document.querySelector('.bz-brand');
+      if (brd && !brd.__bzl) { brd.__bzl = 1; brd.textContent = st.lang === 'ru' ? 'Склад Кипр' : 'Cyprus warehouse'; }
+      if (mo) { mo.observe(document.body, { childList: true, subtree: true, characterData: true }); }
+    };
+    mo = new MutationObserver(function () { clearTimeout(tm); tm = setTimeout(run, 400); });
+    run();
+    window.addEventListener('load', run);
+  }
   // Без увеличения при вводе текста: пока открыто поле, масштаб страницы закреплён на текущем значении (мета-тег живёт только это время).
   var NOZOOM = true;
   function noZoom() {
