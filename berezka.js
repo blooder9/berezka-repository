@@ -19,13 +19,15 @@
   // Две темы: тёмная и светлая. Цвета лежат в CSS-переменных, переключение — одним атрибутом.
   var PALS = {
     dark: { bg: '#0b0d10', bar: '#0f1216', s1: '#12151a', s2: '#1a1e25', line: '#262b33', tx: '#eceae4', mu: '#8e939c', gold: '#d6b36a', gold2: '#e8cd92', fg: '#1a1406', err: '#e58a84',
-            ln2: '#2d333c', ln3: '#343a44', ln4: '#3a414c', t2: '#aab1bb', dim: '#5b616b', dim2: '#4b515b', act: '#1f1a10', tr: '#1d1416', ta: '#1e1912', tg: '#111d17', tb: '#121a25' },
+            ln2: '#2d333c', ln3: '#343a44', ln4: '#3a414c', t2: '#aab1bb', dim: '#5b616b', dim2: '#4b515b', act: '#1f1a10', tr: '#1d1416', ta: '#1e1912', tg: '#111d17', tb: '#121a25', grad: 'linear-gradient(180deg,#e8cd92,#d6b36a 55%,#c29d54)' },
     light: { bg: '#f1efe9', bar: '#ffffff', s1: '#ffffff', s2: '#eeebe3', line: '#ddd8cb', tx: '#1d1f23', mu: '#666b74', gold: '#a9812f', gold2: '#8a6419', fg: '#1a1406', err: '#c2433c',
-            ln2: '#cfc9bb', ln3: '#c3bcab', ln4: '#b9b2a1', t2: '#4e535b', dim: '#b5ae9f', dim2: '#aba493', act: '#f6ecd3', tr: '#fbeceb', ta: '#fbf1e1', tg: '#e8f5ed', tb: '#e8f0fa' }
+            ln2: '#cfc9bb', ln3: '#c3bcab', ln4: '#b9b2a1', t2: '#4e535b', dim: '#b5ae9f', dim2: '#aba493', act: '#f6ecd3', tr: '#fbeceb', ta: '#fbf1e1', tg: '#e8f5ed', tb: '#e8f0fa', grad: 'linear-gradient(180deg,#e8cd92,#d6b36a 55%,#c29d54)' },
+    pop: { bg: '#adc2ce', bar: '#f7f9fb', s1: '#f6f8fa', s2: '#ffffff', line: '#dbe3e9', tx: '#3b4350', mu: '#8a929c', gold: '#b13a96', gold2: '#9b2f86', fg: '#ffffff', err: '#d9433b',
+           ln2: '#cfd8df', ln3: '#c5cfd7', ln4: '#bac5ce', t2: '#5d6671', dim: '#c1c9d1', dim2: '#b3bcc5', act: '#fdeef7', tr: '#fde3e1', ta: '#fdecd2', tg: '#dff3e7', tb: '#dfeafa', grad: 'linear-gradient(180deg,#ffb92e,#ff9a0a 55%,#ef8100)' }
   };
   var P = {};
   Object.keys(PALS.dark).forEach(function (k) { P[k] = 'var(--bz-' + k + ')'; });
-  var VER = '3.20';
+  var VER = '3.21';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o', theme: 'dark', lang: '' };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -90,7 +92,7 @@
   // ---------- Оформление страницы ----------
   var FF = '"Segoe UI",Roboto,"Helvetica Neue",Arial,system-ui,sans-serif';
   var MONO = 'ui-monospace,"Roboto Mono",SFMono-Regular,Consolas,monospace';
-  var GRAD = 'linear-gradient(180deg,#e8cd92,#d6b36a 55%,#c29d54)';
+  var GRAD = 'var(--bz-grad)';
   var css = document.createElement('style');
   css.id = 'bz-css';
   css.textContent = [
@@ -112,9 +114,9 @@
     '.bz-t,.bz-t *{font-style:normal !important}',
     '.bz-t a,.bz-t i,.bz-t em,.bz-t font,.bz-t b{color:' + P.gold + ' !important}',
     '.bz-t .bz-ts{font-size:48px !important;font-weight:800 !important;line-height:1.15;margin:0 0 8px;color:' + P.gold2 + ' !important;word-break:break-word}',
-    '.bz-t .bz-trow{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin:0 0 8px}',
-    '.bz-t .bz-trow .bz-ts{flex:1 1 auto;min-width:0;margin:0}',
-    '.bz-t .bz-tc{flex:none;text-align:right;font-size:26px !important;font-weight:600 !important;line-height:1.45;color:' + P.mu + ' !important;padding-top:6px}',
+    '.bz-t .bz-trow{position:relative;margin:0 0 8px}',
+    '.bz-t .bz-trow .bz-ts{margin:0;padding-right:260px}',
+    '.bz-t .bz-tc{position:absolute;right:40px;top:0;text-align:right;font-size:23px !important;font-weight:600 !important;line-height:1.3;color:' + P.mu + ' !important}',
     '.bz-t .bz-tc b{font-family:' + MONO + ';font-weight:800 !important;color:' + P.gold2 + ' !important;font-size:1.15em}',
     '.bz-t .bz-tn{font-size:27px !important;font-weight:600 !important;margin:0 0 14px;color:' + P.mu + ' !important}',
     '.bz-t .bz-tn b{font-family:' + MONO + ';font-weight:700 !important;color:' + P.tx + ' !important}',
@@ -130,7 +132,6 @@
     'tr.bz-r > td{background:' + P.s2 + ' !important;color:' + P.tx + ' !important;font-size:32px;font-weight:500;padding:18px 14px !important;line-height:1.25;vertical-align:middle}',
     '@keyframes bzflash{0%,60%{outline-color:rgba(214,179,106,1)}100%{outline-color:rgba(214,179,106,0)}}',
     'tr.bz-flash{outline:4px solid rgba(214,179,106,1);outline-offset:-2px;border-radius:22px;animation:bzflash 2.4s ease-out forwards}',
-    'tr.bz-sh > td:nth-child(n+4){background-image:linear-gradient(rgba(255,64,64,.62),rgba(255,64,64,.62)) !important;color:#fff !important}',
     'tr.bz-w > td{background-image:linear-gradient(rgba(255,140,0,.3),rgba(255,140,0,.3)) !important}',
     'tr.bz-v > td{background-image:linear-gradient(rgba(64,160,255,.3),rgba(64,160,255,.3)) !important}',
     'tr.bz-s-red > td{background:' + P.tr + ' !important}',
@@ -439,6 +440,61 @@
   })).concat(Object.keys(MENUICO).map(function (k) {
     return 'input:not(.bz).bz-menu.bz-i-' + k + '[type=button],input:not(.bz).bz-menu.bz-i-' + k + '[type=submit],button:not(.bz).bz-menu.bz-i-' + k + '{padding-left:132px !important;background-image:' + svgUri(MENUICO[k], PALS[st.theme].gold) + ',' + svgUri('<path d="M9 4l8 8-8 8"/>', PALS[st.theme].gold, 3) + ' !important;background-position:left 40px center,right 36px center !important;background-size:48px,24px !important;background-repeat:no-repeat !important}';
   })).join('');
+  // ---------- Яркая тема «Инфографика»: светлые карточки, цветные глянцевые полосы, мягкие тени ----------
+  var H = 'html[data-bz=pop] ';
+  css.textContent += [
+    H + '{background:linear-gradient(180deg,#c9d9e2 0%,#a9bfcc 60%,#9db5c3 100%) fixed !important}',
+    H + 'body{background:transparent !important}',
+    // карточки списка документов
+    H + '.bz-doc{position:relative;padding:28px 28px 24px 74px;border:1px solid #fff;border-radius:38px;background:linear-gradient(135deg,#ffffff 0%,#eef1f4 100%);box-shadow:0 18px 34px -8px rgba(55,85,105,.32),0 2px 0 #fff inset}',
+    H + '.bz-doc{border-left:1px solid #fff}',
+    H + '.bz-doc::before{content:"";position:absolute;left:26px;top:26px;bottom:26px;width:20px;border-radius:99px;background:linear-gradient(180deg,rgba(var(--c),1),rgba(var(--c),.62));box-shadow:inset 0 5px 6px rgba(255,255,255,.55),0 4px 8px rgba(var(--c),.35)}',
+    H + '.bz-dshop{font-size:42px;font-weight:600;color:#4a525d}',
+    H + '.bz-dmeta{color:#8a929c}',
+    H + '.bz-dmeta a,' + H + '.bz-dmeta b{color:rgb(var(--c)) !important}',
+    H + '.bz-badge{background:#fff;border:1px solid rgba(var(--c),.6);color:rgb(var(--c)) !important;box-shadow:0 3px 8px rgba(55,85,105,.15)}',
+    H + '.bz-types a{border:0;border-radius:22px;background:linear-gradient(180deg,rgba(var(--c),1),rgba(var(--c),.74));color:#fff !important;text-shadow:0 1px 2px rgba(0,0,0,.25);box-shadow:0 8px 14px -4px rgba(var(--c),.55),inset 0 3px 3px rgba(255,255,255,.35)}',
+    H + '.bz-types a:active{filter:brightness(.92);background:linear-gradient(180deg,rgba(var(--c),.9),rgba(var(--c),.7))}',
+    // верх страницы и списки
+    H + '.bz-listh,' + H + '.bz-listh b{color:#4a525d !important}',
+    H + '.bz-listh b{color:' + P.gold + ' !important}',
+    H + '.bz-t .bz-ts{color:#4a525d !important;font-weight:700 !important}',
+    H + '.bz-t .bz-tc b,' + H + '.bz-t .bz-tn b{color:' + P.gold + ' !important}',
+    H + '.bz-t .bz-tn{color:#7e8791 !important}',
+    // таблица товаров: белые «таблетки» со строкой-цветом
+    H + 'tr.bz-r > td{background-image:linear-gradient(180deg,#ffffff,#eef1f4) !important;color:#3b4350 !important;box-shadow:0 10px 16px -10px rgba(55,85,105,.45)}',
+    H + 'tr.bz-r > td:first-child{border-radius:26px 0 0 26px;font-size:34px;font-weight:300;color:#b3bbc3 !important;box-shadow:inset 12px 0 0 #c1c9d1,0 10px 16px -10px rgba(55,85,105,.45)}',
+    H + 'tr.bz-r > td:last-child{border-radius:0 26px 26px 0}',
+    H + 'tr.bz-r > td:nth-child(2) a{color:#b13a96 !important}',
+    H + 'tr.bz-r > td:nth-child(5){color:#9aa2ab !important}',
+    H + 'tr.bz-s-red > td:first-child{box-shadow:inset 12px 0 0 #ff4040}',
+    H + 'tr.bz-s-amb > td:first-child{box-shadow:inset 12px 0 0 #ff9a0a}',
+    H + 'tr.bz-s-grn > td:first-child{box-shadow:inset 12px 0 0 #2fbf8f}',
+    H + 'tr.bz-s-blu > td:first-child{box-shadow:inset 12px 0 0 #4aa0f0}',
+    H + 'tr.bz-s-red > td,' + H + 'tr.bz-s-amb > td,' + H + 'tr.bz-s-grn > td,' + H + 'tr.bz-s-blu > td{background-image:linear-gradient(180deg,#ffffff,#eef1f4) !important}',
+    H + 'tr.bz-h td,' + H + 'tr.bz-h th{color:#566170 !important}',
+    // блоки, формы, поля
+    H + '.bz-note,' + H + '.bz-prompt,' + H + 'table.bz-scanbox,' + H + 'table.bz-addbox,' + H + 'form.bz-ordform,' + H + 'table.bz-hdr,' + H + '.bz-head,' + H + '.bz-qty,' + H + 'table.bz-data,' + H + 'table.bz-item td.bz-c-meta,' + H + 'table.bz-item td.bz-c-qty,' + H + 'table.bz-item tr.bz-r-data{border-color:#fff !important;border-radius:34px;box-shadow:0 16px 30px -10px rgba(55,85,105,.3);background-image:none}',
+    H + 'form.bz-ordform{border-left:1px solid #fff !important}',
+    H + 'a.bz-addbtn{background:#fff;border:2px solid #ff9a0a;color:#c26a00 !important;border-radius:30px;box-shadow:0 12px 22px -10px rgba(255,154,10,.55)}',
+    H + 'input:not(.bz)[type=text],' + H + 'input:not(.bz):not([type]),' + H + 'input:not(.bz)[type=number],' + H + 'input:not(.bz)[type=search],' + H + 'input:not(.bz)[type=tel],' + H + 'input:not(.bz)[type=password],' + H + 'select:not(.bz){background-color:#fff !important;border-color:#cdd7de !important;color:#3b4350 !important;border-radius:22px !important;box-shadow:inset 0 3px 6px rgba(55,85,105,.12)}',
+    H + 'input:not(.bz)[type=submit],' + H + 'input:not(.bz)[type=button],' + H + 'button:not(.bz){border-radius:26px !important;text-shadow:0 1px 2px rgba(0,0,0,.22);box-shadow:0 10px 16px -6px rgba(239,129,0,.6),inset 0 3px 3px rgba(255,255,255,.4) !important}',
+    H + 'input:not(.bz).bz-sec[type=button],' + H + 'input:not(.bz).bz-sec[type=submit],' + H + 'button:not(.bz).bz-sec{background:#fff !important;color:#4a525d !important;border:2px solid #cdd7de !important;text-shadow:none;box-shadow:0 8px 14px -8px rgba(55,85,105,.4) !important}',
+    H + 'button.bz-chip{background:#fff;border:0;color:#4a525d;border-radius:24px;box-shadow:0 10px 16px -8px rgba(55,85,105,.4)}',
+    H + 'button.bz-chip.on{background:linear-gradient(180deg,rgba(var(--c),1),rgba(var(--c),.76));color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.25);box-shadow:0 10px 16px -6px rgba(var(--c),.6),inset 0 3px 3px rgba(255,255,255,.35)}',
+    H + 'button.bz-chip.on::before{border-color:#fff}',
+    H + 'input:not(.bz).bz-menu[type=button],' + H + 'input:not(.bz).bz-menu[type=submit],' + H + 'button:not(.bz).bz-menu{background-color:#fff !important;color:#4a525d !important;border:1px solid #fff !important;border-radius:34px !important;text-shadow:none;box-shadow:0 16px 28px -10px rgba(55,85,105,.38) !important}',
+    // верхние вкладки
+    H + 'table.bz-topnav td,' + H + 'ul.bz-topnav > li > a{background:#fff !important;border-color:#fff !important;color:#6b7480 !important;box-shadow:0 8px 14px -8px rgba(55,85,105,.4)}',
+    H + 'table.bz-topnav td.bz-on,' + H + 'ul.bz-topnav > li > a.bz-on,' + H + 'div.bz-topnav > .bz-on{background:linear-gradient(180deg,#ffb92e,#ef8100) !important;color:#fff !important}',
+    H + 'table.bz-topnav td.bz-on *{color:#fff !important}',
+    // цветные акценты в теме: заголовки, типы заказа, плашки
+    H + '.bz-h1{color:#4a525d !important}',
+    H + '.bz-tp{box-shadow:0 6px 10px -4px rgba(55,85,105,.35)}',
+    // таблицы-списки документов
+    H + 'table.bz-rt td,' + H + 'table.bz-rt th{border-color:#e1e8ed !important}',
+    H + '.bz-tw{background:#fff;border-radius:30px;border:1px solid #fff;box-shadow:0 16px 30px -10px rgba(55,85,105,.3)}'
+  ].join('\n');
   function whenRoot(fn) {
     if (document.documentElement) { fn(); return; }
     var mo = new MutationObserver(function () { if (document.documentElement) { mo.disconnect(); fn(); } });
@@ -448,7 +504,8 @@
   var cssv = document.createElement('style');
   cssv.id = 'bz-vars';
   cssv.textContent = ':root{' + Object.keys(PALS.dark).map(function (k) { return '--bz-' + k + ':' + PALS.dark[k] + ';'; }).join('') + '}' +
-    'html[data-bz=light]{' + Object.keys(PALS.light).map(function (k) { return '--bz-' + k + ':' + PALS.light[k] + ';'; }).join('') + 'color-scheme:light}';
+    'html[data-bz=light]{' + Object.keys(PALS.light).map(function (k) { return '--bz-' + k + ':' + PALS.light[k] + ';'; }).join('') + 'color-scheme:light}' +
+    'html[data-bz=pop]{' + Object.keys(PALS.pop).map(function (k) { return '--bz-' + k + ':' + PALS.pop[k] + ';'; }).join('') + 'color-scheme:light}';
   whenRoot(function () {
     var hd = document.head || document.documentElement;
     hd.appendChild(cssv); hd.appendChild(css); css.disabled = !st.dark;
@@ -731,7 +788,7 @@
     if (u.kd === 'bz-p') { return PORD.indexOf('p'); }
     return u.kd === 'bz-w' ? 0 : u.kd === 'bz-v' ? 1 : 99;
   }
-  // Основной цвет строки: своя отметка, иначе фиолетовый для вина. Красный (недобор) идёт отдельным слоем и основной цвет не заменяет.
+  // Основной цвет строки: своя отметка, иначе фиолетовый для вина. Красный (недобор) задаётся отдельно и действует только в этом заказе.
   function effCol(code, kd) {
     var m = MK.m[code]; if (PAL[m]) { return m; }
     return kd === 'bz-p' ? 'p' : '';
@@ -763,9 +820,7 @@
   function tintRows() {
     curUs.forEach(function (u) {
       var m = effCol(u.code, u.kd);
-      var main = m || u.kd === 'bz-w' || u.kd === 'bz-v';
-      if (!main && u.short) { m = 'r'; }
-      u.row.classList.toggle('bz-sh', !!(u.short && main));
+      if (u.short) { m = 'r'; }   // недобор в этом заказе: вся строка красная, своя отметка в других заказах не меняется
       PORD.forEach(function (k) { u.row.classList.toggle('bz-m-' + k, k === m); });
       u.row.classList.toggle('bz-w', !m && u.kd === 'bz-w');
       u.row.classList.toggle('bz-v', !m && u.kd === 'bz-v');
@@ -1800,7 +1855,7 @@
     var ib = function (label, title) { var b = btn(label); b.style.minWidth = '2.6em'; b.style.minHeight = '2.4em'; b.style.padding = '0'; b.title = title; b.setAttribute('aria-label', title); return b; };
     bCol = ib('', 'Свернуть');
     bDark = ib('', 'Оформление');
-    bLang = ib('', 'Язык страницы'); bTheme = ib('', 'Светлая / тёмная тема');
+    bLang = ib('', 'Язык страницы'); bTheme = ib('', 'Тема: тёмная / светлая / яркая');
     setIco(bTheme, 'theme');
     if (st.lang) { bLang.textContent = st.lang.toUpperCase(); bLang.style.fontWeight = '800'; bLang.style.fontSize = '.8em'; bLang.style.color = P.gold2; bLang.style.borderColor = P.gold; } else { setIco(bLang, 'globe'); }
     bLang.title = st.lang === 'ru' ? 'Язык: русский (нажмите — English)' : st.lang === 'en' ? 'Language: English (tap — исходный)' : 'Перевод страницы: сейчас исходный (нажмите — русский)';
@@ -1843,7 +1898,7 @@
     last.addEventListener('click', function () { var u = getLast(); if (u) { location.href = u; } });
     bRef.addEventListener('click', function () { try { say('Обновляю…', false); location.href = clean(location.href).href; } catch (e) { location.reload(); } });
     bLang.addEventListener('click', function () { st.lang = st.lang === '' ? 'ru' : st.lang === 'ru' ? 'en' : ''; save(); say('Обновляю…', false); location.reload(); });
-    bTheme.addEventListener('click', function () { st.theme = st.theme === 'light' ? 'dark' : 'light'; save(); say('Обновляю…', false); location.reload(); });
+    bTheme.addEventListener('click', function () { st.theme = st.theme === 'dark' ? 'light' : st.theme === 'light' ? 'pop' : 'dark'; save(); say('Обновляю…', false); location.reload(); });
     bDark.addEventListener('click', function () { st.dark = !st.dark; save(); say('Обновляю…', false); location.reload(); });
     bPal.addEventListener('click', function () { setPaint(!paintOn); });
     // В режиме окраски касание товара красит его и не открывает ссылку.
