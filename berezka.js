@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.27
+// @version      3.28
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -25,7 +25,7 @@
   };
   var P = {};
   Object.keys(PALS.dark).forEach(function (k) { P[k] = 'var(--bz-' + k + ')'; });
-  var VER = '3.27';
+  var VER = '3.28';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o', theme: 'dark', lang: '' };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -454,30 +454,6 @@
     'table.bz-rt tr.bz-rr > td.bz-rab{order:5;grid-column:1 / -1;display:flex;flex-wrap:wrap;gap:8px 6px;padding:18px 0 0 !important;border-top:1px solid ' + P.line + ' !important;background:none !important}',
     'table.bz-rt tr.bz-rr > td.bz-rab:empty{display:none}',
     'table.bz-rt tr.bz-rr > td.bz-rab a.bz-ab{margin:0 6px 0 0}',
-    // прогресс на карточке магазина и сводка
-    '.bz-dprog,.bz-sum,.bz-dpb,.bz-cbox,.bz-sc-list,.bz-lbar,.bz-docs,table.bz-rt{text-align:left}',
-    '.bz-dprog{margin-top:4px}',
-    '.bz-dpt{display:flex;justify-content:space-between;align-items:baseline;gap:14px;margin:0 0 10px;font-size:25px;color:' + P.mu + '}',
-    '.bz-dpt b{color:' + P.tx + ';font-weight:700}',
-    '.bz-dpt em{font-style:normal;font-size:30px;font-weight:800;color:' + P.tx + '}',
-    '.bz-dprog.over .bz-dpt em{color:#e0a458}',
-    '.bz-dpb{height:14px;border-radius:99px;background:' + P.trk + ';overflow:hidden}',
-    '.bz-dpb.big{height:22px}',
-    '.bz-dpb i{display:block;height:100%;border-radius:99px;background:' + P.grad + '}',
-    '.bz-sum{clear:both;box-sizing:border-box;margin:6px 0 20px;padding:26px 28px 14px;border-radius:30px;background:' + P.s1 + '}',
-    '.bz-sumh{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 14px}',
-    '.bz-sumk{font-size:24px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:' + P.mu + '}',
-    '.bz-sumh b{font-size:64px;font-weight:800;letter-spacing:-.02em;line-height:1;color:' + P.tx + '}',
-    '.bz-sr{display:grid;grid-template-columns:1fr auto;gap:8px 16px;align-items:baseline;padding:16px 0;border-bottom:1px solid ' + P.line + '}',
-    '.bz-sr:last-child{border-bottom:0}',
-    '.bz-sr .bz-dpb{grid-column:1 / -1;height:12px}',
-    '.bz-srn{font-size:27px;font-weight:600;color:' + P.tx + '}',
-    '.bz-srp{font-size:27px;font-weight:800;color:' + P.tx + '}',
-    '.bz-sum .bz-sumh + .bz-dpb{margin-bottom:8px}',
-    '.bz-tpc{position:absolute;right:22px;top:50%;margin-top:-16px;font-size:24px;font-weight:800;letter-spacing:0;color:' + P.mu + '}',
-    '.bz-tpb{position:absolute;left:82px;right:22px;bottom:12px;height:6px;border-radius:99px;background:' + P.trk + '}',
-    '.bz-tpb::after{content:"";display:block;width:var(--p);height:100%;border-radius:99px;background:' + P.grad + '}',
-    '.bz-types a.hasp{padding-bottom:10px !important}',
     // блок «Внимание»
     '.bz-alert .bz-ali{display:flex;flex-direction:column;gap:8px;padding:18px 0}',
     '.bz-ah{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px}',
@@ -1080,13 +1056,8 @@
     e.ids = ids; e.ts = now; all[key] = e; jset(SKEY2, all);
     var dn = jget(DONEK) || {};
     Object.keys(dn).forEach(function (k) { if (now - (dn[k].ts || 0) > 14 * 864e5) { delete dn[k]; } });
-    dn[key] = { d: g >= tot ? 1 : 0, g: g, t: tot, ts: now }; jset(DONEK, dn);
+    dn[key] = { d: g >= tot ? 1 : 0, ts: now }; jset(DONEK, dn);
     return { tot: tot, got: g, short: us.filter(function (u) { return u.short; }).length };
-  }
-  function typePct(href) {
-    var d = (jget(DONEK) || {}), m1 = /[?&]doc_id=([^&#]*)/.exec(href || ''), m2 = /[?&]storage_type=([^&#]*)/.exec(href || '');
-    var e = m1 ? d[m1[1] + '|' + (m2 ? m2[1] : '0')] : null;
-    return (e && e.t > 0) ? { g: e.g || 0, t: e.t } : null;
   }
   function typeDone(href) {
     var d = (jget(DONEK) || {}), m1 = /[?&]doc_id=([^&#]*)/.exec(href || ''), m2 = /[?&]storage_type=([^&#]*)/.exec(href || '');
@@ -1224,20 +1195,8 @@
           if (numA) { unbracket(numA); meta.appendChild(numA); } else { var b = document.createElement('b'); b.textContent = '№ ' + num; meta.appendChild(b); }
         }
         if (date) { var sd = document.createElement('span'); sd.textContent = date; meta.appendChild(sd); }
-        var pr = /^(-?[\d\s.,]+?)\s*\/\s*(-?[\d\s.,]+)$/.exec(exp), pa = NaN, pb = NaN;
-        if (pr) { pa = parseFloat(pr[1].replace(/\s/g, '').replace(',', '.')); pb = parseFloat(pr[2].replace(/\s/g, '').replace(',', '.')); }
-        var hasP = pa === pa && pb === pb && pb > 0 && pa >= 0;
-        if (exp && !hasP) { var se = document.createElement('span'); se.textContent = 'Ожидается ' + exp; meta.appendChild(se); }
+        if (exp) { var se = document.createElement('span'); se.textContent = 'Ожидается ' + exp; meta.appendChild(se); }
         card.appendChild(meta);
-        if (hasP) {
-          var pc = Math.round(pa / pb * 100), pd = mkDiv('bz-dprog' + (pa > pb ? ' over' : ''));
-          var pt = mkDiv('bz-dpt'), pl = document.createElement('span'); pl.appendChild(document.createTextNode('Собрано '));
-          var pbb = document.createElement('b'); pbb.textContent = pr[1].trim(); pl.appendChild(pbb); pl.appendChild(document.createTextNode(' из ' + pr[2].trim()));
-          var pe = document.createElement('em'); pe.textContent = pc + '%'; pt.appendChild(pl); pt.appendChild(pe);
-          var tr0 = mkDiv('bz-dpb'), fi = document.createElement('i'); fi.style.width = Math.min(100, pa / pb * 100) + '%'; tr0.appendChild(fi);
-          pd.appendChild(pt); pd.appendChild(tr0); card.appendChild(pd);
-          if (u.day === maxDay) { (wrap.__prog = wrap.__prog || []).push({ shop: shop || num, a: pa, b: pb }); }
-        }
         if (links.length) {
           var types = mkDiv('bz-types');
           links.forEach(function (a) {
@@ -1246,13 +1205,6 @@
             a.style.setProperty('--c', TYPEC[key] || '214,179,106');
             a.classList.add(/суш/.test(key) ? 't-dry' : /охл/.test(key) ? 't-cool' : /моро|замор/.test(key) ? 't-frz' : 't-none');
             if (typeDone(a.getAttribute('href'))) { var cm = document.createElement('span'); cm.className = 'bz-cmp'; cm.textContent = 'COMPLETED'; a.appendChild(cm); }
-            var tp = typePct(a.getAttribute('href'));
-            if (tp) {
-              var pp = Math.round(Math.min(1, tp.g / tp.t) * 100);
-              a.classList.add('hasp'); a.style.setProperty('--p', pp + '%');
-              var pcs = document.createElement('span'); pcs.className = 'bz-tpc'; pcs.textContent = pp + '%'; a.appendChild(pcs);
-              a.appendChild(document.createElement('i')).className = 'bz-tpb';
-            }
             types.appendChild(a);
           });
           card.appendChild(types);
@@ -1768,25 +1720,6 @@
       var ab = document.createElement('b'); ab.textContent = dw.__act || 0; ah.appendChild(ab);
       if (dw.__actDate) { var ad = document.createElement('span'); ad.className = 'bz-actd'; ad.textContent = (/^dash/.test(st.theme) ? '' : ' · ') + dw.__actDate; ah.appendChild(ad); }
       lh.parentNode.insertBefore(ah, lh);
-      if (dw.__prog && dw.__prog.length) {
-        try {
-          var sa = 0, sb = 0, sum = mkDiv('bz-sum');
-          dw.__prog.forEach(function (p) { sa += Math.min(p.a, p.b); sb += p.b; });
-          var sp0 = sb ? Math.round(sa / sb * 100) : 0, sh = mkDiv('bz-sumh');
-          sh.appendChild(mkDiv('bz-sumk', 'Готовность сборки'));
-          var sv = document.createElement('b'); sv.textContent = sp0 + '%'; sh.appendChild(sv);
-          sum.appendChild(sh);
-          var sbar = mkDiv('bz-dpb big'), sfi = document.createElement('i'); sfi.style.width = sp0 + '%'; sbar.appendChild(sfi); sum.appendChild(sbar);
-          var rowsS = dw.__prog.slice().sort(function (x, y) { return (x.a / x.b) - (y.a / y.b); });
-          rowsS.forEach(function (p) {
-            var rp = Math.round(p.a / p.b * 100), r = mkDiv('bz-sr');
-            r.appendChild(mkDiv('bz-srn', p.shop)); r.appendChild(mkDiv('bz-srp', rp + '%'));
-            var tb = mkDiv('bz-dpb'), fb = document.createElement('i'); fb.style.width = Math.min(100, p.a / p.b * 100) + '%'; tb.appendChild(fb); r.appendChild(tb);
-            sum.appendChild(r);
-          });
-          lh.parentNode.insertBefore(sum, lh.nextSibling);
-        } catch (e) {}
-      }
       lh.textContent = 'Всего магазинов в сборке: ';
       var cb = document.createElement('b'); cb.textContent = dw.children.length; lh.appendChild(cb);
       if (dw.children.length > 4) {
