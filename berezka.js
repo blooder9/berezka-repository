@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.23
+// @version      3.24
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -20,14 +20,14 @@
   var PALS = {
     dark: { bg: '#0b0d10', bar: '#0f1216', s1: '#12151a', s2: '#1a1e25', line: '#262b33', tx: '#eceae4', mu: '#8e939c', gold: '#d6b36a', gold2: '#e8cd92', fg: '#1a1406', err: '#e58a84',
             ln2: '#2d333c', ln3: '#343a44', ln4: '#3a414c', t2: '#aab1bb', dim: '#5b616b', dim2: '#4b515b', act: '#1f1a10', tr: '#1d1416', ta: '#1e1912', tg: '#111d17', tb: '#121a25', grad: 'linear-gradient(180deg,#e8cd92,#d6b36a 55%,#c29d54)', dk1: '#2e2f35', dk2: '#101114', dkfg: '#ffffff', dkmu: '#a9abb3', ac: '#16171a', acfg: '#ffffff', trk: '#2f3038' },
-    dash: { bg: '#e4e4e7', bar: '#ffffff', s1: '#ffffff', s2: '#f4f4f6', line: '#ececf0', tx: '#16171a', mu: '#8a8c94', gold: '#f2541b', gold2: '#16171a', fg: '#ffffff', err: '#e0463a',
+    dash: { bg: '#e4e4e7', bar: '#ffffff', s1: '#ffffff', s2: '#f4f4f6', line: '#ececf0', tx: '#16171a', mu: '#8a8c94', gold: '#f08000', gold2: '#16171a', fg: '#ffffff', err: '#e0463a',
             ln2: '#dcdce2', ln3: '#d2d2d9', ln4: '#c8c8d0', t2: '#55575e', dim: '#cfcfd6', dim2: '#bfbfc7', act: '#fff1ea', tr: '#fde6e3', ta: '#fdeedd', tg: '#e2f4ea', tb: '#e3ecfa', grad: 'linear-gradient(180deg,#2c2d32,#121316)', dk1: '#2e2f35', dk2: '#101114', dkfg: '#ffffff', dkmu: '#a9abb3', ac: '#16171a', acfg: '#ffffff', trk: '#ececf0' },
-    dashdark: { bg: '#0f1013', bar: '#17181c', s1: '#1b1c21', s2: '#272830', line: '#2b2c33', tx: '#f2f2f5', mu: '#8f919a', gold: '#ff7a3d', gold2: '#f2f2f5', fg: '#ffffff', err: '#ff6b5e',
-                ln2: '#33343c', ln3: '#3d3e47', ln4: '#474853', t2: '#b9bbc3', dim: '#4b4c55', dim2: '#6a6c76', act: '#2a211c', tr: '#2a1a1a', ta: '#2a2218', tg: '#17261e', tb: '#171f2e', grad: 'linear-gradient(180deg,#ff8c52,#f2541b)', dk1: '#f6f6f8', dk2: '#d8d9de', dkfg: '#16171a', dkmu: '#5d5f67', ac: '#ff7a3d', acfg: '#ffffff', trk: '#2f3038' }
+    dashdark: { bg: '#0f1013', bar: '#17181c', s1: '#1b1c21', s2: '#272830', line: '#2b2c33', tx: '#f2f2f5', mu: '#8f919a', gold: '#ff9a2e', gold2: '#f2f2f5', fg: '#ffffff', err: '#ff6b5e',
+                ln2: '#33343c', ln3: '#3d3e47', ln4: '#474853', t2: '#b9bbc3', dim: '#4b4c55', dim2: '#6a6c76', act: '#2a211c', tr: '#2a1a1a', ta: '#2a2218', tg: '#17261e', tb: '#171f2e', grad: 'linear-gradient(180deg,#ffa640,#ff8c00)', dk1: '#2c2d34', dk2: '#1e1f24', dkfg: '#ffffff', dkmu: '#9c9ea7', ac: '#ff8c00', acfg: '#ffffff', trk: '#2f3038' }
   };
   var P = {};
   Object.keys(PALS.dark).forEach(function (k) { P[k] = 'var(--bz-' + k + ')'; });
-  var VER = '3.23';
+  var VER = '3.24';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o', theme: 'dark', lang: '' };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -173,13 +173,13 @@
     // «Добавить товар»
     'a.bz-addbtn{display:flex;align-items:center;justify-content:center;gap:16px;min-height:96px;margin:4px 0 22px;padding:0 28px;border-radius:20px;background:' + P.s2 + ';border:2px solid ' + P.gold + ';color:' + P.gold2 + ' !important;font-size:32px;font-weight:700;text-decoration:none !important}',
     'a.bz-addbtn::before{content:"+";font-size:1.4em;line-height:1;font-weight:600}',
-    '.bz-sub{margin:16px 0 8px;font-size:24px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:' + P.mu + '}',
+    '.bz-sub{margin:26px 0 20px;font-size:24px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:' + P.mu + '}',
     'table.bz-addbox br{display:none}',
     'table.bz-addbox{display:block;box-sizing:border-box;width:100% !important;margin:0 0 4px !important;padding:16px 20px;background:' + P.s1 + ';border:1px solid ' + P.line + ' !important;border-radius:22px;border-spacing:0 !important}',
     'table.bz-addbox > tbody,table.bz-addbox tr{display:block}',
     'table.bz-addbox td{display:block;padding:0 !important;font-size:30px}',
-    'table.bz-addbox input[type=text]{width:100% !important;display:block;margin:4px 0 8px;font-size:34px !important}',
-    'table.bz-addbox input[type=submit]{width:100%;height:84px;font-size:32px !important;margin-top:4px}',
+    'table.bz-addbox input[type=text]{width:100% !important;display:block;margin:8px 0 20px;font-size:34px !important}',
+    'table.bz-addbox input[type=submit]{width:100%;height:84px;font-size:32px !important;margin-top:22px}',
 
     // прочие таблицы (карточка товара и т.п.): элементы переносятся по строкам и не выходят за экран
     'table.bz-flow{display:block;width:100% !important;max-width:100%;border-spacing:0 !important;border:0 !important}',
@@ -284,6 +284,8 @@
     '.bz-types{display:flex;flex-wrap:wrap;gap:12px;margin-top:4px}',
     '.bz-types a{flex:1 1 calc(50% - 6px);display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;min-height:80px;padding:0 26px;border-radius:16px;background:rgba(var(--c),.18);border:2px solid rgba(var(--c),.55);color:rgb(var(--c)) !important;font-size:27px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;text-decoration:none !important;text-align:center}',
     '.bz-types a:active{background:rgba(var(--c),.34)}',
+    '.bz-types a{position:relative}',
+    '.bz-cmp{position:absolute;top:-12px;right:16px;padding:4px 14px;border-radius:999px;background:linear-gradient(180deg,#ffa640,#ff8c00);color:#fff;font-size:17px;font-weight:800;letter-spacing:.08em;line-height:1.2;text-shadow:none;box-shadow:0 6px 12px -4px rgba(255,140,0,.7)}',
     'table.bz-docsrc{display:none !important}',
     // кнопки «Начало» и «Назад»
     'html .bz-nav,input:not(.bz).bz-nav[type=button],input:not(.bz).bz-nav[type=submit],button:not(.bz).bz-nav{display:inline-flex !important;align-items:center;justify-content:center;box-sizing:border-box;min-height:96px;margin:6px 0 !important;padding:0 44px !important;border-radius:20px !important;background:' + P.s2 + ' !important;background-image:none !important;color:' + P.gold2 + ' !important;border:2px solid rgba(214,179,106,.5) !important;box-shadow:none !important;font-size:30px !important;font-weight:700 !important;letter-spacing:.14em;text-transform:uppercase;text-decoration:none !important;text-align:center;cursor:pointer;-webkit-appearance:none;appearance:none;width:auto;height:auto}',
@@ -441,8 +443,9 @@
     return 'input:not(.bz).bz-menu.bz-i-' + k + '[type=button],input:not(.bz).bz-menu.bz-i-' + k + '[type=submit],button:not(.bz).bz-menu.bz-i-' + k + '{padding-left:132px !important;background-image:' + svgUri(MENUICO[k], PALS[st.theme].gold) + ',' + svgUri('<path d="M9 4l8 8-8 8"/>', PALS[st.theme].gold, 3) + ' !important;background-position:left 40px center,right 36px center !important;background-size:48px,24px !important;background-repeat:no-repeat !important}';
   })).join('');
   // ---------- Тема «Панель»: светло-серый фон, белые карточки, чёрные кнопки-таблетки, оранжевый акцент ----------
+  function maskUri(inner) { return 'url("data:image/svg+xml,' + encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='#000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>" + inner + '</svg>') + '")'; }
   var H = 'html[data-bz^=dash] ';
-  var CARD = 'border:0 !important;border-radius:32px !important;box-shadow:0 14px 30px -20px rgba(20,20,30,.35) !important;background-image:none !important';
+  var CARD = 'border:0 !important;border-radius:25px !important;box-shadow:0 14px 30px -20px rgba(20,20,30,.35) !important;background-image:none !important';
   css.textContent += [
     H + '{background:' + P.bg + ' !important}',
     H + 'body{background:transparent !important;letter-spacing:-.005em}',
@@ -453,68 +456,88 @@
     H + '.bz-t .bz-tn b{color:' + P.tx + ' !important}',
     H + '.bz-t .bz-tc{display:none}',
     H + '.bz-t .bz-trow .bz-ts{padding-right:0}',
-    H + '.bz-t .bz-tp{background:' + P.s1 + ' !important;color:' + P.tx + ' !important;border:0 !important;box-shadow:0 6px 14px -8px rgba(20,20,30,.4);padding-left:46px;position:relative}',
-    H + '.bz-t .bz-tp::before{content:"";position:absolute;left:20px;top:50%;width:16px;height:16px;margin-top:-8px;border-radius:50%;background:rgb(var(--c))}',
+    H + '.bz-t .bz-tp{background:' + P.s1 + ' !important;color:' + P.tx + ' !important;border:0 !important;box-shadow:0 6px 14px -8px rgba(20,20,30,.4);padding-left:56px;position:relative;border-radius:25px !important}',
+    H + '.bz-t .bz-tp::before{content:"";position:absolute;left:18px;top:50%;width:26px;height:26px;margin-top:-13px;background:rgb(var(--c));-webkit-mask:var(--ic) center/contain no-repeat;mask:var(--ic) center/contain no-repeat}',
+    H + '.bz-t .bz-tp.t-dry{--ic:' + maskUri("<circle cx='12' cy='12' r='4'/><path d='M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4'/>") + '}',
+    H + '.bz-t .bz-tp.t-cool{--ic:' + maskUri("<rect x='6' y='2.5' width='12' height='19' rx='2.5'/><path d='M6 10h12M9 6v1.5M9 13v3'/>") + '}',
+    H + '.bz-t .bz-tp.t-frz{--ic:' + maskUri("<path d='M12 2v20M3.3 7l17.4 10M20.7 7L3.3 17M9.5 3.8L12 6l2.5-2.2M9.5 20.2L12 18l2.5 2.2'/>") + '}',
+    H + '.bz-t .bz-tp.t-none{--ic:' + maskUri("<path d='M3 12.5V4a1 1 0 0 1 1-1h8.5l8.5 8.5a1.4 1.4 0 0 1 0 2L14.5 21a1.4 1.4 0 0 1-2 0z'/><circle cx='8' cy='8' r='1.4'/>") + '}',
     '.bz-tiles{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:26px 0 8px;font-weight:400}',
     '.bz-tile{box-sizing:border-box;padding:24px 26px;border-radius:32px;background:' + P.s1 + ';color:' + P.tx + ';box-shadow:0 14px 30px -20px rgba(20,20,30,.35)}',
     '.bz-tile .k{font-size:23px;font-weight:600;color:' + P.mu + ';letter-spacing:.01em}',
     '.bz-tile .v{margin-top:6px;font-size:68px;font-weight:700;line-height:1.05;letter-spacing:-.02em;font-family:' + FF + '}',
     '.bz-tile.dk{background:linear-gradient(135deg,' + P.dk1 + ',' + P.dk2 + ');color:' + P.dkfg + '}',
     '.bz-tile.dk .k{color:' + P.dkmu + '}',
-    '.bz-tile.or{background:linear-gradient(135deg,#ff8c52,#f2541b);color:#fff;box-shadow:0 18px 30px -16px rgba(242,84,27,.7)}',
+    '.bz-tile.or{background:linear-gradient(135deg,#ffa640,#ff8c00);color:#fff;box-shadow:0 18px 30px -16px rgba(255,140,0,.7)}',
     '.bz-tile.or .k{color:rgba(255,255,255,.82)}',
     '.bz-prog{grid-column:1 / -1;box-sizing:border-box;padding:22px 26px 24px;border-radius:32px;background:' + P.s1 + ';box-shadow:0 14px 30px -20px rgba(20,20,30,.35)}',
     '.bz-prog .k{display:flex;justify-content:space-between;font-size:23px;font-weight:600;color:' + P.mu + '}',
     '.bz-prog .k b{color:' + P.tx + ';font-weight:700}',
     '.bz-prog .tr{height:22px;margin-top:14px;border-radius:99px;background:' + P.trk + ';overflow:hidden}',
-    '.bz-prog .tr i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#ff8c52,#f2541b)}',
+    '.bz-prog .tr i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#ffa640,#ff8c00)}',
     // выбор заказа: две плитки сверху и карточки магазинов
     H + '.bz-listh{float:left;box-sizing:border-box;width:calc(50% - 9px);height:200px;margin:6px 0 18px !important;padding:24px 26px !important;border-radius:32px;font-size:23px !important;font-weight:600 !important;letter-spacing:0 !important;text-transform:none !important;line-height:1.3;background:' + P.s1 + ';color:' + P.mu + ' !important;box-shadow:0 14px 30px -20px rgba(20,20,30,.35)}',
     H + '.bz-listh b{display:block;margin-top:6px;font-size:68px;font-weight:700;line-height:1.05;color:' + P.tx + ' !important;letter-spacing:-.02em}',
-    H + '.bz-listh.bz-act{margin-right:18px !important;background:linear-gradient(135deg,' + P.dk1 + ',' + P.dk2 + ');color:' + P.dkmu + ' !important}',
-    H + '.bz-listh.bz-act b{color:' + P.dkfg + ' !important}',
+    H + '.bz-listh.bz-act{margin-right:18px !important;background:linear-gradient(135deg,#ffa640,#ff8c00);color:rgba(255,255,255,.9) !important;box-shadow:0 18px 30px -16px rgba(255,140,0,.7)}',
+    H + '.bz-listh.bz-act b{color:#fff !important}',
     H + '.bz-listh.bz-act:last-of-type{margin-right:0}',
     H + '.bz-listh.bz-act{overflow:hidden}',
-    H + '.bz-actd{display:block;margin-top:6px;font-size:22px;color:' + P.dkmu + ' !important}',
-    H + 'input.bz-search{clear:both;border:0 !important;border-radius:999px !important;background:' + P.s1 + ' !important;box-shadow:0 10px 24px -18px rgba(20,20,30,.4)}',
+    H + '.bz-actd{display:block;margin-top:6px;font-size:22px;color:rgba(255,255,255,.9) !important}',
+    H + 'input.bz-search{clear:both;border:0 !important;border-radius:25px !important;background:' + P.s1 + ' !important;box-shadow:0 10px 24px -18px rgba(20,20,30,.4)}',
     H + '.bz-doc{padding:28px 28px 24px;border:0;border-left:0;border-radius:34px;background:' + P.s1 + ';box-shadow:0 14px 30px -20px rgba(20,20,30,.35)}',
     H + '.bz-dshop{font-size:42px;font-weight:700;letter-spacing:-.01em;color:' + P.tx + '}',
     H + '.bz-dmeta{color:' + P.mu + '}',
     H + '.bz-dmeta a,' + H + '.bz-dmeta b{color:' + P.tx + ' !important}',
     H + '.bz-badge{position:relative;padding:8px 20px 8px 40px;background:' + P.s2 + ';border:0;color:' + P.tx + ' !important}',
     H + '.bz-badge::before{content:"";position:absolute;left:18px;top:50%;width:12px;height:12px;margin-top:-6px;border-radius:50%;background:rgb(var(--c))}',
-    H + '.bz-types a{position:relative;min-height:84px;padding:0 24px 0 56px;justify-content:flex-start;border:0;border-radius:999px;background:' + P.s2 + ';color:' + P.tx + ' !important;letter-spacing:.04em;text-shadow:none;font-weight:700}',
-    H + '.bz-types a::before{content:"";position:absolute;left:26px;top:50%;width:18px;height:18px;margin-top:-9px;border-radius:50%;background:rgb(var(--c))}',
-    H + '.bz-types a:active{background:' + P.ac + ';color:#fff !important}',
+    H + '.bz-types a{position:relative;min-height:88px;padding:0 20px 0 82px;justify-content:flex-start;border:0;border-radius:25px;background:rgba(var(--c),.16);color:' + P.tx + ' !important;letter-spacing:.04em;text-shadow:none;font-weight:700}',
+    H + '.bz-types a::before{content:"";position:absolute;left:24px;top:50%;width:38px;height:38px;margin-top:-19px;background:rgb(var(--c));-webkit-mask:var(--ic) center/contain no-repeat;mask:var(--ic) center/contain no-repeat}',
+    H + '.bz-types a.t-dry{--ic:' + maskUri("<circle cx='12' cy='12' r='4'/><path d='M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4'/>") + '}',
+    H + '.bz-types a.t-cool{--ic:' + maskUri("<rect x='6' y='2.5' width='12' height='19' rx='2.5'/><path d='M6 10h12M9 6v1.5M9 13v3'/>") + '}',
+    H + '.bz-types a.t-frz{--ic:' + maskUri("<path d='M12 2v20M3.3 7l17.4 10M20.7 7L3.3 17M9.5 3.8L12 6l2.5-2.2M9.5 20.2L12 18l2.5 2.2'/>") + '}',
+    H + '.bz-types a.t-none{--ic:' + maskUri("<path d='M3 12.5V4a1 1 0 0 1 1-1h8.5l8.5 8.5a1.4 1.4 0 0 1 0 2L14.5 21a1.4 1.4 0 0 1-2 0z'/><circle cx='8' cy='8' r='1.4'/>") + '}',
+    H + '.bz-types a:active{background:rgb(var(--c));color:#fff !important}',
+    H + '.bz-types a:active::before{background:#fff}',
     // строки списка и таблицы
     H + 'tr.bz-r > td{background-color:' + P.s1 + ' !important;color:' + P.tx + ' !important;box-shadow:0 12px 18px -16px rgba(20,20,30,.4)}',
     H + 'tr.bz-r > td:first-child{border-radius:28px 0 0 28px;color:' + P.dim2 + ' !important;font-weight:500;box-shadow:inset 10px 0 0 ' + P.ln3 + ',0 12px 18px -16px rgba(20,20,30,.4)}',
     H + 'tr.bz-r > td:last-child{border-radius:0 28px 28px 0}',
     H + 'tr.bz-r > td:nth-child(2) a{color:' + P.tx + ' !important}',
     H + 'tr.bz-r > td:nth-child(5){color:' + P.mu + ' !important}',
-    H + 'tr.bz-s-red > td:first-child{box-shadow:inset 10px 0 0 #f2541b}',
+    H + 'tr.bz-s-red > td:first-child{box-shadow:inset 10px 0 0 #ff8c00}',
     H + 'tr.bz-s-amb > td:first-child{box-shadow:inset 10px 0 0 #ffb02e}',
     H + 'tr.bz-s-grn > td:first-child{box-shadow:inset 10px 0 0 #2fbf8f}',
     H + 'tr.bz-s-blu > td:first-child{box-shadow:inset 10px 0 0 #4a8ef0}',
     H + 'tr.bz-s-red > td,' + H + 'tr.bz-s-amb > td,' + H + 'tr.bz-s-grn > td,' + H + 'tr.bz-s-blu > td{background:' + P.s1 + ' !important}',
-    H + 'tr.bz-h td,' + H + 'tr.bz-h th{color:' + P.mu + ' !important}',
+    H + 'tr.bz-h td,' + H + 'tr.bz-h th{background:' + P.s2 + ' !important;color:' + P.mu + ' !important;border:0 !important;padding:18px 14px !important}',
+    H + 'tr.bz-h td:first-child,' + H + 'tr.bz-h th:first-child{border-radius:25px 0 0 25px}',
+    H + 'tr.bz-h td:last-child,' + H + 'tr.bz-h th:last-child{border-radius:0 25px 25px 0}',
+    H + 'hr{display:none !important}',
+    H + 'table.bz-addbox{margin-bottom:26px !important}',
+    H + 'div[style*="border-top: 1px solid"]{border:0 !important}',
+    H + 'tr.bz-dh,' + H + 'tr.bz-dv,' + H + 'tr.bz-r-data,' + H + '.bz-doc,' + H + '.bz-note,' + H + '.bz-prompt{border:0 !important}',
+    H + '.bz-nav,' + H + 'input:not(.bz).bz-nav[type=button],' + H + 'input:not(.bz).bz-nav[type=submit],' + H + 'button:not(.bz).bz-nav{background:linear-gradient(180deg,#ffa640,#ff8c00) !important;color:#fff !important;border:0 !important;border-radius:25px !important;letter-spacing:.12em;text-shadow:0 1px 2px rgba(0,0,0,.2);box-shadow:0 16px 24px -14px rgba(255,140,0,.75),inset 0 3px 3px rgba(255,255,255,.3) !important}',
+    H + 'input:not(.bz).bz-sec.bz-skipbtn[type=button],' + H + 'input:not(.bz).bz-sec.bz-skipbtn[type=submit],' + H + 'button:not(.bz).bz-sec.bz-skipbtn{background:linear-gradient(180deg,#f8f8f9,#e3e3e7) !important;color:#16171a !important;text-shadow:none;box-shadow:0 12px 18px -14px rgba(20,20,30,.5),inset 0 2px 2px #fff !important}',
+    H + '.bz-sub{display:flex;align-items:center;gap:14px;margin:30px 0 22px;font-size:34px;font-weight:800;letter-spacing:-.01em;text-transform:none;color:' + P.tx + '}',
+    H + '.bz-sub::before{content:"";flex:none;width:10px;height:34px;border-radius:5px;background:linear-gradient(180deg,#ffa640,#ff8c00)}',
+    H + 'table.bz-topnav td,' + H + 'ul.bz-topnav > li > a,' + H + 'div.bz-topnav a{border-radius:25px !important}',
     // карточки, формы, блоки
     H + '.bz-note,' + H + '.bz-prompt,' + H + 'table.bz-scanbox,' + H + 'table.bz-addbox,' + H + 'form.bz-ordform,' + H + 'table.bz-hdr,' + H + '.bz-head,' + H + '.bz-qty,' + H + 'table.bz-data,' + H + 'table.bz-item td.bz-c-meta,' + H + 'table.bz-item td.bz-c-qty,' + H + 'table.bz-item tr.bz-r-data{' + CARD + '}',
     H + 'form.bz-ordform{border-left:0 !important}',
-    H + 'a.bz-addbtn{background:' + P.s1 + ';border:0;color:#f2541b !important;border-radius:999px;box-shadow:0 12px 24px -16px rgba(242,84,27,.7);font-weight:700}',
+    H + 'a.bz-addbtn{background:linear-gradient(180deg,#ffa640,#ff8c00);border:0;color:#fff !important;border-radius:25px;box-shadow:0 16px 24px -14px rgba(255,140,0,.75),inset 0 3px 3px rgba(255,255,255,.3);font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,.2)}',
     H + 'input:not(.bz)[type=text],' + H + 'input:not(.bz):not([type]),' + H + 'input:not(.bz)[type=number],' + H + 'input:not(.bz)[type=search],' + H + 'input:not(.bz)[type=tel],' + H + 'input:not(.bz)[type=password],' + H + 'select:not(.bz){background-color:' + P.s2 + ' !important;border:0 !important;color:' + P.tx + ' !important;border-radius:999px !important;padding-left:30px !important}',
-    H + 'input:not(.bz)[type=submit],' + H + 'input:not(.bz)[type=button],' + H + 'button:not(.bz){border-radius:999px !important;color:#fff !important;box-shadow:0 14px 20px -14px rgba(0,0,0,.6) !important;letter-spacing:.02em}',
+    H + 'input:not(.bz)[type=submit],' + H + 'input:not(.bz)[type=button],' + H + 'button:not(.bz){border-radius:25px !important;color:#fff !important;box-shadow:0 14px 20px -14px rgba(0,0,0,.6) !important;letter-spacing:.02em}',
     H + 'input:not(.bz).bz-sec[type=button],' + H + 'input:not(.bz).bz-sec[type=submit],' + H + 'button:not(.bz).bz-sec{background:' + P.s1 + ' !important;color:' + P.tx + ' !important;border:0 !important;box-shadow:0 10px 18px -14px rgba(20,20,30,.5) !important}',
-    H + 'button.bz-chip{background:' + P.s2 + ';border:0;color:' + P.tx + ';border-radius:999px;box-shadow:none}',
+    H + 'button.bz-chip{background:' + P.s2 + ';border:0;color:' + P.tx + ';border-radius:25px;box-shadow:none}',
     H + 'button.bz-chip.on{background:' + P.ac + ';color:#fff;box-shadow:0 12px 18px -12px rgba(0,0,0,.6)}',
     H + 'button.bz-chip.on::before{border-color:#fff}',
-    H + 'input:not(.bz).bz-menu[type=button],' + H + 'input:not(.bz).bz-menu[type=submit],' + H + 'button:not(.bz).bz-menu{background-color:' + P.s1 + ' !important;color:' + P.tx + ' !important;border:0 !important;border-radius:36px !important;box-shadow:0 14px 30px -20px rgba(20,20,30,.4) !important}',
+    H + 'input:not(.bz).bz-menu[type=button],' + H + 'input:not(.bz).bz-menu[type=submit],' + H + 'button:not(.bz).bz-menu{background-color:' + P.s1 + ' !important;color:' + P.tx + ' !important;border:0 !important;border-radius:25px !important;box-shadow:inset 12px 0 0 #ff8c00,inset 70px 0 60px -50px rgba(255,140,0,.55),0 14px 30px -20px rgba(20,20,30,.4) !important}',
     // вкладки
     H + 'table.bz-topnav td,' + H + 'ul.bz-topnav > li > a{background:' + P.s1 + ' !important;border:0 !important;color:' + P.mu + ' !important;box-shadow:none}',
     H + 'table.bz-topnav td.bz-on,' + H + 'ul.bz-topnav > li > a.bz-on,' + H + 'div.bz-topnav > .bz-on{background:' + P.ac + ' !important;color:' + P.acfg + ' !important}',
     H + 'table.bz-topnav td.bz-on *{color:' + P.acfg + ' !important}',
     H + '.bz-h1{color:' + P.tx + ' !important;letter-spacing:-.02em}',
-    H + '.bz-tw{background:' + P.s1 + ';border-radius:32px;border:0;box-shadow:0 14px 30px -20px rgba(20,20,30,.35)}',
+    H + '.bz-tw{background:' + P.s1 + ';border-radius:25px;border:0;box-shadow:0 14px 30px -20px rgba(20,20,30,.35)}',
     H + 'table.bz-rt td,' + H + 'table.bz-rt th{border-color:' + P.line + ' !important}'
   ].join('\n');
   function whenRoot(fn) {
@@ -861,7 +884,7 @@
     });
   }
   // ---------- Сборка: возврат к позиции и красные позиции с недобором ----------
-  var RKEY = 'bz-ret-v1', PKEY = 'bz-proc-v1';
+  var RKEY = 'bz-ret-v1', PKEY = 'bz-proc-v1', SKEY2 = 'bz-seen-v1', DONEK = 'bz-done-v1';
   function jget(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } }
   function jset(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
   function qp(n) { try { return new URL(location.href).searchParams.get(n) || ''; } catch (e) { return ''; } }
@@ -935,6 +958,36 @@
     window.addEventListener('load', function () { setTimeout(function () { tryScroll(true); }, 120); });
     if (document.readyState === 'complete') { setTimeout(function () { tryScroll(true); }, 400); }
   }
+  // Прогресс сборки списка: всего позиций не уменьшается (запоминаем все виденные), собрано = обработанные + исчезнувшие из списка.
+  var PROG = null;
+  function calcProg(us) {
+    if (!onListPage() || !us.length) { return null; }
+    var key = qp('doc_id') + '|' + (qp('storage_type') || '0'), now = Date.now();
+    var all = jget(SKEY2) || {};
+    Object.keys(all).forEach(function (k) { if (now - (all[k].ts || 0) > 14 * 864e5) { delete all[k]; } });
+    var e = all[key] || { ids: [] }, seen = {};
+    e.ids.forEach(function (i) { seen[i] = 1; });
+    var cur = {}, got = 0;
+    us.forEach(function (u) {
+      var id = u.row.id; cur[id] = 1; seen[id] = 1;
+      var h = num(u.have);
+      if ((h === h && h > 0) || PROC[id]) { got++; }
+    });
+    var ids = Object.keys(seen), gone = 0;
+    ids.forEach(function (i) { if (!cur[i]) { gone++; } });
+    var tot = ids.length, g = Math.min(tot, got + gone);
+    e.ids = ids; e.ts = now; all[key] = e; jset(SKEY2, all);
+    var dn = jget(DONEK) || {};
+    Object.keys(dn).forEach(function (k) { if (now - (dn[k].ts || 0) > 14 * 864e5) { delete dn[k]; } });
+    dn[key] = { d: g >= tot ? 1 : 0, ts: now }; jset(DONEK, dn);
+    return { tot: tot, got: g, short: us.filter(function (u) { return u.short; }).length };
+  }
+  function typeDone(href) {
+    var d = (jget(DONEK) || {}), m1 = /[?&]doc_id=([^&#]*)/.exec(href || ''), m2 = /[?&]storage_type=([^&#]*)/.exec(href || '');
+    if (!m1) { return false; }
+    var e = d[m1[1] + '|' + (m2 ? m2[1] : '0')];
+    return !!(e && e.d);
+  }
   var PROC = {};
   function apply() {
     PROC = onListPage() ? procGet(qp('doc_id')) : {};
@@ -961,6 +1014,7 @@
     var sum = 0;
     wcnt = 0; vcnt = 0;
     curUs = us;
+    try { PROG = calcProg(us); } catch (e) { PROG = null; }
     us.forEach(function (u) {
       u.kd = hlKind(u.name); if (u.kd === 'bz-w') { wcnt++; } else if (u.kd === 'bz-v' || u.kd === 'bz-p') { vcnt++; }
       if (!u.row.__bzs) { u.row.__bzs = 1; var hc = hueClass(getComputedStyle(u.row.children[0]).backgroundColor); if (hc) { u.row.classList.add(hc); } }
@@ -1072,6 +1126,8 @@
             unbracket(a);
             var key = tx(a).toLowerCase();
             a.style.setProperty('--c', TYPEC[key] || '214,179,106');
+            a.classList.add(/суш/.test(key) ? 't-dry' : /охл/.test(key) ? 't-cool' : /моро|замор/.test(key) ? 't-frz' : 't-none');
+            if (typeDone(a.getAttribute('href'))) { var cm = document.createElement('span'); cm.className = 'bz-cmp'; cm.textContent = 'COMPLETED'; a.appendChild(cm); }
             types.appendChild(a);
           });
           card.appendChild(types);
@@ -1515,19 +1571,17 @@
     el.textContent = '';
     var trow = mkDiv('bz-trow');
     trow.appendChild(mkDiv('bz-ts', m[3]));
-    if (curUs.length) {
-      var got = curUs.filter(function (u) { var h = num(u.have); return (h === h && h > 0) || PROC[u.row.id]; }).length;
+    if (curUs.length && PROG) {
       var tc = mkDiv('bz-tc');
-      [[tl('Позиций'), curUs.length], [tl('Собрано'), got]].forEach(function (p2) {
+      [[tl('Позиций'), PROG.tot], [tl('Собрано'), PROG.got]].forEach(function (p2) {
         var ln = document.createElement('div'); ln.appendChild(document.createTextNode(p2[0] + ' ')); var bb = document.createElement('b'); bb.textContent = p2[1]; ln.appendChild(bb); tc.appendChild(ln);
       });
       trow.appendChild(tc);
     }
     el.appendChild(trow);
     var tilesAfter = null;
-    if (/^dash/.test(st.theme) && curUs.length) {
-      var tot = curUs.length, gt = curUs.filter(function (u) { var h = num(u.have); return (h === h && h > 0) || PROC[u.row.id]; }).length;
-      var sh = curUs.filter(function (u) { return u.short; }).length;
+    if (/^dash/.test(st.theme) && curUs.length && PROG) {
+      var tot = PROG.tot, gt = PROG.got, sh = PROG.short;
       tilesAfter = mkDiv('bz-tiles');
       [['dk', tl('Позиций'), tot], ['or', tl('Собрано'), gt], ['', tl('Недобор'), sh], ['', tl('Осталось'), tot - gt]].forEach(function (d) {
         var t = mkDiv('bz-tile ' + d[0]); t.appendChild(mkDiv('k', d[1])); t.appendChild(mkDiv('v', String(d[2]))); tilesAfter.appendChild(t);
@@ -1539,7 +1593,7 @@
     var nm = mkDiv('bz-tn'); nm.appendChild(document.createTextNode('Сборка заказа № '));
     var nb = document.createElement('b'); nb.textContent = m[1]; nm.appendChild(nb); el.appendChild(nm);
     if (m[2] && m[2].trim()) {
-      var tp = document.createElement('span'); tp.className = 'bz-tp'; tp.textContent = m[2].trim();
+      var tp = document.createElement('span'); tp.className = 'bz-tp ' + (/суш/i.test(m[2]) ? 't-dry' : /охл/i.test(m[2]) ? 't-cool' : /моро|замор/i.test(m[2]) ? 't-frz' : 't-none'); tp.textContent = m[2].trim();
       tp.style.setProperty('--c', typeColor(m[2])); el.appendChild(tp);
     }
     if (tilesAfter) { el.appendChild(tilesAfter); }
@@ -1625,7 +1679,7 @@
       if (/^\[?\s*добавить товар\s*\]?$/i.test(t)) { a.classList.add('bz-addbtn'); if (t !== 'Добавить товар') { a.textContent = 'Добавить товар'; } }
     });
     // кнопки «Начало» и «Назад» (кнопки, ссылки и элементы с onclick)
-    var NAVRE = /^\[?\s*(начало|назад|в начало|на главную)\s*\]?$/i;
+    var NAVRE = /^\[?\s*(начало|назад|в начало|на главную|терминал)\s*\]?$/i;
     [].forEach.call(document.querySelectorAll('input[type=button],input[type=submit],button:not(.bz),a,[onclick]'), function (b) {
       if (inBar(b) || b.closest('tr.bz-r,tr.bz-d,.bz-docs,.bz-topnav,.bz-tabs,table.bz-rt,.bz-alert') || (b.children.length && b.tagName !== 'BUTTON' && b.tagName !== 'A' && b.tagName !== 'INPUT')) { return; }
       var v = (b.value || b.textContent || '').trim();
@@ -1674,7 +1728,7 @@
     [].forEach.call(document.querySelectorAll('input[type=button],input[type=submit],button:not(.bz)'), function (b) {
       if (b.classList.contains('bz-nav')) { return; }
       var v = (b.value || b.textContent || '').trim();
-      if (/нет\s*в\s*наличии|нет\s*вналичии|пропустить|редактировать|отмена|назад/i.test(v)) { b.classList.add('bz-sec'); }
+      if (/нет\s*в\s*наличии|нет\s*вналичии|пропустить|редактировать|отмена|назад/i.test(v)) { b.classList.add('bz-sec'); if (/пропустить/i.test(v)) { b.classList.add('bz-skipbtn'); } }
     });
     // остальные таблицы без вложенных таблиц
     var isCtl = function (e) { return e.matches && e.matches('input[type=text],input:not([type]),input[type=number],input[type=tel],input[type=button],input[type=submit],button'); };
