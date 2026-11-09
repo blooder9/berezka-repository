@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.28
+// @version      3.29
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -25,7 +25,7 @@
   };
   var P = {};
   Object.keys(PALS.dark).forEach(function (k) { P[k] = 'var(--bz-' + k + ')'; });
-  var VER = '3.28';
+  var VER = '3.29';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o', theme: 'dark', lang: '' };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -1059,6 +1059,15 @@
     dn[key] = { d: g >= tot ? 1 : 0, ts: now }; jset(DONEK, dn);
     return { tot: tot, got: g, short: us.filter(function (u) { return u.short; }).length };
   }
+  // Список без единой позиции = всё собрано: вид получает COMPLETED на странице выбора заказа.
+  function markEmpty() {
+    try {
+      if (!onListPage() || document.querySelector('input[type=password]')) { return; }
+      var key = qp('doc_id') + '|' + (qp('storage_type') || '0'), now = Date.now();
+      var dn = jget(DONEK) || {};
+      dn[key] = { d: 1, ts: now }; jset(DONEK, dn);
+    } catch (e) { }
+  }
   function typeDone(href) {
     var d = (jget(DONEK) || {}), m1 = /[?&]doc_id=([^&#]*)/.exec(href || ''), m2 = /[?&]storage_type=([^&#]*)/.exec(href || '');
     if (!m1) { return false; }
@@ -1079,7 +1088,7 @@
     });
     hasTable = us.length > 0;
     layout();
-    if (!hasTable) { say('', false); return; }
+    if (!hasTable) { markEmpty(); say('', false); return; }
     var parent = us[0].row.parentNode;
     if (us.some(function (u) { return u.row.parentNode !== parent; })) { say('Страница устроена иначе, сортировка здесь недоступна.', true); return; }
     var lastU = us[us.length - 1];
