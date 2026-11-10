@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.31
+// @version      3.32
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -25,7 +25,7 @@
   };
   var P = {};
   Object.keys(PALS.dark).forEach(function (k) { P[k] = 'var(--bz-' + k + ')'; });
-  var VER = '3.31';
+  var VER = '3.32';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o', theme: 'dark', lang: '' };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -441,6 +441,19 @@
     'table.bz-stat td.bz-neg{color:' + P.err + ' !important}',
     'body.bz-dash .monthly-metric-summary{display:flex;flex-wrap:wrap;gap:18px 28px;margin-top:18px;font-size:28px;line-height:1.5;color:' + P.mu + '}',
     'body.bz-dash .monthly-metric-summary > div{flex:1 1 300px}',
+    // приёмка накладной: строка 1 — №, артикул, название, ожидается, получено; строка 2 — тип, срок, размещено
+    'html .bz-tw table.bz-rt.bz-acc tr.bz-rr{display:flex !important;flex-wrap:wrap;align-items:center;gap:16px 18px !important;padding:22px 24px 22px 36px}',
+    'html .bz-tw table.bz-rt.bz-acc tr.bz-rr > td{grid-column:auto !important}',
+    'html .bz-tw table.bz-rt.bz-acc tr.bz-rr > td.bz-ac-n{order:1;flex:0 0 52px;padding:0 !important;font-family:inherit;font-size:30px;font-weight:700;color:' + P.mu + ' !important}',
+    'html .bz-tw table.bz-rt.bz-acc tr.bz-rr > td.bz-ac-a{order:2;flex:0 0 128px;min-width:0;font-family:' + MONO + ';font-size:32px;font-weight:800}',
+    'html .bz-tw table.bz-rt.bz-acc tr.bz-rr > td.bz-ac-a a,html .bz-tw table.bz-rt.bz-acc a.bz-ac-lnk{display:inline !important;margin:0 !important;padding:0 !important;border:0 !important;background:none !important;box-shadow:none !important;min-height:0 !important;color:' + P.gold2 + ' !important;font:inherit !important;text-decoration:none !important}',
+    'html .bz-tw table.bz-rt.bz-acc tr.bz-rr > td.bz-ac-nm{order:3;flex:1 1 0;min-width:0;font-size:28px;font-weight:700}',
+    'html .bz-tw table.bz-rt.bz-acc tr.bz-rr > td.bz-ac-e,html .bz-tw table.bz-rt.bz-acc tr.bz-rr > td.bz-ac-g{order:4;flex:none;min-width:116px;padding:12px 14px 14px !important}',
+    'html .bz-tw table.bz-rt.bz-acc tr.bz-rr > td.bz-ac-g{order:5}',
+    'html .bz-tw table.bz-rt.bz-acc tr.bz-rr > td.bz-ac-br{order:6;flex:0 0 100%;height:0;margin:-16px 0 0 !important;padding:0 !important}',
+    'html .bz-tw table.bz-rt.bz-acc tr.bz-rr > td.bz-ac-t,html .bz-tw table.bz-rt.bz-acc tr.bz-rr > td.bz-ac-s{order:7;flex:1 1 0;min-width:0}',
+    'html .bz-tw table.bz-rt.bz-acc tr.bz-rr > td.bz-ac-s{order:8}',
+    'html .bz-tw table.bz-rt.bz-acc tr.bz-rr > td.bz-ac-p{order:9;flex:none;min-width:116px;padding:12px 14px 14px !important}',
     // карточка записи: порядок полей
     'table.bz-rt tr.bz-rr{grid-template-columns:repeat(12,minmax(0,1fr)) !important;gap:16px 18px !important}',
     'table.bz-rt tr.bz-rr > td.bz-rk{order:0;grid-column:1 / -1}',
@@ -1347,6 +1360,40 @@
     while (p && ((p.nodeType === 3 && !p.nodeValue.trim()) || (p.nodeType === 1 && /^(BR|FORM)$/.test(p.tagName) && !tx(p)))) { p = p.previousSibling; }
     return (p && p.nodeType === 1 && /^(H[1-6]|B|STRONG)$/.test(p.tagName) && tx(p).length < 60) ? p : null;
   }
+  // Приёмка накладной: строка 1 — №, артикул, название, ожидается, получено; строка 2 — тип, срок (и размещено).
+  function accLayout(T, labs) {
+    var ix = function (re) { for (var i = 0; i < labs.length; i++) { if (re.test(labs[i])) { return i; } } return -1; };
+    var iN = ix(/назв|name/i), iE = ix(/ожид|expect/i), iG = ix(/получ|receiv/i), iT = ix(/^тип|^type/i), iS = ix(/срок|expir/i), iP = ix(/размещ|placed/i), iA = ix(/артикул|^код|^арт|article|^code/i);
+    if (iN < 0 || iE < 0 || iG < 0) { return; }
+    T.classList.add('bz-acc');
+    [].forEach.call(T.querySelectorAll('tr.bz-rr'), function (r) {
+      var c = r.cells, i, cA = iA >= 0 ? c[iA] : null, rab = r.querySelector('td.bz-rab');
+      if (!cA) {
+        for (i = 0; i < labs.length; i++) { if (i !== iN && c[i] && c[i].classList.contains('bz-ra')) { cA = c[i]; break; } }
+      }
+      if (cA && cA.classList.contains('bz-ra') && rab) {
+        // ссылка-артикул возвращается в свою ячейку (остальные кнопки остаются внизу)
+        var lk = rab.querySelector('a');
+        if (lk) { lk.classList.remove('bz-ab'); lk.classList.add('bz-ac-lnk'); lk.style.removeProperty('--c'); cA.appendChild(lk); }
+        cA.classList.remove('bz-rx', 'bz-ra');
+        if (!rab.querySelector('a')) { rab.parentNode.removeChild(rab); }
+      }
+      var role = function (cell, cls, keep) {
+        if (!cell) { return; }
+        cell.classList.remove('bz-rm', 'bz-rwide', 'bz-rk');
+        if (!keep) { cell.classList.remove('bz-rn', 'bz-rz'); }
+        cell.classList.add(cls);
+      };
+      role(c[0], 'bz-ac-n'); c[0].setAttribute('data-l', '');
+      if (cA) { role(cA, 'bz-ac-a'); cA.setAttribute('data-l', ''); }
+      role(c[iN], 'bz-ac-nm'); c[iN].setAttribute('data-l', '');
+      role(c[iE], 'bz-ac-e', 1); role(c[iG], 'bz-ac-g', 1);
+      if (iT >= 0) { role(c[iT], 'bz-ac-t'); }
+      if (iS >= 0) { role(c[iS], 'bz-ac-s'); }
+      if (iP >= 0) { role(c[iP], 'bz-ac-p', 1); }
+      var br = document.createElement('td'); br.className = 'bz-ac-br'; r.appendChild(br);
+    });
+  }
   function buildRecords() {
     var dash = isDash();
     [].forEach.call(document.querySelectorAll('table'), function (T) {
@@ -1445,6 +1492,7 @@
           }
         }
       });
+      if (qp('page') === 'acceptance') { try { accLayout(T, labs); } catch (e) { } }
       // подпись со счётчиком, поиск и сворачиваемый фильтр
       var h = prevHead(T), n = data.length, host = T.parentNode;
 
