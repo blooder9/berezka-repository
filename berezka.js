@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.29
+// @version      3.30
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -25,7 +25,7 @@
   };
   var P = {};
   Object.keys(PALS.dark).forEach(function (k) { P[k] = 'var(--bz-' + k + ')'; });
-  var VER = '3.29';
+  var VER = '3.30';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o', theme: 'dark', lang: '' };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -144,7 +144,7 @@
     'tr.bz-s-grn > td:first-child{box-shadow:inset 7px 0 0 #58b08a}',
     'tr.bz-s-blu > td:first-child{box-shadow:inset 7px 0 0 #6c9bd8}',
     'tr.bz-r > td:last-child{border-radius:0 16px 16px 0}',
-    'tr.bz-r > td:nth-child(2) a{color:' + P.gold2 + ' !important;font-family:' + MONO + ' !important;font-weight:700;display:inline-block;padding:12px 8px;margin:-12px -8px;text-decoration:underline;text-decoration-color:rgba(232,205,146,.4);text-decoration-thickness:3px;text-underline-offset:.2em}',
+    'tr.bz-r > td:nth-child(2) a{color:' + P.gold2 + ' !important;font-family:' + MONO + ' !important;font-weight:700;display:inline-block;padding:12px 8px;margin:-12px -8px;text-decoration:none !important}',
     'tr.bz-r > td:nth-child(4),tr.bz-r > td:nth-child(5){font-weight:700;font-size:38px;min-width:2.2em;text-align:center}',
     'tr.bz-r > td:nth-child(5){color:' + P.mu + ' !important}',
     'tr.bz-h td,tr.bz-h th{padding:12px 14px !important;font-size:24px !important;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:' + P.mu + ' !important;background:transparent !important;border-bottom:1px solid ' + P.line + ' !important}',
@@ -167,7 +167,7 @@
     'table.bz-scanbox > tbody,table.bz-scanbox > thead,table.bz-scanbox > tr{display:block}',
     'table.bz-scanbox tr{display:block}',
     'table.bz-scanbox td{display:flex !important;gap:14px;align-items:stretch;padding:0 !important}',
-    'table.bz-scanbox input[name=barcode]{flex:1 1 0;min-width:0;width:0 !important;height:96px;font-size:36px !important;font-weight:600 !important}',
+    'table.bz-scanbox input[name=barcode]{flex:1 1 0;min-width:0;width:0 !important;height:96px;border-radius:25px !important;font-size:36px !important;font-weight:600 !important}',
     'table.bz-scanbox input[type=submit]{flex:none;min-width:190px;height:96px;font-size:34px !important}',
 
     // «Добавить товар»
@@ -325,7 +325,7 @@
     'button.bz-chip.on::before{content:"";width:12px;height:22px;margin:-6px 4px 0 0;border-right:4px solid #10131a;border-bottom:4px solid #10131a;transform:rotate(40deg) scale(.8)}',
     'form.bz-ordform input.bz-go{display:block;width:100% !important;height:108px !important;margin:0 !important;font-size:38px !important;letter-spacing:.06em}',
     'select.bz-hide{display:none !important}',
-    'input.bz-search{display:block;width:100% !important;height:92px;margin:0 0 18px !important;font-size:34px !important;font-weight:500 !important}',
+    'input.bz-search{display:block;width:100% !important;height:92px;margin:0 0 18px !important;border-radius:25px !important;font-size:34px !important;font-weight:500 !important}',
     '.bz-listh{margin:6px 0 14px !important;font-size:26px !important;font-weight:700 !important;letter-spacing:.12em;text-transform:uppercase;text-align:left !important;color:' + P.mu + ' !important}',
     '.bz-listh b{color:' + P.gold + '}',
     '.bz-listh.bz-act{margin:6px 0 4px !important}',
@@ -592,6 +592,7 @@
     H + 'form.bz-ordform{border-left:0 !important}',
     H + 'a.bz-addbtn{background:' + P.s2 + ';border:0;color:' + P.tx + ' !important;border-radius:25px;box-shadow:0 12px 20px -14px rgba(0,0,0,.6);font-weight:700;text-shadow:none}',
     H + 'input:not(.bz)[type=text],' + H + 'input:not(.bz):not([type]),' + H + 'input:not(.bz)[type=number],' + H + 'input:not(.bz)[type=search],' + H + 'input:not(.bz)[type=tel],' + H + 'input:not(.bz)[type=password],' + H + 'select:not(.bz){background-color:' + P.s2 + ' !important;border:0 !important;color:' + P.tx + ' !important;border-radius:999px !important;padding-left:30px !important}',
+    H + 'table.bz-scanbox input[name=barcode],' + H + 'table.bz-addbox input[type=text],' + H + 'form.bz-ordform input.bz-ordin{border-radius:25px !important}',
     H + 'input:not(.bz)[type=submit],' + H + 'input:not(.bz)[type=button],' + H + 'button:not(.bz){border-radius:25px !important;color:#fff !important;box-shadow:0 14px 20px -14px rgba(0,0,0,.6) !important;letter-spacing:.02em}',
     H + 'input:not(.bz).bz-sec[type=button],' + H + 'input:not(.bz).bz-sec[type=submit],' + H + 'button:not(.bz).bz-sec{background:' + P.s1 + ' !important;color:' + P.tx + ' !important;border:0 !important;box-shadow:0 10px 18px -14px rgba(20,20,30,.5) !important}',
     H + 'button.bz-chip{background:' + P.s2 + ';border:0;color:' + P.tx + ';border-radius:25px;box-shadow:none}',
@@ -993,6 +994,11 @@
         jset(RKEY, { c: m ? decodeURIComponent(m[1]) : row.id, nx: ids, list: location.pathname + location.search, go: 0, ts: Date.now() });
       }, true);
       if (r && r.go && now - r.go < 10 * 60e3) { returnToRow(r); }
+      else if (r && !r.go && now - (r.ts || 0) < 10 * 60e3 && r.list === location.pathname + location.search) {
+        // системная «Назад» из карточки товара: браузер вернул страницу в начало — идём к строке, откуда открывали товар
+        var nt = null; try { nt = performance.getEntriesByType('navigation')[0]; } catch (e) { }
+        if (nt && nt.type === 'back_forward') { r.exact = 1; returnToRow(r); }
+      }
       return;
     }
     if (!onItemPage()) { return; }
@@ -1005,6 +1011,16 @@
       q.go = Date.now(); jset(RKEY, q);
     };
     document.addEventListener('submit', function () { mark('pick'); }, true);
+    // «В начало» и другие ссылки на список этого заказа: вернуться к той же строке
+    document.addEventListener('click', function (e) {
+      var a = e.target && e.target.closest && e.target.closest('a[href]'); if (!a) { return; }
+      var u; try { u = new URL(a.getAttribute('href'), location.href); } catch (er) { return; }
+      if (u.searchParams.get('page') !== 'order' || u.searchParams.get('doc_id') !== qp('doc_id') || u.searchParams.get('barcode')) { return; }
+      var q = jget(RKEY), t = Date.now(), fresh = q && q.go && t - q.go < 60e3;
+      if (!q || q.c !== qp('barcode')) { q = { c: qp('barcode'), nx: [], list: listUrl(), ts: t }; }
+      if (!fresh) { q.exact = 1; }
+      q.go = t; jset(RKEY, q);
+    }, true);
     document.addEventListener('click', function (e) {
       var b = e.target && e.target.closest && e.target.closest('input,button'); if (!b) { return; }
       var t = (b.value || b.textContent || '').toLowerCase();
@@ -1015,13 +1031,14 @@
     }, true);
   }
   function returnToRow(r) {
+    var ex = !!r.exact;
     var tryScroll = function (final) {
       var tr = null, ids = [r.c].concat(r.nx || []);
       for (var i = 0; i < ids.length && !tr; i++) {
         var el = document.getElementById(ids[i]);
         if (!el || el.tagName !== 'TR' || !isProd(el)) { continue; }
         var u = curUs.filter(function (z) { return z.row === el; })[0];
-        if (u && u.short) { continue; }   // позиция с недобором ушла вниз — идём к следующей на её месте
+        if (u && u.short && !ex) { continue; }   // позиция с недобором ушла вниз — идём к следующей на её месте
         tr = el;
       }
       if (!tr) { return; }
@@ -1029,7 +1046,7 @@
       window.scrollTo(0, Math.max(0, y));
       if (final) { tr.classList.add('bz-flash'); setTimeout(function () { tr.classList.remove('bz-flash'); }, 2400); }
     };
-    r.go = 0; jset(RKEY, r);
+    r.go = 0; r.exact = 0; jset(RKEY, r);
     tryScroll(false);
     setTimeout(function () { tryScroll(false); }, 250);
     window.addEventListener('load', function () { setTimeout(function () { tryScroll(true); }, 120); });
