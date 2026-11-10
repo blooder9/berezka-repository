@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.30
+// @version      3.31
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -25,7 +25,7 @@
   };
   var P = {};
   Object.keys(PALS.dark).forEach(function (k) { P[k] = 'var(--bz-' + k + ')'; });
-  var VER = '3.30';
+  var VER = '3.31';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o', theme: 'dark', lang: '' };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -592,6 +592,7 @@
     H + 'form.bz-ordform{border-left:0 !important}',
     H + 'a.bz-addbtn{background:' + P.s2 + ';border:0;color:' + P.tx + ' !important;border-radius:25px;box-shadow:0 12px 20px -14px rgba(0,0,0,.6);font-weight:700;text-shadow:none}',
     H + 'input:not(.bz)[type=text],' + H + 'input:not(.bz):not([type]),' + H + 'input:not(.bz)[type=number],' + H + 'input:not(.bz)[type=search],' + H + 'input:not(.bz)[type=tel],' + H + 'input:not(.bz)[type=password],' + H + 'select:not(.bz){background-color:' + P.s2 + ' !important;border:0 !important;color:' + P.tx + ' !important;border-radius:999px !important;padding-left:30px !important}',
+    'html[data-bz-pg=select_acceptance] input:not([type=hidden]):not([type=submit]):not([type=button]):not([type=checkbox]):not([type=radio]):not([type=reset]),html[data-bz-pg=select_acceptance] input.bz-search{border-radius:25px !important}',
     H + 'table.bz-scanbox input[name=barcode],' + H + 'table.bz-addbox input[type=text],' + H + 'form.bz-ordform input.bz-ordin{border-radius:25px !important}',
     H + 'input:not(.bz)[type=submit],' + H + 'input:not(.bz)[type=button],' + H + 'button:not(.bz){border-radius:25px !important;color:#fff !important;box-shadow:0 14px 20px -14px rgba(0,0,0,.6) !important;letter-spacing:.02em}',
     H + 'input:not(.bz).bz-sec[type=button],' + H + 'input:not(.bz).bz-sec[type=submit],' + H + 'button:not(.bz).bz-sec{background:' + P.s1 + ' !important;color:' + P.tx + ' !important;border:0 !important;box-shadow:0 10px 18px -14px rgba(20,20,30,.5) !important}',
@@ -627,6 +628,7 @@
     var hd = document.head || document.documentElement;
     hd.appendChild(cssv); hd.appendChild(css); css.disabled = !st.dark;
     document.documentElement.setAttribute('data-bz', st.theme);
+    try { document.documentElement.setAttribute('data-bz-pg', new URL(location.href).searchParams.get('page') || ''); } catch (e) { }
     if (st.dark && document.readyState === 'loading') {
       document.documentElement.setAttribute('data-bz-hold', '1');
       setTimeout(unhold, 2500);
