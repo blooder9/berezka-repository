@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.35
+// @version      3.36
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -25,7 +25,7 @@
   };
   var P = {};
   Object.keys(PALS.dark).forEach(function (k) { P[k] = 'var(--bz-' + k + ')'; });
-  var VER = '3.35';
+  var VER = '3.36';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'sn', theme: 'dark', lang: '' };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -42,18 +42,23 @@
   };
 
   // Разделы и подразделы: у каждого свой цвет. Цвет, поставленный товару, сам задаёт его раздел и подраздел.
+  // Порядок списка = порядок сортировки по цветам и по разделам.
   var SECX = [
-    ['sn', 'Снеки', '', '245,123,50'], ['su', 'Снеки', 'Сухари', '239,188,181'], ['ch', 'Снеки', 'Чипсы', '245,168,144'],
-    ['ko', 'Консервация', '', '182,139,50'], ['sy', 'Сыпучка', '', '236,226,214'],
-    ['na', 'Напитки', '', '69,149,239'], ['vo', 'Напитки', 'Вода', '85,72,239'], ['so', 'Напитки', 'Сок', '204,122,158'],
+    ['na', 'Напитки', '', '69,149,239'],
+    ['vo', 'Напитки', 'Вода', '61,181,240'], ['kv', 'Напитки', 'Квас', '165,105,55'], ['so', 'Напитки', 'Сок', '204,122,158'],
     ['vi', 'Напитки', 'Вино', '166,91,164'], ['pi', 'Напитки', 'Пиво', '188,239,164'],
-    ['ba', 'Бакалея', '', '242,237,164'], ['sl', 'Бакалея', 'Сладости', '219,117,201'], ['pr', 'Бакалея', 'Пряности', '219,51,117'], ['te', 'Бакалея', 'Чай', '121,188,50']
+    ['sn', 'Снеки', '', '245,123,50'],
+    ['ko', 'Консервация', '', '182,139,50'],
+    ['cf', 'Конфеты', '', '219,117,201'],
+    ['sy', 'Сыпучка', '', '236,226,214'],
+    ['up', 'Упаковка', '', '223,230,238']
   ];
-  var SECORD = ['Снеки', 'Консервация', 'Сыпучка', 'Напитки', 'Бакалея'], SEC = {}, SECK = [];
+  var SEC = {}, SECK = [];
+  // старые разделы переносятся в новые (Сухари, Чипсы -> Снеки; Сладости -> Конфеты); остальные удалены
+  var SECMIG = { su: 'sn', ch: 'sn', sl: 'cf' };
   SECX.forEach(function (x, i) {
-    var si = SECORD.indexOf(x[1]);
     PAL[x[0]] = { n: x[2] ? x[1] + ' / ' + x[2] : x[1], c: x[3], a: 0.3, sec: x[1], sub: x[2] };
-    SEC[x[0]] = { sec: x[1], sub: x[2], rank: si * 100 + i };
+    SEC[x[0]] = { sec: x[1], sub: x[2], rank: i };
     SECK.push(x[0]);
   });
   var DEFC = {}; SECK.forEach(function (k) { DEFC[k] = PAL[k].c + ',0.3'; });
@@ -113,6 +118,7 @@
       PAL[k].c = o.c; PAL[k].a = o.a;
     });
   }
+  Object.keys(MK.m).forEach(function (c) { if (SECMIG[MK.m[c]]) { MK.m[c] = SECMIG[MK.m[c]]; } });
   applyCC();
   // прежние девять цветов удалены: отметки этих цветов снимаются
   var purged = false;
@@ -2445,7 +2451,7 @@
 
     // палитра разделов и подразделов, ластик и копирование скрипта
     palRow = mk('div', 'display:none;flex-direction:column;gap:.45em;');
-    var sw = mk('div', 'display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.3em;');
+    var sw = mk('div', 'display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.3em;');
     ['x'].concat(SECK).forEach(function (k) {
       var isSec = !!SEC[k];
       var b = mk('button', 'align-items:center;justify-content:center;flex:1 1 0;min-width:0;height:2.5em;border-radius:.7em;cursor:pointer;border:2px ' + (k === 'x' ? 'dashed' : 'solid') + ' ' + P.line + ';background-color:' + P.s2 + ';-webkit-tap-highlight-color:transparent;transition:transform .12s ease;' + (k === 'x' ? 'color:' + P.mu + ';font-size:1.1em;font-weight:700;' : 'background-image:linear-gradient(rgba(' + PAL[k].c + ',' + AL + '),rgba(' + PAL[k].c + ',' + AL + '));'));
@@ -2454,7 +2460,7 @@
       if (k === 'x') { b.textContent = '✕'; } else { b.__dot = mk('span', 'display:block;width:.7em;height:.7em;border-radius:50%;background:rgb(' + PAL[k].c + ');flex:none;'); b.appendChild(b.__dot); }
       {
         b.style.display = 'flex'; b.style.flexDirection = 'column'; b.style.height = '3.5em'; b.style.gap = '.2em'; b.style.padding = '0 .1em';
-        if (isSec) { b.appendChild(mk('span', 'display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.5em;font-weight:600;line-height:1.1;color:' + P.mu + ';', SEC[k].sub || (SEC[k].sec === 'Консервация' ? 'Консерв.' : SEC[k].sec))); }
+        if (isSec) { b.appendChild(mk('span', 'display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.5em;font-weight:600;line-height:1.1;color:' + P.mu + ';', SEC[k].sub || SEC[k].sec)); }
         else { b.appendChild(mk('span', 'font-size:.5em;font-weight:600;color:' + P.mu + ';', 'Убрать')); }
       }
       b.addEventListener('click', function () { setTool(k); });
