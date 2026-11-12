@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.33
+// @version      3.34
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -25,7 +25,7 @@
   };
   var P = {};
   Object.keys(PALS.dark).forEach(function (k) { P[k] = 'var(--bz-' + k + ')'; });
-  var VER = '3.33';
+  var VER = '3.34';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o', theme: 'dark', lang: '' };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -150,6 +150,7 @@
     'tr.bz-s-grn > td:first-child{box-shadow:inset 7px 0 0 #58b08a}',
     'tr.bz-s-blu > td:first-child{box-shadow:inset 7px 0 0 #6c9bd8}',
     'tr.bz-r > td:last-child{border-radius:0 16px 16px 0}',
+    'tr.bz-r > td:nth-child(2){text-align:center;vertical-align:middle}',
     'tr.bz-r > td:nth-child(2)[data-sec]::before{content:attr(data-sec);display:block;margin:0 0 4px;font-family:inherit;font-size:26px;font-weight:600;line-height:1.2;letter-spacing:0;text-transform:none;color:' + P.mu + '}',
     'tr.bz-r > td:nth-child(2) a{color:' + P.gold2 + ' !important;font-family:' + MONO + ' !important;font-weight:700;display:inline-block;padding:12px 8px;margin:-12px -8px;text-decoration:none !important}',
     'tr.bz-r > td:nth-child(4),tr.bz-r > td:nth-child(5){font-weight:700;font-size:38px;min-width:2.2em;text-align:center}',
@@ -576,9 +577,10 @@
     H + '.bz-types a:active::before{background:#fff}',
     // строки списка и таблицы
     H + 'tr.bz-r > td{background-color:' + P.s1 + ' !important;color:' + P.tx + ' !important;box-shadow:0 12px 18px -16px rgba(20,20,30,.4)}',
-    H + 'tr.bz-r > td:first-child{border-radius:28px 0 0 28px;color:' + P.dim2 + ' !important;font-weight:500;box-shadow:inset 10px 0 0 ' + P.ln3 + ',0 12px 18px -16px rgba(20,20,30,.4)}',
-    H + 'tr.bz-r > td:last-child{border-radius:0 28px 28px 0}',
-    H + 'tr.bz-r > td:nth-child(2) a{color:' + P.tx + ' !important}',
+    // скругление, цвет порядкового номера, цвет линии слева и цвет артикула — как в классической теме
+    H + 'tr.bz-r > td:first-child{border-radius:16px 0 0 16px;color:' + PALS.dark.mu + ' !important;font-weight:500;box-shadow:inset 10px 0 0 ' + PALS.dark.dim + ',0 12px 18px -16px rgba(20,20,30,.4)}',
+    H + 'tr.bz-r > td:last-child{border-radius:0 16px 16px 0}',
+    H + 'tr.bz-r > td:nth-child(2) a{color:' + PALS.dark.gold2 + ' !important}',
     H + 'tr.bz-r > td:nth-child(5){color:' + P.mu + ' !important}',
     H + 'tr.bz-s-red > td:first-child{box-shadow:inset 10px 0 0 #f2541b}',
     H + 'tr.bz-s-amb > td:first-child{box-shadow:inset 10px 0 0 #ffb02e}',
