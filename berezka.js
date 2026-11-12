@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.31
+// @version      3.32
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -25,7 +25,7 @@
   };
   var P = {};
   Object.keys(PALS.dark).forEach(function (k) { P[k] = 'var(--bz-' + k + ')'; });
-  var VER = '3.31';
+  var VER = '3.32';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o', theme: 'dark', lang: '' };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -989,11 +989,10 @@
     if (onListPage()) {
       document.addEventListener('click', function (e) {
         var a = e.target && e.target.closest && e.target.closest('a[href*="barcode="]'); if (!a) { return; }
-        var row = a.closest('tr'); if (!row || !isProd(row)) { return; }
-        var ids = [], x = row;
-        while ((x = x.nextElementSibling) && ids.length < 4) { if (isProd(x)) { ids.push(x.id); } }
+        var row = a.closest('tr'), ids = [], x = row;
+        while (x && (x = x.nextElementSibling) && ids.length < 4) { if (isProd(x)) { ids.push(x.id); } }
         var m = /[?&]barcode=([^&#]*)/.exec(a.getAttribute('href') || '');
-        jset(RKEY, { c: m ? decodeURIComponent(m[1]) : row.id, nx: ids, list: location.pathname + location.search, go: 0, ts: Date.now() });
+        jset(RKEY, { c: m ? decodeURIComponent(m[1]) : (row ? row.id : ''), nx: ids, list: location.pathname + location.search, go: 0, ts: Date.now() });
       }, true);
       if (r && r.go && now - r.go < 10 * 60e3) { returnToRow(r); }
       else if (r && !r.go && now - (r.ts || 0) < 10 * 60e3 && r.list === location.pathname + location.search) {
@@ -1005,7 +1004,14 @@
     }
     if (!onItemPage()) { return; }
     // сразу после «Собрать» сайт мог открыть следующий товар — вместо него возвращаем к списку
-    if (r && r.go && now - r.go < 60e3 && r.c !== qp('barcode')) { location.replace(listUrl()); return; }
+    // автопереход бывает только из карточки товара (или без реферера); открытие товара из списка / с другой страницы — это ручное нажатие
+    var ref = null; try { ref = document.referrer ? new URL(document.referrer) : null; } catch (e) { }
+    var auto = !ref || (ref.origin === location.origin && ref.searchParams.get('page') === 'order' && !!ref.searchParams.get('barcode'));
+    if (!auto) {
+      if (!r || r.c !== qp('barcode')) { r = { c: qp('barcode'), nx: [], list: listUrl(), go: 0, ts: now }; jset(RKEY, r); }
+      else if (r.go) { r.go = 0; r.exact = 0; jset(RKEY, r); }
+    }
+    if (auto && r && r.go && now - r.go < 30e3 && r.c !== qp('barcode')) { location.replace(listUrl()); return; }
     var mark = function (kind) {
       if (kind === 'pick' || kind === 'none') { procAdd(qp('doc_id'), qp('barcode')); }
       var q = jget(RKEY);
