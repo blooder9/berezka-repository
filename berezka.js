@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.32
+// @version      3.33
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -25,7 +25,7 @@
   };
   var P = {};
   Object.keys(PALS.dark).forEach(function (k) { P[k] = 'var(--bz-' + k + ')'; });
-  var VER = '3.32';
+  var VER = '3.33';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o', theme: 'dark', lang: '' };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -36,17 +36,23 @@
   function save() { try { localStorage.setItem(SKEY, JSON.stringify(st)); } catch (e) {} }
   // Цвета отметок (все с прозрачностью 20 %).
   var PAL = {
-    o: { n: 'оранжевый', c: '255,140,0' },
-    b: { n: 'голубой', c: '64,160,255' },
-    g: { n: 'салатовый', c: '150,225,60' },
-    p: { n: 'фиолетовый', c: '168,98,255' },
-    r: { n: 'красный', c: '255,64,64' },
-    t: { n: 'бирюзовый', c: '32,214,196' },
-    s: { n: 'синий', c: '40,84,235' },
-    n: { n: 'коричневый', c: '165,105,55' },
-    h: { n: 'белый', c: '255,255,255' }
+    n: { n: 'коричневый', s: 'Квас', c: '165,105,55' },
+    s: { n: 'синий', s: 'Вода', c: '40,84,235' },
+    p: { n: 'фиолетовый', s: 'Вино', c: '168,98,255' },
+    g: { n: 'зелёный', s: 'Пиво', c: '150,225,60' },
+    b: { n: 'голубой', s: 'Напитки', c: '64,160,255' },
+    t: { n: 'бирюзовый', s: 'Консервы', c: '32,214,196' },
+    e: { n: 'бежевый', s: 'Ramen', c: '232,212,170' },
+    y: { n: 'жёлтый', s: 'Снеки', c: '250,214,40' },
+    o: { n: 'оранжевый', s: 'Сушняк', c: '255,140,0' },
+    k: { n: 'тёмно-розовый', s: 'Конфеты', c: '196,48,112' },
+    h: { n: 'белый', s: '', c: '255,255,255' },
+    r: { n: 'красный', s: '', c: '255,64,64' }   // только недобор в заказе и старые отметки; в палитре его нет
   };
-  var PORD = ['o', 'b', 'g', 'p', 'r', 't', 's', 'n', 'h'];
+  // порядок разделов в сортировке (и в палитре); красный и белый — без раздела, в конце
+  var PUI = ['n', 's', 'p', 'g', 'b', 't', 'e', 'y', 'o', 'k', 'h'];
+  var PORD = PUI.concat(['r']);
+  if (st.tool !== 'x' && PUI.indexOf(st.tool) < 0) { st.tool = 'o'; }
   var AL = '.3';
   function svgUri(inner, stroke, sw) {
     return 'url("data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="' + stroke + '" stroke-width="' + (sw || 1.7) + '" stroke-linecap="round" stroke-linejoin="round">' + inner + '</svg>') + '")';
@@ -144,6 +150,7 @@
     'tr.bz-s-grn > td:first-child{box-shadow:inset 7px 0 0 #58b08a}',
     'tr.bz-s-blu > td:first-child{box-shadow:inset 7px 0 0 #6c9bd8}',
     'tr.bz-r > td:last-child{border-radius:0 16px 16px 0}',
+    'tr.bz-r > td:nth-child(2)[data-sec]::before{content:attr(data-sec);display:block;margin:0 0 4px;font-family:inherit;font-size:26px;font-weight:600;line-height:1.2;letter-spacing:0;text-transform:none;color:' + P.mu + '}',
     'tr.bz-r > td:nth-child(2) a{color:' + P.gold2 + ' !important;font-family:' + MONO + ' !important;font-weight:700;display:inline-block;padding:12px 8px;margin:-12px -8px;text-decoration:none !important}',
     'tr.bz-r > td:nth-child(4),tr.bz-r > td:nth-child(5){font-weight:700;font-size:38px;min-width:2.2em;text-align:center}',
     'tr.bz-r > td:nth-child(5){color:' + P.mu + ' !important}',
@@ -283,20 +290,23 @@
     '.bz-dmeta a{color:' + P.gold2 + ' !important;font-family:' + MONO + ';font-weight:700}',
     '.bz-types{display:flex;flex-wrap:wrap;gap:12px;margin-top:4px}',
     '.bz-types a{flex:1 1 calc(50% - 6px);display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;min-height:80px;padding:0 26px;border-radius:16px;background:rgba(var(--c),.18);border:2px solid rgba(var(--c),.55);color:rgb(var(--c)) !important;font-size:27px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;text-decoration:none !important;text-align:center}',
+    '.bz-types a{background-image:linear-gradient(90deg,rgba(var(--f,0,0,0),.15) var(--p,0%),transparent var(--p,0%))}',
     '.bz-types a:active{background:rgba(var(--c),.34)}',
     '.bz-types a{position:relative}',
     '.bz-cmp{position:absolute;top:-12px;right:16px;padding:4px 14px;border-radius:999px;background:linear-gradient(180deg,#ff8c52,#f2541b);color:#fff;font-size:17px;font-weight:800;letter-spacing:.08em;line-height:1.2;text-shadow:none;box-shadow:0 6px 12px -4px rgba(242,84,27,.7)}',
     'table.bz-docsrc{display:none !important}',
     // кнопки «Начало» и «Назад»
     'html .bz-nav,input:not(.bz).bz-nav[type=button],input:not(.bz).bz-nav[type=submit],button:not(.bz).bz-nav{display:inline-flex !important;align-items:center;justify-content:center;box-sizing:border-box;min-height:96px;margin:6px 0 !important;padding:0 44px !important;border-radius:20px !important;background:' + P.s2 + ' !important;background-image:none !important;color:' + P.gold2 + ' !important;border:2px solid rgba(214,179,106,.5) !important;box-shadow:none !important;font-size:30px !important;font-weight:700 !important;letter-spacing:.14em;text-transform:uppercase;text-decoration:none !important;text-align:center;cursor:pointer;-webkit-appearance:none;appearance:none;width:auto;height:auto}',
-    '.bz-navrow{display:flex !important;gap:18px;align-items:stretch}',
+    '.bz-navrow{display:flex !important;gap:10px;align-items:stretch}',
+    '.bz-navw{margin-bottom:22px}',
     '.bz-navrow > .bz-nav{flex:1 1 0;margin:6px 0 !important}',
     'table.bz-navtbl{display:block;width:100% !important;border:0 !important;border-spacing:0 !important}',
     'table.bz-navtbl > tbody{display:block}',
-    'table.bz-navtbl tr{display:flex;gap:18px;width:100%}',
+    'table.bz-navtbl tr{display:flex;gap:10px;width:100%}',
     'table.bz-navtbl td,table.bz-navtbl th{display:block;flex:1 1 0;min-width:0;padding:0 !important;border:0 !important}',
     'table.bz-navtbl .bz-nav{width:100% !important;margin:6px 0 !important}',
-    'table.bz-item td.bz-c-nav{order:10;flex:1 1 calc(50% - 9px)}',
+    'table.bz-item td.bz-c-nav{order:10;flex:1 1 calc(50% - 5px)}',
+    'table.bz-item td.bz-c-nav + td.bz-c-nav{margin-left:-8px}',
     'table.bz-item td.bz-c-nav .bz-nav{width:100% !important;margin:0 !important}',
     // шапка сайта: логотип, название склада и разделы
     'table.bz-hdr{display:block !important;box-sizing:border-box;width:100% !important;margin:6px 0 22px !important;padding:26px 20px 20px !important;background-color:' + P.s1 + ' !important;background-image:linear-gradient(' + P.gold + ',' + P.gold + ') !important;background-size:90px 4px !important;background-repeat:no-repeat !important;background-position:center bottom !important;border:1px solid ' + P.line + ' !important;border-radius:24px;border-spacing:0 !important}',
@@ -561,6 +571,7 @@
     H + '.bz-types a.t-cool{--ic:' + maskUri("<rect x='6' y='2.5' width='12' height='19' rx='2.5'/><path d='M6 10h12M9 6v1.5M9 13v3'/>") + '}',
     H + '.bz-types a.t-frz{--ic:' + maskUri("<path d='M12 2v20M3.3 7l17.4 10M20.7 7L3.3 17M9.5 3.8L12 6l2.5-2.2M9.5 20.2L12 18l2.5 2.2'/>") + '}',
     H + '.bz-types a.t-none{--ic:' + maskUri("<path d='M3 12.5V4a1 1 0 0 1 1-1h8.5l8.5 8.5a1.4 1.4 0 0 1 0 2L14.5 21a1.4 1.4 0 0 1-2 0z'/><circle cx='8' cy='8' r='1.4'/>") + '}',
+    H + '.bz-types a{background-image:linear-gradient(90deg,rgba(var(--f,0,0,0),.15) var(--p,0%),transparent var(--p,0%))}',
     H + '.bz-types a:active{background:rgb(var(--c));color:#fff !important}',
     H + '.bz-types a:active::before{background:#fff}',
     // строки списка и таблицы
@@ -732,7 +743,7 @@
 
   // ---------- Панель ----------
   var K = 1, bar, tools, chips, stats, statRow, last, bDark, bRef, bCol, bLang, bTheme, fab, sbtn = {};
-  var skeys = [['color', 'Цвет'], ['n', '№'], ['code', 'Код'], ['name', 'Название'], ['need', 'Надо'], ['have', 'Есть']], bSort, sortOpen = false;
+  var skeys = [['color', 'Раздел'], ['n', '№'], ['code', 'Код'], ['name', 'Название'], ['need', 'Надо'], ['have', 'Есть']], bSort, sortOpen = false;
   var hasTable = false, hasItem = false, palRow, bPal, bExp, hint, swb = {}, ft = 0;
 
   function calcK() {
@@ -786,8 +797,8 @@
     bar.style.borderBottomColor = paintOn ? P.gold : P.line;
   }
   function paintSw() {
-    if (hint) { hint.textContent = st.tool === 'x' ? 'Ластик: убирает цвет' : 'Красим: ' + PAL[st.tool].n; }
-    PORD.concat(['x']).forEach(function (k) {
+    if (hint) { hint.textContent = st.tool === 'x' ? 'Ластик: убирает цвет' : 'Красим: ' + (PAL[st.tool].s ? PAL[st.tool].s + ' — ' + PAL[st.tool].n : PAL[st.tool].n); }
+    PUI.concat(['x']).forEach(function (k) {
       var on = st.tool === k, b = swb[k];
       b.style.borderColor = on ? P.gold2 : (k === 'x' ? P.ln3 : 'rgba(' + PAL[k].c + ',.75)');
       b.style.boxShadow = on ? '0 0 0 .16em rgba(214,179,106,.45)' : 'none';
@@ -819,7 +830,7 @@
     var t = st.tool, cur = MK.m[code], msg;
     if (t === 'x' || cur === t) {
       if (cur) { delete MK.m[code]; msg = code + ' — цвет убран'; } else { msg = code + ' — цвета нет'; }
-    } else { MK.m[code] = t; msg = code + ' → ' + PAL[t].n; }
+    } else { MK.m[code] = t; msg = code + ' → ' + (PAL[t].s || PAL[t].n); }
     var saved = saveMarks(); tintRows(); tintItems(); flash(saved ? msg : 'Не удалось сохранить отметку: браузер блокирует хранилище');
     if (navigator.vibrate) { try { navigator.vibrate(12); } catch (e) {} }
   }
@@ -907,12 +918,12 @@
     save(); paint(); apply();
   }
   // Цвет товара для сортировки: своя отметка, иначе автоподсветка (вес — оранжевый, напитки — голубой), иначе без цвета.
-  function crank(u) {
-    var m = MK.m[u.code];
-    if (PAL[m]) { return PORD.indexOf(m); }
-    if (u.kd === 'bz-p') { return PORD.indexOf('p'); }
-    return u.kd === 'bz-w' ? 0 : u.kd === 'bz-v' ? 1 : 99;
+  // Раздел товара: цвет отметки, иначе автоцвет (вино — фиолетовый, вес — оранжевый, напитки — голубой).
+  function secKey(code, kd) {
+    var m = MK.m[code]; if (PAL[m]) { return m; }
+    return kd === 'bz-p' ? 'p' : kd === 'bz-w' ? 'o' : kd === 'bz-v' ? 'b' : '';
   }
+  function crank(u) { var m = secKey(u.code, u.kd); return m ? PORD.indexOf(m) : 99; }
   // Основной цвет строки: своя отметка, иначе фиолетовый для вина. Красный (недобор) задаётся отдельно и действует только в этом заказе.
   function effCol(code, kd) {
     var m = MK.m[code]; if (PAL[m]) { return m; }
@@ -945,6 +956,8 @@
   function tintRows() {
     curUs.forEach(function (u) {
       var m = effCol(u.code, u.kd);
+      var sc = PAL[secKey(u.code, u.kd)], sn = sc && sc.s || '', c2 = u.row.children[1];
+      if (c2 && (c2.getAttribute('data-sec') || '') !== sn) { if (sn) { c2.setAttribute('data-sec', sn); } else { c2.removeAttribute('data-sec'); } }
       if (u.short) { m = 'r'; }   // недобор в этом заказе: вся строка красная, своя отметка в других заказах не меняется
       PORD.forEach(function (k) { u.row.classList.toggle('bz-m-' + k, k === m); });
       u.row.classList.toggle('bz-w', !m && u.kd === 'bz-w');
@@ -1081,7 +1094,7 @@
     e.ids = ids; e.ts = now; all[key] = e; jset(SKEY2, all);
     var dn = jget(DONEK) || {};
     Object.keys(dn).forEach(function (k) { if (now - (dn[k].ts || 0) > 14 * 864e5) { delete dn[k]; } });
-    dn[key] = { d: g >= tot ? 1 : 0, ts: now }; jset(DONEK, dn);
+    dn[key] = { d: g >= tot ? 1 : 0, p: tot ? Math.round(1000 * g / tot) / 1000 : 0, ts: now }; jset(DONEK, dn);
     return { tot: tot, got: g, short: us.filter(function (u) { return u.short; }).length };
   }
   // Список без единой позиции = всё собрано: вид получает COMPLETED на странице выбора заказа.
@@ -1090,8 +1103,16 @@
       if (!onListPage() || document.querySelector('input[type=password]')) { return; }
       var key = qp('doc_id') + '|' + (qp('storage_type') || '0'), now = Date.now();
       var dn = jget(DONEK) || {};
-      dn[key] = { d: 1, ts: now }; jset(DONEK, dn);
+      dn[key] = { d: 1, p: 1, ts: now }; jset(DONEK, dn);
     } catch (e) { }
+  }
+  // доля собранного по виду сборки (0…1) — для заливки кнопки вида на странице выбора заказа
+  function typeProg(href) {
+    var d = (jget(DONEK) || {}), m1 = /[?&]doc_id=([^&#]*)/.exec(href || ''), m2 = /[?&]storage_type=([^&#]*)/.exec(href || '');
+    if (!m1) { return 0; }
+    var e = d[m1[1] + '|' + (m2 ? m2[1] : '0')];
+    if (!e) { return 0; }
+    return e.d ? 1 : Math.max(0, Math.min(1, +e.p || 0));
   }
   function typeDone(href) {
     var d = (jget(DONEK) || {}), m1 = /[?&]doc_id=([^&#]*)/.exec(href || ''), m2 = /[?&]storage_type=([^&#]*)/.exec(href || '');
@@ -1158,6 +1179,7 @@
   }
 
   // ---------- Главное меню и список накладных ----------
+  var FILLC = { 'сушяк': '255,140,82', 'охлажденка': '64,160,255', 'заморозка': '32,214,196', 'без типа': '255,140,0' };
   var TYPEC = { 'сушяк': '229,92,86', 'охлажденка': '64,160,255', 'заморозка': '32,214,196', 'без типа': '255,140,0' };
   function unbracket(el) {
     var w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), n;
@@ -1238,6 +1260,8 @@
             var key = tx(a).toLowerCase();
             a.style.setProperty('--c', TYPEC[key] || '214,179,106');
             a.classList.add(/суш/.test(key) ? 't-dry' : /охл/.test(key) ? 't-cool' : /моро|замор/.test(key) ? 't-frz' : 't-none');
+            var tpv = typeProg(a.getAttribute('href'));
+            if (tpv > 0) { a.style.setProperty('--f', FILLC[key] || '255,140,0'); a.style.setProperty('--p', Math.round(tpv * 100) + '%'); }
             if (typeDone(a.getAttribute('href'))) { var cm = document.createElement('span'); cm.className = 'bz-cmp'; cm.textContent = 'COMPLETED'; a.appendChild(cm); }
             types.appendChild(a);
           });
@@ -1968,6 +1992,17 @@
         cur = nx2;
       }
     });
+    // между кнопками «В начало» и «Назад», стоящими в разных блоках: вместо пустой строки небольшой отступ
+    [].forEach.call(document.querySelectorAll('.bz-navrow'), function (row) {
+      var w = row.parentNode;
+      if (!w || w.tagName !== 'DIV' || w.classList.contains('bz-navrow') || w.querySelectorAll('.bz-nav').length !== 1) { return; }
+      var q = w.nextSibling, br = null;
+      while (q && ((q.nodeType === 3 && !q.nodeValue.trim()) || (q.nodeType === 1 && q.tagName === 'BR'))) { if (q.nodeType === 1) { br = q; } q = q.nextSibling; }
+      if (br && q && q.nodeType === 1 && q.querySelector('.bz-nav')) {
+        var x = w.nextSibling; while (x && x !== q) { if (x.nodeType === 1) { x.style.display = 'none'; } x = x.nextSibling; }
+        w.classList.add('bz-navw');
+      }
+    });
     // лишние переносы строк рядом с кнопками и под блоком «Добавить товар в заказ»
     var trimBr = function (el) {
       [['previousSibling'], ['nextSibling']].forEach(function (d) {
@@ -2203,7 +2238,7 @@
     bLang.title = st.lang === 'ru' ? 'Язык: русский (нажмите — English)' : st.lang === 'en' ? 'Language: English (tap — исходный)' : 'Перевод страницы: сейчас исходный (нажмите — русский)';
     bRef = ib('', 'Обновить страницу'); setIco(bRef, 'refresh');
     bPal = ib('', 'Цвета товаров');
-    bPal.appendChild(mk('span', 'display:block;width:1.15em;height:1.15em;border-radius:50%;background:conic-gradient(rgb(255,140,0),rgb(64,160,255),rgb(150,225,60),rgb(168,98,255),rgb(255,64,64),rgb(255,140,0));'));
+    bPal.appendChild(mk('span', 'display:block;width:1.15em;height:1.15em;border-radius:50%;background:conic-gradient(rgb(255,140,0),rgb(250,214,40),rgb(150,225,60),rgb(32,214,196),rgb(64,160,255),rgb(168,98,255),rgb(196,48,112),rgb(165,105,55),rgb(255,140,0));'));
     last = btn('← К списку'); last.style.display = 'none'; last.style.flex = '0 1 auto'; last.style.minWidth = '0'; last.style.overflow = 'hidden';
     stats = mk('div', 'font-size:.88em;color:' + P.mu + ';flex:1 1 0;min-width:0;');
     var icons = mk('div', 'display:flex;gap:.4em;margin-left:auto;flex:none;');
@@ -2213,12 +2248,12 @@
 
     // палитра: 5 цветов с прозрачностью 20 %, ластик и копирование скрипта
     palRow = mk('div', 'display:none;flex-direction:column;gap:.45em;');
-    var sw = mk('div', 'display:flex;gap:.3em;');
-    PORD.concat(['x']).forEach(function (k) {
-      var b = mk('button', 'align-items:center;justify-content:center;flex:1 1 0;min-width:0;height:2.5em;border-radius:.7em;cursor:pointer;border:2px ' + (k === 'x' ? 'dashed' : 'solid') + ' ' + P.line + ';background-color:' + P.s2 + ';-webkit-tap-highlight-color:transparent;transition:transform .12s ease;' + (k === 'x' ? 'color:' + P.mu + ';font-size:1.1em;font-weight:700;' : 'background-image:linear-gradient(rgba(' + PAL[k].c + ',' + AL + '),rgba(' + PAL[k].c + ',' + AL + '));'));
+    var sw = mk('div', 'display:grid;grid-template-columns:1fr 1fr;gap:.35em;');
+    PUI.concat(['x']).forEach(function (k) {
+      var b = mk('button', 'align-items:center;justify-content:flex-start;gap:.5em;min-width:0;height:2.5em;padding:0 .6em;font:inherit;font-size:.9em;color:' + P.tx + ';white-space:nowrap;overflow:hidden;border-radius:.7em;cursor:pointer;border:2px ' + (k === 'x' ? 'dashed' : 'solid') + ' ' + P.line + ';background-color:' + P.s2 + ';-webkit-tap-highlight-color:transparent;transition:transform .12s ease;' + (k === 'x' ? 'color:' + P.mu + ';font-size:1.1em;font-weight:700;' : 'background-image:linear-gradient(rgba(' + PAL[k].c + ',' + AL + '),rgba(' + PAL[k].c + ',' + AL + '));'));
       b.type = 'button'; b.className = 'bz';
-      b.title = k === 'x' ? 'Убрать цвет' : PAL[k].n; b.setAttribute('aria-label', b.title);
-      if (k === 'x') { b.textContent = '✕'; } else { b.appendChild(mk('span', 'display:block;width:.7em;height:.7em;border-radius:50%;background:rgb(' + PAL[k].c + ');')); }
+      b.title = k === 'x' ? 'Убрать цвет' : (PAL[k].s ? PAL[k].s + ' — ' + PAL[k].n : PAL[k].n); b.setAttribute('aria-label', b.title);
+      if (k === 'x') { b.textContent = '✕ Убрать цвет'; } else { b.appendChild(mk('span', 'display:block;flex:none;width:.8em;height:.8em;border-radius:50%;background:rgb(' + PAL[k].c + ');')); b.appendChild(document.createTextNode(PAL[k].s || (PAL[k].n.charAt(0).toUpperCase() + PAL[k].n.slice(1)))); }
       b.addEventListener('click', function () { setTool(k); });
       swb[k] = b; sw.appendChild(b);
     });
