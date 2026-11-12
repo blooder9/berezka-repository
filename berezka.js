@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.34
+// @version      3.35
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -25,7 +25,7 @@
   };
   var P = {};
   Object.keys(PALS.dark).forEach(function (k) { P[k] = 'var(--bz-' + k + ')'; });
-  var VER = '3.34';
+  var VER = '3.35';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o', theme: 'dark', lang: '' };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -99,6 +99,29 @@
   var FF = '"Segoe UI",Roboto,"Helvetica Neue",Arial,system-ui,sans-serif';
   var MONO = 'ui-monospace,"Roboto Mono",SFMono-Regular,Consolas,monospace';
   var GRAD = 'var(--bz-grad)';
+  // дизайн строк списка (кнопок товаров): палитра Q, префикс селекторов pre ('' — везде, H — только тема «Панель»)
+  function rowCss(Q, pre, part) {
+    var bg = pre ? 'background-color:' : 'background:';   // в теме «Панель» цветные подсветки (background-image) не сбрасываем
+    var a = [
+      pre + 'tr.bz-r > td{' + bg + Q.s2 + ' !important;color:' + Q.tx + ' !important;font-size:32px;font-weight:500;padding:18px 14px !important;line-height:1.25;vertical-align:middle}',
+      pre + 'tr.bz-s-red > td{' + bg + Q.tr + ' !important}',
+      pre + 'tr.bz-s-amb > td{' + bg + Q.ta + ' !important}',
+      pre + 'tr.bz-s-grn > td{' + bg + Q.tg + ' !important}',
+      pre + 'tr.bz-s-blu > td{' + bg + Q.tb + ' !important}',
+      pre + 'tr.bz-r > td:first-child{border-radius:16px 0 0 16px;font-size:26px;font-weight:600;color:' + Q.mu + ' !important;text-align:center;box-shadow:inset 7px 0 0 ' + Q.dim + '}',
+      pre + 'tr.bz-s-red > td:first-child{box-shadow:inset 7px 0 0 #d4655f}',
+      pre + 'tr.bz-s-amb > td:first-child{box-shadow:inset 7px 0 0 #e0a458}',
+      pre + 'tr.bz-s-grn > td:first-child{box-shadow:inset 7px 0 0 #58b08a}',
+      pre + 'tr.bz-s-blu > td:first-child{box-shadow:inset 7px 0 0 #6c9bd8}',
+      pre + 'tr.bz-r > td:last-child{border-radius:0 16px 16px 0}',
+      pre + 'tr.bz-r > td:nth-child(2){text-align:center;vertical-align:middle}',
+      pre + 'tr.bz-r > td:nth-child(2)[data-sec]::before{content:attr(data-sec);display:block;margin:0 0 4px;font-family:inherit;font-size:26px;font-weight:600;line-height:1.2;letter-spacing:0;text-transform:none;color:' + Q.mu + '}',
+      pre + 'tr.bz-r > td:nth-child(2) a{color:' + Q.gold2 + ' !important;font-family:' + MONO + ' !important;font-weight:700;display:inline-block;padding:12px 8px;margin:-12px -8px;text-decoration:none !important}',
+      pre + 'tr.bz-r > td:nth-child(4),' + pre + 'tr.bz-r > td:nth-child(5){font-weight:700;font-size:38px;min-width:2.2em;text-align:center}',
+      pre + 'tr.bz-r > td:nth-child(5){color:' + Q.mu + ' !important}'
+    ];
+    return (part === 1 ? a.slice(0, 1) : part === 2 ? a.slice(1) : a).join('');
+  }
   var css = document.createElement('style');
   css.id = 'bz-css';
   css.textContent = [
@@ -135,26 +158,12 @@
     // таблица товаров
     'table.bz-tbl{width:100% !important;border-collapse:separate !important;border-spacing:0 8px !important;border:0 !important}',
     'table.bz-tbl td,table.bz-tbl th{border:0 !important}',
-    'tr.bz-r > td{background:' + P.s2 + ' !important;color:' + P.tx + ' !important;font-size:32px;font-weight:500;padding:18px 14px !important;line-height:1.25;vertical-align:middle}',
+    rowCss(P, '', 1),
     '@keyframes bzflash{0%,60%{outline-color:rgba(214,179,106,1)}100%{outline-color:rgba(214,179,106,0)}}',
     'tr.bz-flash{outline:4px solid rgba(214,179,106,1);outline-offset:-2px;border-radius:22px;animation:bzflash 2.4s ease-out forwards}',
     'tr.bz-w > td{background-image:linear-gradient(rgba(255,140,0,.3),rgba(255,140,0,.3)) !important}',
     'tr.bz-v > td{background-image:linear-gradient(rgba(64,160,255,.3),rgba(64,160,255,.3)) !important}',
-    'tr.bz-s-red > td{background:' + P.tr + ' !important}',
-    'tr.bz-s-amb > td{background:' + P.ta + ' !important}',
-    'tr.bz-s-grn > td{background:' + P.tg + ' !important}',
-    'tr.bz-s-blu > td{background:' + P.tb + ' !important}',
-    'tr.bz-r > td:first-child{border-radius:16px 0 0 16px;font-size:26px;font-weight:600;color:' + P.mu + ' !important;text-align:center;box-shadow:inset 7px 0 0 ' + P.dim + '}',
-    'tr.bz-s-red > td:first-child{box-shadow:inset 7px 0 0 #d4655f}',
-    'tr.bz-s-amb > td:first-child{box-shadow:inset 7px 0 0 #e0a458}',
-    'tr.bz-s-grn > td:first-child{box-shadow:inset 7px 0 0 #58b08a}',
-    'tr.bz-s-blu > td:first-child{box-shadow:inset 7px 0 0 #6c9bd8}',
-    'tr.bz-r > td:last-child{border-radius:0 16px 16px 0}',
-    'tr.bz-r > td:nth-child(2){text-align:center;vertical-align:middle}',
-    'tr.bz-r > td:nth-child(2)[data-sec]::before{content:attr(data-sec);display:block;margin:0 0 4px;font-family:inherit;font-size:26px;font-weight:600;line-height:1.2;letter-spacing:0;text-transform:none;color:' + P.mu + '}',
-    'tr.bz-r > td:nth-child(2) a{color:' + P.gold2 + ' !important;font-family:' + MONO + ' !important;font-weight:700;display:inline-block;padding:12px 8px;margin:-12px -8px;text-decoration:none !important}',
-    'tr.bz-r > td:nth-child(4),tr.bz-r > td:nth-child(5){font-weight:700;font-size:38px;min-width:2.2em;text-align:center}',
-    'tr.bz-r > td:nth-child(5){color:' + P.mu + ' !important}',
+    rowCss(P, '', 2),
     'tr.bz-h td,tr.bz-h th{padding:12px 14px !important;font-size:24px !important;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:' + P.mu + ' !important;background:transparent !important;border-bottom:1px solid ' + P.line + ' !important}',
     'tr.bz-d > td{padding:0 !important;background:transparent !important}',
     'tr.bz-d table{border:0 !important;width:100% !important;margin:-2px 0 6px;border-spacing:4px 0 !important}',
@@ -575,18 +584,8 @@
     H + '.bz-types a{background-image:linear-gradient(90deg,rgba(var(--f,0,0,0),.15) var(--p,0%),transparent var(--p,0%))}',
     H + '.bz-types a:active{background:rgb(var(--c));color:#fff !important}',
     H + '.bz-types a:active::before{background:#fff}',
-    // строки списка и таблицы
-    H + 'tr.bz-r > td{background-color:' + P.s1 + ' !important;color:' + P.tx + ' !important;box-shadow:0 12px 18px -16px rgba(20,20,30,.4)}',
-    // скругление, цвет порядкового номера, цвет линии слева и цвет артикула — как в классической теме
-    H + 'tr.bz-r > td:first-child{border-radius:16px 0 0 16px;color:' + PALS.dark.mu + ' !important;font-weight:500;box-shadow:inset 10px 0 0 ' + PALS.dark.dim + ',0 12px 18px -16px rgba(20,20,30,.4)}',
-    H + 'tr.bz-r > td:last-child{border-radius:0 16px 16px 0}',
-    H + 'tr.bz-r > td:nth-child(2) a{color:' + PALS.dark.gold2 + ' !important}',
-    H + 'tr.bz-r > td:nth-child(5){color:' + P.mu + ' !important}',
-    H + 'tr.bz-s-red > td:first-child{box-shadow:inset 10px 0 0 #f2541b}',
-    H + 'tr.bz-s-amb > td:first-child{box-shadow:inset 10px 0 0 #ffb02e}',
-    H + 'tr.bz-s-grn > td:first-child{box-shadow:inset 10px 0 0 #2fbf8f}',
-    H + 'tr.bz-s-blu > td:first-child{box-shadow:inset 10px 0 0 #4a8ef0}',
-    H + 'tr.bz-s-red > td,' + H + 'tr.bz-s-amb > td,' + H + 'tr.bz-s-grn > td,' + H + 'tr.bz-s-blu > td{background:' + P.s1 + ' !important}',
+    // строки списка (кнопки товаров): дизайн полностью как в классической теме
+    rowCss(PALS.dark, H),
     H + 'tr.bz-h td,' + H + 'tr.bz-h th{background:' + P.s2 + ' !important;color:' + P.mu + ' !important;border:0 !important;padding:18px 14px !important}',
     H + 'tr.bz-h td:first-child,' + H + 'tr.bz-h th:first-child{border-radius:25px 0 0 25px}',
     H + 'tr.bz-h td:last-child,' + H + 'tr.bz-h th:last-child{border-radius:0 25px 25px 0}',
