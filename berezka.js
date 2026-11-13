@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.36
+// @version      3.37
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -25,7 +25,7 @@
   };
   var P = {};
   Object.keys(PALS.dark).forEach(function (k) { P[k] = 'var(--bz-' + k + ')'; });
-  var VER = '3.36';
+  var VER = '3.37';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o', theme: 'dark', lang: '' };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -43,7 +43,7 @@
     b: { n: 'голубой', s: 'Напитки', c: '64,160,255' },
     t: { n: 'бирюзовый', s: 'Консервы', c: '32,214,196' },
     e: { n: 'бежевый', s: 'Сыпучка', c: '232,212,170' },
-    m: { n: 'рыжий', s: 'Ramen', c: '209,103,17' },
+    m: { n: 'коралловый', s: 'Ramen', c: '240,110,100' },
     y: { n: 'жёлтый', s: 'Снеки', c: '250,214,40' },
     o: { n: 'оранжевый', s: 'Сушняк', c: '255,140,0' },
     k: { n: 'тёмно-розовый', s: 'Конфеты', c: '196,48,112' },
@@ -2347,7 +2347,7 @@
     bRef = ib('', 'Обновить страницу'); setIco(bRef, 'refresh');
     bOrd = ib('', 'Порядок товаров в разделе (перетягивание)'); setIco(bOrd, 'drag'); bOrd.style.display = 'none';
     bPal = ib('', 'Цвета товаров');
-    bPal.appendChild(mk('span', 'display:block;width:1.15em;height:1.15em;border-radius:50%;background:conic-gradient(rgb(255,140,0),rgb(250,214,40),rgb(150,225,60),rgb(32,214,196),rgb(64,160,255),rgb(168,98,255),rgb(196,48,112),rgb(209,103,17),rgb(165,105,55),rgb(255,140,0));'));
+    bPal.appendChild(mk('span', 'display:block;width:1.15em;height:1.15em;border-radius:50%;background:conic-gradient(rgb(255,140,0),rgb(250,214,40),rgb(150,225,60),rgb(32,214,196),rgb(64,160,255),rgb(168,98,255),rgb(196,48,112),rgb(240,110,100),rgb(165,105,55),rgb(255,140,0));'));
     last = btn('← К списку'); last.style.display = 'none'; last.style.flex = '0 1 auto'; last.style.minWidth = '0'; last.style.overflow = 'hidden';
     stats = mk('div', 'font-size:.88em;color:' + P.mu + ';flex:1 1 0;min-width:0;');
     var icons = mk('div', 'display:flex;gap:.4em;margin-left:auto;flex:none;');
