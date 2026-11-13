@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.35
+// @version      3.36
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -25,7 +25,7 @@
   };
   var P = {};
   Object.keys(PALS.dark).forEach(function (k) { P[k] = 'var(--bz-' + k + ')'; });
-  var VER = '3.35';
+  var VER = '3.36';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o', theme: 'dark', lang: '' };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -42,15 +42,16 @@
     g: { n: 'зелёный', s: 'Пиво', c: '150,225,60' },
     b: { n: 'голубой', s: 'Напитки', c: '64,160,255' },
     t: { n: 'бирюзовый', s: 'Консервы', c: '32,214,196' },
-    e: { n: 'бежевый', s: 'Ramen', c: '232,212,170' },
+    e: { n: 'бежевый', s: 'Сыпучка', c: '232,212,170' },
+    m: { n: 'рыжий', s: 'Ramen', c: '209,103,17' },
     y: { n: 'жёлтый', s: 'Снеки', c: '250,214,40' },
     o: { n: 'оранжевый', s: 'Сушняк', c: '255,140,0' },
     k: { n: 'тёмно-розовый', s: 'Конфеты', c: '196,48,112' },
-    h: { n: 'белый', s: '', c: '255,255,255' },
+    h: { n: 'светлый', s: 'Без типа', c: '255,255,255' },
     r: { n: 'красный', s: '', c: '255,64,64' }   // только недобор в заказе и старые отметки; в палитре его нет
   };
-  // порядок разделов в сортировке (и в палитре); красный и белый — без раздела, в конце
-  var PUI = ['n', 's', 'p', 'g', 'b', 't', 'e', 'y', 'o', 'k', 'h'];
+  // порядок разделов в сортировке (и в палитре); красный (недобор) — без раздела, в конце
+  var PUI = ['n', 's', 'p', 'g', 'b', 't', 'e', 'y', 'm', 'k', 'o', 'h'];
   var PORD = PUI.concat(['r']);
   if (st.tool !== 'x' && PUI.indexOf(st.tool) < 0) { st.tool = 'o'; }
   var AL = '.3';
@@ -70,7 +71,7 @@
   // Отметки товаров: код товара -> цвет. Блок между маркерами подставляется при копировании скрипта.
   var SAVED = /*BZ*/{"ts":0,"m":{}}/*ZB*/;
   var MKEY = 'bz-marks-v1';
-  var MK = { ts: 0, m: {} };
+  var MK = { ts: 0, m: {}, o: {} };   // m — цвета товаров, o — свой порядок товаров внутри раздела: раздел -> [коды]
   // Отметки хранятся в трёх местах: в хранилище Tampermonkey (не стирается сайтом при выходе из учётной записи),
   // в памяти браузера для этого сайта и в самом скрипте (SAVED). Берётся самая свежая копия.
   var GMG = (typeof GM_getValue === 'function') ? GM_getValue : null, GMS = (typeof GM_setValue === 'function') ? GM_setValue : null;
@@ -88,7 +89,7 @@
     return ok;
   }
   [readMarks('gm'), readMarks('ls'), SAVED].forEach(function (o) {
-    if (o && o.m && (o.ts || 0) > (MK.ts || 0)) { MK = { ts: o.ts || 0, m: o.m }; }
+    if (o && o.m && (o.ts || 0) > (MK.ts || 0)) { MK = { ts: o.ts || 0, m: o.m, o: (o.o && typeof o.o === 'object') ? o.o : {} }; }
   });
   if (MK.ts) { writeMarks(); }
   function saveMarks() { MK.ts = Date.now(); return writeMarks(); }
@@ -164,6 +165,9 @@
     'tr.bz-w > td{background-image:linear-gradient(rgba(255,140,0,.3),rgba(255,140,0,.3)) !important}',
     'tr.bz-v > td{background-image:linear-gradient(rgba(64,160,255,.3),rgba(64,160,255,.3)) !important}',
     rowCss(P, '', 2),
+    'tr.bz-r > td[data-ord]{touch-action:none;-webkit-user-select:none;user-select:none;cursor:grab}',
+    'tr.bz-r > td[data-ord]::after{content:"\\2807\\2807";display:block;margin-top:2px;font-size:30px;line-height:1;letter-spacing:-2px;color:' + P.gold2 + '}',
+    'tr.bz-r.bz-drag{outline:3px solid ' + P.gold + ';outline-offset:-2px;border-radius:16px}',
     'tr.bz-h td,tr.bz-h th{padding:12px 14px !important;font-size:24px !important;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:' + P.mu + ' !important;background:transparent !important;border-bottom:1px solid ' + P.line + ' !important}',
     'tr.bz-d > td{padding:0 !important;background:transparent !important}',
     'tr.bz-d table{border:0 !important;width:100% !important;margin:-2px 0 6px;border-spacing:4px 0 !important}',
@@ -371,7 +375,6 @@
     '#editArea{margin-top:16px !important;padding:18px;background:' + P.s1 + ';border:1px solid ' + P.line + ';border-radius:22px}',
     '#editArea input[type=text]{display:block;width:100% !important;box-sizing:border-box;height:96px;margin:0 0 14px !important;font-size:38px !important}',
     '#editArea button{height:88px;margin:0 12px 0 0 !important;padding:0 32px !important;font-size:30px !important}',
-    'body.bz-paint tr.bz-r > td,body.bz-paint tr.bz-d > td,body.bz-paint table.bz-item td{cursor:pointer}',
     // таблицы-списки: та же таблица, что и на сайте, но аккуратная: своя прокрутка, закреплённый первый столбец
     '.bz-tw{margin:0 0 24px}',
     'table.bz-rt,table.bz-rt > tbody{display:block;width:100% !important;margin:0;border:0 !important;background:none !important}',
@@ -730,7 +733,8 @@
     eye: '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
     eyeoff: '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path d="M4 4l16 16"/>',
     sort: '<path d="M7 4v16M7 20l-3.2-3.2M7 20l3.2-3.2M17 20V4M17 4l-3.2 3.2M17 4l3.2 3.2"/>',
-    top: '<path d="M12 19.5v-14M6 11.5l6-6 6 6"/>'
+    top: '<path d="M12 19.5v-14M6 11.5l6-6 6 6"/>',
+    drag: '<path d="M12 3.5v6M9.2 6.3L12 3.5l2.8 2.8M12 20.5v-6M9.2 17.7l2.8 2.8 2.8-2.8M4.5 12h15"/>'
   };
   function ico(name, size) {
     var s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -745,7 +749,7 @@
   // ---------- Панель ----------
   var K = 1, bar, tools, chips, stats, statRow, last, bDark, bRef, bCol, bLang, bTheme, fab, sbtn = {};
   var skeys = [['color', 'Раздел'], ['n', '№'], ['code', 'Код'], ['name', 'Название'], ['need', 'Надо'], ['have', 'Есть']], bSort, sortOpen = false;
-  var hasTable = false, hasItem = false, palRow, bPal, bExp, hint, swb = {}, ft = 0;
+  var hasTable = false, hasItem = false, palRow, bPal, bExp, hint, swb = {}, ft = 0, bOrd = null, ordOn = false, drag = null;
 
   function calcK() {
     var touch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
@@ -793,6 +797,7 @@
     } catch (e) {}
     var can = (hasTable || hasItem) && st.dark;
     bPal.style.display = can ? 'inline-flex' : 'none';
+    if (bOrd) { bOrd.style.display = (hasTable && st.dark) ? 'inline-flex' : 'none'; bOrd.style.borderColor = ordOn ? P.gold : P.line; bOrd.style.color = ordOn ? P.gold2 : P.tx; }
     palRow.style.display = (can && paintOn) ? 'flex' : 'none';
     bPal.style.borderColor = paintOn ? P.gold : P.line;
     bar.style.borderBottomColor = paintOn ? P.gold : P.line;
@@ -808,14 +813,101 @@
   }
   function setPaint(on) {
     paintOn = on;
-    document.body.classList.toggle('bz-paint', on);
-    paintSw(); layout();
-    if (!on && st.key === 'color') { apply(); }
+    // сначала только то, что нужно, чтобы палитра появилась сразу; без пересчёта стилей всей страницы
+    var can = (hasTable || hasItem) && st.dark;
+    palRow.style.display = (can && on) ? 'flex' : 'none';
+    bPal.style.borderColor = on ? P.gold : P.line;
+    bar.style.borderBottomColor = on ? P.gold : P.line;
+    paintSw();
     if (on) { flash('Выберите цвет и касайтесь товаров'); }
+    else if (st.key === 'color') { setTimeout(apply, 0); }
   }
   function setTool(k) {
     st.tool = k; save(); paintSw();
   }
+  // ---------- Свой порядок товаров внутри раздела (перетягивание) ----------
+  function grpOf(u) { return secKey(u.code, u.kd) + (u.short ? '|s' : ''); }
+  function prodSib(r, dir) {
+    var x = dir < 0 ? r.previousElementSibling : r.nextElementSibling;
+    while (x && !x.__bzu) { x = dir < 0 ? x.previousElementSibling : x.nextElementSibling; }
+    return x;
+  }
+  function setOrd(on) {
+    if (on === ordOn) { return; }
+    ordOn = on;
+    if (on) {
+      if (paintOn) { setPaint(false); }
+      // порядок внутри раздела виден только при сортировке «Раздел», по возрастанию
+      if (st.key !== 'color') { setKey('color'); } else if (st.dir < 0) { st.dir = 1; save(); paint(); apply(); }
+      flash('Тяните ⠿⠿ слева у товара: порядок внутри раздела');
+    } else { flash('Порядок сохранён'); }
+    tintRows(); layout();
+  }
+  function ordMerge(L, P) {
+    var L2 = L.slice(), set = {}, slots = [], i;
+    P.forEach(function (c) { set[c] = 1; if (L2.indexOf(c) < 0) { L2.push(c); } });
+    for (i = 0; i < L2.length; i++) { if (set[L2[i]]) { slots.push(i); } }
+    for (i = 0; i < slots.length; i++) { L2[slots[i]] = P[i]; }
+    return L2;
+  }
+  function dragStep() {
+    if (!drag) { return; }
+    var r = drag.row, u = r.__bzu, g = drag.g, y = drag.y, par = r.parentNode, n = 0, moved = true, x, rc, ref;
+    while (moved && n++ < 6) {
+      moved = false;
+      x = prodSib(r, -1);
+      if (x && grpOf(x.__bzu) === g) {
+        rc = x.getBoundingClientRect();
+        if (y < rc.top + rc.height / 2) { par.insertBefore(r, x); if (u.det) { par.insertBefore(u.det, x); } moved = true; continue; }
+      }
+      x = prodSib(r, 1);
+      if (x && grpOf(x.__bzu) === g) {
+        rc = x.getBoundingClientRect();
+        if (y > rc.top + rc.height / 2) { ref = (x.__bzu.det || x).nextSibling; par.insertBefore(r, ref); if (u.det) { par.insertBefore(u.det, ref); } moved = true; }
+      }
+    }
+  }
+  function dragTick() {
+    if (!drag) { return; }
+    var kk = K || 1, h = window.innerHeight, top = 150 * kk;
+    if (drag.y < top) { window.scrollBy(0, -Math.ceil(16 * kk * Math.min(1.5, (top - drag.y) / (top * .5)))); }
+    else if (drag.y > h - 110 * kk) { window.scrollBy(0, Math.ceil(16 * kk * Math.min(1.5, (drag.y - (h - 110 * kk)) / (55 * kk)))); }
+    dragStep();
+    drag.raf = requestAnimationFrame(dragTick);
+  }
+  function dragEnd() {
+    if (!drag) { return; }
+    var d = drag; drag = null;
+    cancelAnimationFrame(d.raf);
+    d.row.classList.remove('bz-drag');
+    var u = d.row.__bzu, sec = secKey(u.code, u.kd), P = [];
+    [].forEach.call(d.row.parentNode.children, function (r) { var q = r.__bzu; if (q && secKey(q.code, q.kd) === sec) { P.push(q.code); } });
+    if (!MK.o) { MK.o = {}; }
+    MK.o[sec] = ordMerge(MK.o[sec] || [], P);
+    ORDX = {};
+    saveMarks();
+    apply();
+  }
+  document.addEventListener('pointerdown', function (e) {
+    if (!ordOn || drag || (e.pointerType === 'mouse' && e.button !== 0)) { return; }
+    var td = e.target.closest && e.target.closest('tr.bz-r > td[data-ord]');
+    if (!td) { return; }
+    var row = td.parentNode, u = row.__bzu;
+    if (!u) { return; }
+    e.preventDefault();
+    try { td.setPointerCapture(e.pointerId); } catch (x) {}
+    drag = { row: row, g: grpOf(u), y: e.clientY, pid: e.pointerId, raf: 0 };
+    row.classList.add('bz-drag');
+    if (navigator.vibrate) { try { navigator.vibrate(15); } catch (x) {} }
+    drag.raf = requestAnimationFrame(dragTick);
+  }, true);
+  document.addEventListener('pointermove', function (e) {
+    if (!drag || e.pointerId !== drag.pid) { return; }
+    e.preventDefault(); drag.y = e.clientY; dragStep();
+  }, true);
+  ['pointerup', 'pointercancel'].forEach(function (n) {
+    document.addEventListener(n, function (e) { if (drag && e.pointerId === drag.pid) { dragEnd(); } }, true);
+  });
   // Код товара под пальцем: строка списка, её строка с деталями или карточка товара.
   function codeAt(t) {
     if (!t || !t.closest) { return null; }
@@ -840,7 +932,7 @@
   var HDR = ['// ==UserScript==', '// @name         Сортировка заказа Берёзка', '// @namespace    https://github.com/blooder9/my', '// @version      __V__', '// @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.', '// @match        https://wms.berezka.cy/*', '// @run-at       document-start', '// @grant        GM_setValue', '// @updateURL    https://raw.githubusercontent.com/blooder9/berezka-repository/main/berezka.js', '// @downloadURL  https://raw.githubusercontent.com/blooder9/berezka-repository/main/berezka.js', '// ==/UserScript=='].join('\n') + '\n';
   function buildSrc() {
     var ts = MK.ts || Date.now();
-    var data = JSON.stringify({ ts: ts, m: MK.m }).replace(/\*\//g, '*\\/');
+    var data = JSON.stringify({ ts: ts, m: MK.m, o: MK.o || {} }).replace(/\*\//g, '*\\/');
     var body = bzMain.toString().replace(/\/\*BZ\*\/[\s\S]*?\/\*ZB\*\//, function () { return '/*BZ*/' + data + '/*ZB*/'; });
     return HDR.replace('__V__', VER + '.' + Math.floor(ts / 1000)) + '(' + body + ')();\n';
   }
@@ -915,6 +1007,7 @@
     layout();
   }
   function setKey(k) {
+    if (ordOn && k !== 'color') { setOrd(false); }
     if (st.key === k) { st.dir = -st.dir; } else { st.key = k; st.dir = (k === 'need' || k === 'have') ? -1 : 1; }
     save(); paint(); apply();
   }
@@ -923,6 +1016,17 @@
   function secKey(code, kd) {
     var m = MK.m[code]; if (PAL[m]) { return m; }
     return kd === 'bz-p' ? 'p' : kd === 'bz-w' ? 'o' : kd === 'bz-v' ? 'b' : '';
+  }
+  // Свой порядок товаров в разделе (его задают перетягиванием): место товара в списке раздела, неизвестные — в конец.
+  var ORDX = {};
+  function oidx(u) {
+    var sec = secKey(u.code, u.kd), mp = ORDX[sec];
+    if (!mp) {
+      mp = ORDX[sec] = {};
+      var arr = (MK.o && MK.o[sec]) || [];
+      for (var i = 0; i < arr.length; i++) { mp[arr[i]] = i; }
+    }
+    return mp.hasOwnProperty(u.code) ? mp[u.code] : 1e9;
   }
   function crank(u) { var m = secKey(u.code, u.kd); return m ? PORD.indexOf(m) : 99; }
   // Основной цвет строки: своя отметка, иначе фиолетовый для вина. Красный (недобор) задаётся отдельно и действует только в этом заказе.
@@ -937,6 +1041,8 @@
     if (a.short !== b.short) { return a.short ? 1 : -1; }
     if (key === 'color') {
       r = crank(a) - crank(b);
+      if (r) { return r * st.dir; }
+      r = oidx(a) - oidx(b);   // свой порядок внутри раздела
       return r * st.dir || coll.compare(String(b.code), String(a.code)) || a.n - b.n;
     }
     if (key === 'name') { r = coll.compare(a.name, b.name); }
@@ -958,6 +1064,7 @@
     curUs.forEach(function (u) {
       var m = effCol(u.code, u.kd);
       var sc = PAL[secKey(u.code, u.kd)], sn = sc && sc.s || '', c2 = u.row.children[1];
+      var c1 = u.row.children[0]; if (c1 && (c1.hasAttribute('data-ord') !== !!(ordOn && sn))) { if (ordOn && sn) { c1.setAttribute('data-ord', '1'); } else { c1.removeAttribute('data-ord'); } }
       if (c2 && (c2.getAttribute('data-sec') || '') !== sn) { if (sn) { c2.setAttribute('data-sec', sn); } else { c2.removeAttribute('data-sec'); } }
       if (u.short) { m = 'r'; }   // недобор в этом заказе: вся строка красная, своя отметка в других заказах не меняется
       PORD.forEach(function (k) { u.row.classList.toggle('bz-m-' + k, k === m); });
@@ -1151,7 +1258,7 @@
     us.forEach(function (u) {
       u.kd = hlKind(u.name); if (u.kd === 'bz-w') { wcnt++; } else if (u.kd === 'bz-v' || u.kd === 'bz-p') { vcnt++; }
       if (!u.row.__bzs) { u.row.__bzs = 1; var hc = hueClass(getComputedStyle(u.row.children[0]).backgroundColor); if (hc) { u.row.classList.add(hc); } }
-      u.row.classList.add('bz-r');
+      u.row.classList.add('bz-r'); u.row.__bzu = u;
       if (u.det) { u.det.classList.add('bz-d'); u.det.classList.toggle('bz-e', !tx(u.det)); }
       var v = parseFloat(u.need.replace(',', '.')); if (v === v) { sum += v; }
     });
@@ -2238,12 +2345,13 @@
     if (st.lang) { bLang.textContent = st.lang.toUpperCase(); bLang.style.fontWeight = '800'; bLang.style.fontSize = '.8em'; bLang.style.color = P.gold2; bLang.style.borderColor = P.gold; } else { setIco(bLang, 'globe'); }
     bLang.title = st.lang === 'ru' ? 'Язык: русский (нажмите — English)' : st.lang === 'en' ? 'Language: English (tap — исходный)' : 'Перевод страницы: сейчас исходный (нажмите — русский)';
     bRef = ib('', 'Обновить страницу'); setIco(bRef, 'refresh');
+    bOrd = ib('', 'Порядок товаров в разделе (перетягивание)'); setIco(bOrd, 'drag'); bOrd.style.display = 'none';
     bPal = ib('', 'Цвета товаров');
-    bPal.appendChild(mk('span', 'display:block;width:1.15em;height:1.15em;border-radius:50%;background:conic-gradient(rgb(255,140,0),rgb(250,214,40),rgb(150,225,60),rgb(32,214,196),rgb(64,160,255),rgb(168,98,255),rgb(196,48,112),rgb(165,105,55),rgb(255,140,0));'));
+    bPal.appendChild(mk('span', 'display:block;width:1.15em;height:1.15em;border-radius:50%;background:conic-gradient(rgb(255,140,0),rgb(250,214,40),rgb(150,225,60),rgb(32,214,196),rgb(64,160,255),rgb(168,98,255),rgb(196,48,112),rgb(209,103,17),rgb(165,105,55),rgb(255,140,0));'));
     last = btn('← К списку'); last.style.display = 'none'; last.style.flex = '0 1 auto'; last.style.minWidth = '0'; last.style.overflow = 'hidden';
     stats = mk('div', 'font-size:.88em;color:' + P.mu + ';flex:1 1 0;min-width:0;');
     var icons = mk('div', 'display:flex;gap:.4em;margin-left:auto;flex:none;');
-    icons.appendChild(bSort); icons.appendChild(bPal); icons.appendChild(bRef); icons.appendChild(bLang); icons.appendChild(bTheme); icons.appendChild(bDark);
+    icons.appendChild(bSort); icons.appendChild(bOrd); icons.appendChild(bPal); icons.appendChild(bRef); icons.appendChild(bLang); icons.appendChild(bTheme); icons.appendChild(bDark);
     statRow = mk('div', 'display:flex;gap:.45em;align-items:center;');
     statRow.appendChild(last); statRow.appendChild(stats); statRow.appendChild(icons);
 
@@ -2251,7 +2359,7 @@
     palRow = mk('div', 'display:none;flex-direction:column;gap:.45em;');
     var sw = mk('div', 'display:grid;grid-template-columns:1fr 1fr;gap:.35em;');
     PUI.concat(['x']).forEach(function (k) {
-      var b = mk('button', 'align-items:center;justify-content:flex-start;gap:.5em;min-width:0;height:2.5em;padding:0 .6em;font:inherit;font-size:.9em;color:' + P.tx + ';white-space:nowrap;overflow:hidden;border-radius:.7em;cursor:pointer;border:2px ' + (k === 'x' ? 'dashed' : 'solid') + ' ' + P.line + ';background-color:' + P.s2 + ';-webkit-tap-highlight-color:transparent;transition:transform .12s ease;' + (k === 'x' ? 'color:' + P.mu + ';font-size:1.1em;font-weight:700;' : 'background-image:linear-gradient(rgba(' + PAL[k].c + ',' + AL + '),rgba(' + PAL[k].c + ',' + AL + '));'));
+      var b = mk('button', 'align-items:center;justify-content:flex-start;gap:.5em;min-width:0;height:2.5em;padding:0 .6em;font:inherit;font-size:.9em;color:' + P.tx + ';white-space:nowrap;overflow:hidden;border-radius:.7em;cursor:pointer;border:2px ' + (k === 'x' ? 'dashed' : 'solid') + ' ' + P.line + ';background-color:' + P.s2 + ';-webkit-tap-highlight-color:transparent;transition:transform .12s ease;' + (k === 'x' ? 'color:' + P.mu + ';' : 'background-image:linear-gradient(rgba(' + PAL[k].c + ',' + AL + '),rgba(' + PAL[k].c + ',' + AL + '));'));
       b.type = 'button'; b.className = 'bz';
       b.title = k === 'x' ? 'Убрать цвет' : (PAL[k].s ? PAL[k].s + ' — ' + PAL[k].n : PAL[k].n); b.setAttribute('aria-label', b.title);
       if (k === 'x') { b.textContent = '✕ Убрать цвет'; } else { b.appendChild(mk('span', 'display:block;flex:none;width:.8em;height:.8em;border-radius:50%;background:rgb(' + PAL[k].c + ');')); b.appendChild(document.createTextNode(PAL[k].s || (PAL[k].n.charAt(0).toUpperCase() + PAL[k].n.slice(1)))); }
@@ -2278,7 +2386,8 @@
     bLang.addEventListener('click', function () { st.lang = st.lang === '' ? 'ru' : st.lang === 'ru' ? 'en' : ''; save(); say('Обновляю…', false); location.reload(); });
     bTheme.addEventListener('click', function () { st.theme = st.theme === 'dark' ? 'dashdark' : 'dark'; save(); say('Обновляю…', false); location.reload(); });
     bDark.addEventListener('click', function () { st.dark = !st.dark; save(); say('Обновляю…', false); location.reload(); });
-    bPal.addEventListener('click', function () { setPaint(!paintOn); });
+    bPal.addEventListener('click', function () { if (!paintOn && ordOn) { setOrd(false); } setPaint(!paintOn); });
+    bOrd.addEventListener('click', function () { setOrd(!ordOn); });
     // В режиме окраски касание товара красит его и не открывает ссылку.
     document.addEventListener('click', function (e) {
       if (!paintOn || (e.target.closest && e.target.closest('#bz-bar,#bz-modal'))) { return; }
