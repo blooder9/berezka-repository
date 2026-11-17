@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.45
+// @version      3.46
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -25,7 +25,7 @@
   };
   var P = {};
   Object.keys(PALS.dark).forEach(function (k) { P[k] = 'var(--bz-' + k + ')'; });
-  var VER = '3.45';
+  var VER = '3.46';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o', theme: 'dashdark', lang: '' };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -194,6 +194,7 @@
     rowCss(P, '', 1),
     '@keyframes bzflash{0%,60%{outline-color:rgba(214,179,106,1)}100%{outline-color:rgba(214,179,106,0)}}',
     'tr.bz-flash{outline:4px solid rgba(214,179,106,1);outline-offset:-2px;border-radius:22px;animation:bzflash 2.4s ease-out forwards}',
+    '.bz-doc.bz-flash{outline:4px solid rgba(214,179,106,1);outline-offset:-2px;animation:bzflash 2.4s ease-out forwards}',
     'tr.bz-w > td{background-image:linear-gradient(rgba(255,140,0,.3),rgba(255,140,0,.3)) !important}',
     'tr.bz-v > td{background-image:linear-gradient(rgba(64,160,255,.3),rgba(64,160,255,.3)) !important}',
     rowCss(P, '', 2),
@@ -1224,7 +1225,7 @@
         var row = a.closest('tr'), ids = [], x = row;
         while (x && (x = x.nextElementSibling) && ids.length < 4) { if (isProd(x)) { ids.push(x.id); } }
         var m = /[?&]barcode=([^&#]*)/.exec(a.getAttribute('href') || '');
-        jset(RKEY, { c: m ? decodeURIComponent(m[1]) : (row ? row.id : ''), nx: ids, list: location.pathname + location.search, go: 0, ts: Date.now() });
+        jset(RKEY, { c: m ? decodeURIComponent(m[1]) : (row ? row.id : ''), nx: ids, list: location.pathname + location.search, go: 0, ts: Date.now(), top: row ? Math.round(row.getBoundingClientRect().top) : null });
       }, true);
       if (r && r.go && now - r.go < 10 * 60e3) { returnToRow(r); }
       else if (r && !r.go && now - (r.ts || 0) < 10 * 60e3 && r.list === location.pathname + location.search) {
@@ -1274,8 +1275,20 @@
       else if (/собрать|pick/.test(t)) { mark('pick'); }
     }, true);
   }
+  // Не даём браузеру самому восстанавливать прокрутку (он делает это позже и сбивает позицию), и держим позицию, пока не коснулись экрана.
+  function holdScroll(fn) {
+    var stop = false, tm = [];
+    try { history.scrollRestoration = 'manual'; } catch (e) {}
+    var halt = function () { stop = true; tm.forEach(clearTimeout); };
+    ['touchstart', 'wheel', 'keydown', 'mousedown'].forEach(function (ev) { window.addEventListener(ev, halt, { once: true, passive: true, capture: true }); });
+    var run = function (final) { if (!stop) { fn(final); } };
+    run(false);
+    [120, 350, 700, 1200, 2000].forEach(function (d) { tm.push(setTimeout(function () { run(false); }, d)); });
+    window.addEventListener('load', function () { tm.push(setTimeout(function () { run(true); }, 150)); });
+    if (document.readyState === 'complete') { tm.push(setTimeout(function () { run(true); }, 450)); }
+  }
   function returnToRow(r) {
-    var ex = !!r.exact;
+    var ex = !!r.exact, topSaved = (ex && typeof r.top === 'number') ? r.top : null;
     var tryScroll = function (final) {
       var tr = null, ids = [r.c].concat(r.nx || []);
       for (var i = 0; i < ids.length && !tr; i++) {
@@ -1286,15 +1299,33 @@
         tr = el;
       }
       if (!tr) { return; }
-      var y = tr.getBoundingClientRect().top + (window.pageYOffset || 0) - (bar ? bar.offsetHeight : 0) - 90;
+      // «Назад» на телефоне: строка встаёт на то же место экрана, где была; иначе — немного ниже панели
+      var off = topSaved !== null ? topSaved : ((bar ? bar.offsetHeight : 0) + 90);
+      var y = tr.getBoundingClientRect().top + (window.pageYOffset || 0) - off;
       window.scrollTo(0, Math.max(0, y));
       if (final) { tr.classList.add('bz-flash'); setTimeout(function () { tr.classList.remove('bz-flash'); }, 2400); }
     };
     r.go = 0; r.exact = 0; jset(RKEY, r);
-    tryScroll(false);
-    setTimeout(function () { tryScroll(false); }, 250);
-    window.addEventListener('load', function () { setTimeout(function () { tryScroll(true); }, 120); });
-    if (document.readyState === 'complete') { setTimeout(function () { tryScroll(true); }, 400); }
+    holdScroll(tryScroll);
+  }
+  // Список магазинов: нажали на номер или вид сборки в карточке — запоминаем карточку; «Назад» возвращает на то же место списка.
+  function trackDocsReturn() {
+    if (!st.dark) { return; }
+    var wrap = document.querySelector('.bz-docs'); if (!wrap) { return; }
+    var KEYP = 'bz-pos-v1', here = location.pathname + location.search;
+    document.addEventListener('click', function (e) {
+      var a = e.target && e.target.closest && e.target.closest('.bz-docs a[href]'); if (!a) { return; }
+      var card = a.closest('.bz-doc'); if (!card) { return; }
+      jset(KEYP, { u: here, h: a.getAttribute('href'), top: Math.round(card.getBoundingClientRect().top), y: Math.round(window.pageYOffset || 0), ts: Date.now() });
+    }, true);
+    var r = jget(KEYP), nt = null; try { nt = performance.getEntriesByType('navigation')[0]; } catch (e) { }
+    if (!r || r.u !== here || Date.now() - (r.ts || 0) > 30 * 60e3 || !nt || nt.type !== 'back_forward') { return; }
+    holdScroll(function (final) {
+      var a = [].filter.call(wrap.querySelectorAll('a[href]'), function (x) { return x.getAttribute('href') === r.h; })[0], card = a && a.closest('.bz-doc');
+      if (!card) { window.scrollTo(0, r.y || 0); return; }
+      window.scrollTo(0, Math.max(0, card.getBoundingClientRect().top + (window.pageYOffset || 0) - r.top));
+      if (final) { card.classList.add('bz-flash'); setTimeout(function () { card.classList.remove('bz-flash'); }, 2400); }
+    });
   }
   // Прогресс сборки списка: всего позиций не уменьшается (запоминаем все виденные), собрано = обработанные + исчезнувшие из списка.
   var PROG = null;
@@ -2609,6 +2640,7 @@
     if (st.dark) { buildLogin(); if (!isHandy()) { buildDash(); buildRecords(); buildForms(); } buildDocs(); orderForm(); }
     fit(); paint(); apply();
     try { trackReturn(); } catch (e) {}
+    try { trackDocsReturn(); } catch (e) {}
     if (st.dark) { decorate(); restylePages(); tightenGap(); window.addEventListener('load', function () { tightenGap(); }); }
     if (st.dark) { try { noZoom(); } catch (e) {} }
     try { startLang(); } catch (e) {}
