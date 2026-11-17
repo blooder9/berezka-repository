@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.41
+// @version      3.45
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -25,14 +25,13 @@
   };
   var P = {};
   Object.keys(PALS.dark).forEach(function (k) { P[k] = 'var(--bz-' + k + ')'; });
-  var VER = '3.41';
-  var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o', theme: 'dark', lang: '' };
+  var VER = '3.45';
+  var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o', theme: 'dashdark', lang: '' };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
     Object.keys(st).forEach(function (k) { if (sv[k] !== undefined) { st[k] = sv[k]; } });
   } catch (e) {}
-  if (st.theme === 'dash') { st.theme = 'dashdark'; }
-  if (!PALS[st.theme]) { st.theme = 'dark'; }
+  st.theme = 'dashdark';   // тема одна: «Панель» (классика убрана)
   function save() { try { localStorage.setItem(SKEY, JSON.stringify(st)); } catch (e) {} }
   // Цвета отметок (все с прозрачностью 20 %).
   var PAL = {
@@ -102,7 +101,7 @@
   }
   function okey(k) { var t = curType(); return t === 'dry' ? k : k + '@' + t; }
   // Отметки товаров: код товара -> цвет. Блок между маркерами подставляется при копировании скрипта.
-  var SAVED = /*BZ*/{"ts":0,"m":{}}/*ZB*/;
+  var SAVED = /*BZ*/{"ts":1794895705064,"m":{"337":"cf","686":"o","713":"o","726":"o","731":"k","755":"o","757":"o","771":"o","802":"o","809":"o","1111":"o","1302":"cf","1305":"cf","1313":"cf","1391":"cf","1393":"o","1394":"o","1408":"o","1413":"t","1436":"o","1453":"cf","1454":"cf","1456":"cf","2872":"o","2873":"o","2874":"o","2875":"o","4852":"o","7519":"o","8112":"o","11214":"o","11307":"o","14002":"o","14222":"o","17304":"y","26042":"o","30001":"t","30002":"t","30003":"t","30051":"t","30053":"t","30102":"t","30104":"t","31095":"t","31096":"t","31131":"t","31132":"t","31260":"t","31271":"t","31301":"t","31302":"t","31304":"t","31306":"t","31351":"t","31353":"t","31354":"t","31357":"t","41003":"t","41011":"t","41014":"t","41015":"t","41016":"t","41105":"t","41108":"t","41111":"t","41115":"t","41151":"t","41252":"t","41253":"t","41254":"na","41255":"t","41504":"t","41506":"t","41531":"t","41652":"t","41653":"t","42602":"t","42604":"t","42605":"t","42607":"t","42610":"t","45853":"t","46029":"t","55104":"t","55105":"t","55106":"t","56402":"e","56404":"e","56412":"sy","56413":"e","56415":"e","56419":"e","56429":"e","56700":"e","56701":"e","56703":"e","56704":"e","59303":"e","60101":"n","60102":"n","60103":"n","60158":"n","60159":"n","60160":"n","60184":"so","60204":"s","60205":"s","60221":"s","60222":"s","60229":"so","60231":"s","60232":"s","60612":"so","61101":"so","61104":"so","62428":"na","64009":"g","64012":"g","64030":"g","64181":"g","64182":"n","64202":"g","64203":"g","64205":"g","64206":"g","64207":"g","64306":"n","64307":"n","64411":"g","64412":"g","64413":"g","64414":"g","64415":"g","64416":"g","64417":"g","64418":"g","64419":"g","64420":"g","64421":"n","64423":"g","64424":"g","64426":"g","64427":"g","64501":"g","64503":"g","64514":"g","67255":"vi","67353":"vi","67354":"vi","67753":"vi","67804":"vi","67832":"vi","67837":"vi","67973":"vi","68458":"p","68460":"p","68820":"p","68821":"p","69403":"p","69404":"p","69605":"p","69614":"p","75302":"y","75303":"y","80005":"cf","82038":"cf","82112":"cf","82251":"t","82265":"t","82266":"o","84031":"y","84032":"y","84033":"y","84034":"y","84053":"y","84054":"y","84061":"y","84062":"y","84081":"y","84082":"y","84083":"y","84084":"y","84423":"y","84426":"y","84432":"y","84471":"y","84472":"y","84473":"y","84474":"y","84475":"y","84476":"y","84502":"y","84503":"y","84504":"y","84506":"y","84507":"y","84509":"y","84510":"y","84512":"y","84513":"y","84522":"y","84524":"y","84525":"y","84526":"y","85531":"o","85601":"cf","85612":"cf","85621":"o","85622":"o","85632":"o","85818":"cf","87421":"t","87422":"t","89801":"o","94805":"y","94806":"y","94808":"t","94809":"t","99999":"h","100007":"h","100008":"h","102504":"o","102509":"o","105301":"o","105304":"o","105306":"o","105320":"o","105355":"o","105356":"o","105360":"o","105375":"o","105377":"o","105379":"t","105391":"o","667208":"p","667209":"p","667210":"p","702421":"s","702422":"s","702428":"s","702431":"s","702432":"s","702438":"s","702441":"s","702442":"s","705221":"e","706704":"o","708102":"t","900818":"y","2001038":"p","2001042":"p","2001043":"p","2001044":"p","2008026":"o","7000112":"cf","800125992":"s","800126153":"k","800126155":"k","800126158":"o","800126160":"k","800126218":"o","800126339":"g","800126340":"g","800126342":"g","800126343":"g","800126348":"g","800126349":"g","800126350":"g","800126351":"g","800126354":"g","800126356":"g","800126357":"g","800126362":"g","800126401":"g","800126432":"g","800126526":"k","800126604":"g","800126658":"g","800126659":"g","800126663":"g","800126664":"g","800126665":"g","800126733":"g","800126734":"g","800126825":"g"},"o":{"e":["72320","72303","706268"],"b":["60483","707501","60473","60481","62425","61237","62426","60482","62421","61234","62402","62431","61233","61235","61236","61101","62411","60263","62404","60229","61104","62302","62428","62303","60228","800126362","62401","60264","60224","60226","60227","60351","60225","60353","60183","60352","60261","62415","800126668","60262","60184","60181","800126667","60615","60611","800126351","60617","800126357","105379","69404","69403","68460","64503","60182","105306","64012","800126666","60612","800126340","62301"],"s":["800125992","702432","702422","702442","702441","702431","702421","60232","60222","60205","60204"],"o":["72317","85817","72312","72311","72321","72319","706274","706266","72304","72320","85818","72204","72224","706268","689","84251","82302","706269","72225","72306","80005","706278","706263","82043","72318","706280","72315","72307","706277","57504","72201","84120","706706","85706","706281","706704","706282","1391","105306","685","72303","684","57638","706279","1456","105326","337","94801","105320","1313","800126656","85601","85612","1301","82045","105317","82303","85611","105304","105356","82304","11176","82038","57517","105377","85703","84604","57522","94802","75001","105391","84112","57513","84572","58706","1453","85532","84605","84433","84083","773","75002","82260","57505","56412","11177","102509","75003","85702","84252","84053","57526","85534","75307","85614","57514","1412","94803","84541","84574","58713","85533","800126532","85622","85531","84700","58128","11173","75022","7000112","105360","84701","58303","75021","57523","76003","1411","11175","706705","57516","57527","58302","84472","76002","105301","94800","75032","84705","85621","1309","105385","58132","75033","11178","82267","84113","7000111","75031","41101","59303","82256","58319","57515","57508","82112","56704","31260","800126545","85628","85627","84055","85538","1302","1310","84119","85540","82113","800126533","85522","58304","58714","85625","85631","85523","75034","84573","105378","105375","105355","84602","84032","800126538","41651","31271","31096","84571","85528","84542","57511","45853","30053","705223","94805","57506","57529","85521","85535","82263","82252","11172","85539","82265","85526","85704","82047","80003","31353","85536","58129","102504","84707","82301","42604","1454","85751","57524","57512","1311","85802","82039","57502","31095","31132","31131","11171","58131","58712","41506","85529","57507","57530","41117","11179"],"y":["84524","84522","84513","84512","84509","84504","84502","84054","84473","84526","84084","84507","84432","84423","75302","84082","84510","84081","84503","84053","84476"],"t":["82266","41252","41011","30104"],"p":["67926","67754","67752","67101","67501","667208","67154","67054","667210","69605","69403","69404","67977","2001043","67102","69614","69702","67972","67838","67014","67404","67805","69701","67804","2001039","68821","68460","67509","67751","67973","67837","67254","67055"],"g":["800126664","800126659","64413","800126432","64207","64417","64181","800126357"],"n":["64306","60101","60158"]},"n":{"dry":{"o":"Суш"},"cool":{},"frz":{},"none":{}},"cu":{}}/*ZB*/;
   var MKEY = 'bz-marks-v1';
   var MK = { ts: 0, m: {}, o: {}, n: {}, cu: {} };   // m — цвета товаров, o — свой порядок товаров внутри раздела: раздел -> [коды]
   // Отметки хранятся в трёх местах: в хранилище Tampermonkey (не стирается сайтом при выходе из учётной записи),
@@ -712,10 +711,16 @@
     try { document.documentElement.setAttribute('data-bz-pg', new URL(location.href).searchParams.get('page') || ''); } catch (e) { }
     if (!document.getElementById('bz-bar')) {
       document.documentElement.setAttribute('data-bz-hold', '1');
-      setTimeout(unhold, 2500);
+      setTimeout(unhold, 5000);
     }
   });
-  function unhold() { try { document.documentElement.removeAttribute('data-bz-hold'); } catch (e) {} }
+  // Если на странице есть ранний стиль-страховка (Stylus, см. страницу установки), он прячет body до метки data-bz-ready: ставим её, как только страница готова.
+  function unhold() {
+    try {
+      var h = document.documentElement; h.removeAttribute('data-bz-hold');
+      if (document.body && getComputedStyle(document.body).visibility === 'hidden') { h.setAttribute('data-bz-ready', '1'); }
+    } catch (e) {}
+  }
   window.addEventListener('pageshow', unhold);
   function themeColor() {
     var m = document.querySelector('meta[name=theme-color]');
@@ -813,7 +818,7 @@
   function setIco(el, name, size) { el.textContent = ''; el.appendChild(ico(name, size)); }
 
   // ---------- Панель ----------
-  var K = 1, bar, tools, chips, stats, statRow, last, bDark, bRef, bCol, bLang, bTheme, fab, sbtn = {};
+  var K = 1, bar, tools, chips, stats, statRow, last, bDark, bRef, bCol, bLang, fab, sbtn = {};
   var skeys = [['color', 'Раздел'], ['n', '№'], ['code', 'Код'], ['name', 'Название'], ['need', 'Надо'], ['have', 'Есть']], bSort, sortOpen = false;
   var hasTable = false, hasItem = false, palRow, bPal, hint, swb = {}, ft = 0, bOrd = null, ordOn = false, drag = null;
 
@@ -1447,8 +1452,16 @@
         return (db - da) || (a.rank - b.rank) || (a.ix - b.ix);
       });
       var actShops = {}, actDate = '';
-      units.forEach(function (u) { if (u.day === maxDay) { actShops[tx(u.cells[u.di + 2] || u.cells[0]).toLowerCase()] = 1; actDate = tx(u.cells[u.di]); } });
-      wrap.__act = Object.keys(actShops).length; wrap.__actDate = actDate.replace(/\s+\d{1,2}:\d{2}(:\d{2})?$/, '');
+      // магазин, у которого все виды сборки COMPLETED, в счётчик не входит, но его карточка остаётся в списке (пока документ не закрыт на сайте)
+      units.forEach(function (u) {
+        if (u.day !== maxDay) { return; }
+        var shopK = tx(u.cells[u.di + 2] || u.cells[0]).toLowerCase(), numC = u.di > 0 ? u.cells[u.di - 1] : null, numLink = numC ? numC.querySelector('a') : null;
+        var ls = []; u.rows.forEach(function (r) { [].forEach.call(r.querySelectorAll('a'), function (a) { if (a !== numLink) { ls.push(a); } }); });
+        var allDone = ls.length > 0 && ls.every(function (a) { return typeDone(a.getAttribute('href')); });
+        if (!allDone) { actShops[shopK] = 1; } else if (!actShops[shopK]) { actShops[shopK] = 0; }
+        actDate = tx(u.cells[u.di]);
+      });
+      wrap.__act = Object.keys(actShops).filter(function (k) { return actShops[k]; }).length; wrap.__actDate = actDate.replace(/\s+\d{1,2}:\d{2}(:\d{2})?$/, '');
       units.forEach(function (u) {
         var c = u.cells, d = u.di;
         var txt = function (i) { return (i >= 0 && c[i]) ? tx(c[i]) : ''; };
@@ -2472,9 +2485,11 @@
   function offMode() {
     if (document.getElementById('bz-off') || !document.body) { return; }
     var b = document.createElement('button');
-    b.id = 'bz-off'; b.type = 'button'; b.textContent = '☾'; b.title = 'Включить оформление'; b.setAttribute('aria-label', b.title);
-    b.style.cssText = 'all:initial;position:fixed;right:10px;bottom:10px;z-index:2147483647;box-sizing:border-box;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(20,22,27,.78);color:#f2f2f5;font:600 22px/42px sans-serif;text-align:center;opacity:.55;cursor:pointer;-webkit-tap-highlight-color:transparent;';
-    b.addEventListener('click', function () { st.dark = true; save(); b.textContent = '…'; location.reload(); });
+    b.id = 'bz-off'; b.type = 'button'; b.title = 'Включить оформление'; b.setAttribute('aria-label', b.title);
+    var kk = calcK();   // форма и размер — как у кнопки ☾ в панели (2.6em × 2.4em, скругление .8em), но почти прозрачная (15 %)
+    b.appendChild(ico('moon'));
+    b.style.cssText = 'all:initial;position:fixed;right:10px;bottom:10px;z-index:2147483647;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:' + (15 * kk) + 'px;width:2.6em;height:2.4em;border-radius:.8em;border:1px solid #ff7a3d;background:#272830;color:#f2f2f5;opacity:.15;cursor:pointer;-webkit-tap-highlight-color:transparent;';
+    b.addEventListener('click', function () { st.dark = true; save(); location.reload(); });
     document.body.appendChild(b);
   }
   function build() {
@@ -2507,8 +2522,7 @@
     var ib = function (label, title) { var b = btn(label); b.style.minWidth = '2.6em'; b.style.minHeight = '2.4em'; b.style.padding = '0'; b.title = title; b.setAttribute('aria-label', title); return b; };
     bCol = ib('', 'Свернуть');
     bDark = ib('', 'Оформление');
-    bLang = ib('', 'Язык страницы'); bTheme = ib('', 'Тема: классика / панель');
-    setIco(bTheme, 'theme');
+    bLang = ib('', 'Язык страницы');
     if (st.lang) { bLang.textContent = st.lang.toUpperCase(); bLang.style.fontWeight = '800'; bLang.style.fontSize = '.8em'; bLang.style.color = P.gold2; bLang.style.borderColor = P.gold; } else { setIco(bLang, 'globe'); }
     bLang.title = st.lang === 'ru' ? 'Язык: русский (нажмите — English)' : st.lang === 'en' ? 'Language: English (tap — исходный)' : 'Перевод страницы: сейчас исходный (нажмите — русский)';
     bRef = ib('', 'Обновить страницу'); setIco(bRef, 'refresh');
@@ -2518,7 +2532,7 @@
     last = btn('← К списку'); last.style.display = 'none'; last.style.flex = '0 1 auto'; last.style.minWidth = '0'; last.style.overflow = 'hidden';
     stats = mk('div', 'font-size:.88em;color:' + P.mu + ';flex:1 1 0;min-width:0;');
     var icons = mk('div', 'display:flex;gap:.4em;margin-left:auto;flex:none;');
-    icons.appendChild(bSort); icons.appendChild(bOrd); icons.appendChild(bPal); icons.appendChild(bRef); icons.appendChild(bLang); icons.appendChild(bTheme); icons.appendChild(bDark);
+    icons.appendChild(bSort); icons.appendChild(bOrd); icons.appendChild(bPal); icons.appendChild(bRef); icons.appendChild(bLang); icons.appendChild(bDark);
     statRow = mk('div', 'display:flex;gap:.45em;align-items:center;');
     statRow.appendChild(last); statRow.appendChild(stats); statRow.appendChild(icons);
 
@@ -2561,7 +2575,6 @@
     last.addEventListener('click', function () { var u = getLast(); if (u) { location.href = u; } });
     bRef.addEventListener('click', function () { try { say('Обновляю…', false); location.href = clean(location.href).href; } catch (e) { location.reload(); } });
     bLang.addEventListener('click', function () { st.lang = st.lang === '' ? 'ru' : st.lang === 'ru' ? 'en' : ''; save(); say('Обновляю…', false); location.reload(); });
-    bTheme.addEventListener('click', function () { st.theme = st.theme === 'dark' ? 'dashdark' : 'dark'; save(); say('Обновляю…', false); location.reload(); });
     bDark.addEventListener('click', function () { st.dark = !st.dark; save(); say('Обновляю…', false); location.reload(); });
     bPal.addEventListener('click', function () { if (!paintOn && ordOn) { setOrd(false); } setPaint(!paintOn); });
     bOrd.addEventListener('click', function () { setOrd(!ordOn); });
