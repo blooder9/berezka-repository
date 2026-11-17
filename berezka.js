@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.46
+// @version      3.47
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -25,7 +25,7 @@
   };
   var P = {};
   Object.keys(PALS.dark).forEach(function (k) { P[k] = 'var(--bz-' + k + ')'; });
-  var VER = '3.46';
+  var VER = '3.47';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o', theme: 'dashdark', lang: '' };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -1444,16 +1444,16 @@
   var SHOPS = [
     function (n) { return /makarios/.test(n); },
     function (n) { return /germasogeia/.test(n); },
-    function (n) { return /4\s*seasons/.test(n); },
     function (n) { return /paphos/.test(n) && !/evagora/.test(n); },
-    function (n) { return /omonia/.test(n); },
-    function (n) { return /vironis/.test(n); },
     function (n) { return /evagora/.test(n); },
+    function (n) { return /vironis/.test(n); },
     function (n) { return /meduz|medus/.test(n); },
-    function (n) { return /academ/.test(n); },
+    function (n) { return /kennedy/.test(n); },
+    function (n) { return /omonia/.test(n); },
     function (n) { return /marina/.test(n); },
+    function (n) { return /academ/.test(n); },
     function (n) { return /panteli/.test(n); },
-    function (n) { return /kennedy/.test(n); }
+    function (n) { return /4\s*seasons/.test(n); }
   ];
   function shopRank(name) {
     var n = String(name || '').toLowerCase();
@@ -2519,7 +2519,7 @@
     b.id = 'bz-off'; b.type = 'button'; b.title = 'Включить оформление'; b.setAttribute('aria-label', b.title);
     var kk = calcK();   // форма и размер — как у кнопки ☾ в панели (2.6em × 2.4em, скругление .8em), но почти прозрачная (15 %)
     b.appendChild(ico('moon'));
-    b.style.cssText = 'all:initial;position:fixed;right:10px;bottom:10px;z-index:2147483647;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:' + (15 * kk) + 'px;width:2.6em;height:2.4em;border-radius:.8em;border:1px solid #ff7a3d;background:#272830;color:#f2f2f5;opacity:.15;cursor:pointer;-webkit-tap-highlight-color:transparent;';
+    b.style.cssText = 'all:initial;position:fixed;right:10px;top:10px;z-index:2147483647;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:' + (15 * kk) + 'px;width:2.6em;height:2.4em;border-radius:.8em;border:1px solid #ff7a3d;background:#272830;color:#f2f2f5;opacity:.15;cursor:pointer;-webkit-tap-highlight-color:transparent;';
     b.addEventListener('click', function () { st.dark = true; save(); location.reload(); });
     document.body.appendChild(b);
   }
