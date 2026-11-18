@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.48
+// @version      3.49
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
 // @grant        GM_setValue
-// @updateURL    https://raw.githubusercontent.com/blooder9/berezka-repository/main/berezka-sort.js
-// @downloadURL  https://raw.githubusercontent.com/blooder9/berezka-repository/main/berezka-sort.js
+// @updateURL    https://raw.githubusercontent.com/blooder9/berezka-repository/main/berezka.js
+// @downloadURL  https://raw.githubusercontent.com/blooder9/berezka-repository/main/berezka.js
 // ==/UserScript==
 (function bzMain() {
   'use strict';
@@ -27,7 +27,7 @@
   };
   var P = {};
   Object.keys(PALS.dark).forEach(function (k) { P[k] = 'var(--bz-' + k + ')'; });
-  var VER = '3.48';
+  var VER = '3.49';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o', theme: 'dashdark', lang: '', light: false };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -281,7 +281,7 @@
     '.bz-qty{display:flex;flex-wrap:wrap;gap:14px;align-items:center;background:' + P.s1 + ';border:1px solid ' + P.line + ';border-radius:22px;padding:22px;font-size:32px;font-weight:700;color:' + P.gold2 + '}',
     '.bz-qty input[type=text],.bz-qty input:not([type]),.bz-qty input[type=number],.bz-qty input[type=tel]{flex:0 0 170px;width:170px !important;height:100px;text-align:center;font-size:44px !important}',
     '.bz-qty input[type=submit],.bz-qty input[type=button],.bz-qty button{flex:1 1 240px;height:100px;font-size:38px !important;padding:0 24px !important}',
-    '.bz-avail{display:flex;align-items:center;justify-content:space-between;gap:14px;font-size:30px;color:' + P.mu + '}',
+    '.bz-avail{display:block;margin:-4px 6px -2px;font-size:28px;color:' + P.mu + '}',
     '.bz-avail input,.bz-avail button{height:84px;padding:0 30px !important;font-size:28px !important;width:auto !important;margin:0 !important}',
     '.bz-acts{display:flex;gap:18px;margin:16px 0}',
     '.bz-acts input,.bz-acts button{flex:1 1 0;min-width:0;height:104px;font-size:30px !important;margin:0 !important;padding:0 10px !important;white-space:normal;width:auto !important}',
@@ -695,15 +695,17 @@
     'table.bz-rt.bz-one tr.bz-rr > td.bz-rab{display:block;padding:0 !important;border:0 !important;margin:0}',
     'table.bz-rt.bz-one tr.bz-rr > td.bz-rab a.bz-ab{display:flex;width:100%;min-height:52px;margin:0;padding:6px 6px;box-sizing:border-box;font-size:15px;line-height:1.15;letter-spacing:0;text-align:center;white-space:normal}',
     H + 'table.bz-rt.bz-one tr.bz-rr{border-radius:20px;box-shadow:inset 7px 0 0 rgb(var(--c)),0 10px 22px -18px rgba(0,0,0,.5)}',
-    // --- карточка товара: количество, «Уп-вка», «Собрать» и «Редактировать» в одной сетке из двух столбцов
-    '.bz-qty{display:grid !important;grid-template-columns:minmax(0,38%) minmax(0,1fr);gap:14px;align-items:center}',
-    '.bz-qrow{display:flex;align-items:center;gap:14px;min-width:0}',
-    '.bz-qty > input[type=submit],.bz-qty > input[type=button],.bz-qty > button{width:100% !important;min-width:0}',
-    '.bz-qty input.bz-pkin{-webkit-appearance:none;appearance:none;display:block;box-sizing:border-box;width:100% !important;min-width:0;flex:none;height:100px;margin:0;padding:0 24px !important;text-align:center;font-family:inherit;font-size:44px !important;font-weight:700;color:' + P.tx + ';background:' + P.s2 + ';border:0;border-radius:25px !important;outline:none;box-shadow:none;caret-color:' + P.tx + '}',
-    '.bz-qty input.bz-pkin::placeholder{color:' + P.mu + ';opacity:.7}',
-    '.bz-qty input.bz-pkin:focus{box-shadow:0 0 0 3px ' + P.ln4 + '}',
-    '.bz-avail{display:grid;grid-template-columns:minmax(0,38%) minmax(0,1fr);gap:14px;align-items:center;padding:0 23px}',
-    '.bz-avail > input,.bz-avail > button{width:100% !important;min-width:0;height:100px;padding:0 24px !important;font-size:38px !important;margin:0 !important}',
+    // --- карточка товара: ряд «Уп-вка» | синяя «Собрать» | «Редактировать» (три кнопки одной высоты)
+    '.bz-qrow{display:flex;flex:none;align-items:center;gap:14px}',
+    '.bz-pkrow{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:stretch}',
+    '.bz-pkc{display:flex;align-items:center;gap:12px;box-sizing:border-box;min-width:0;height:100px;padding:0 12px 0 22px;background:' + P.s1 + ';border-radius:25px;box-shadow:0 14px 30px -20px rgba(20,20,30,.35);font-size:32px;font-weight:700;color:' + P.gold2 + '}',
+    '.bz-pkl{flex:none;white-space:nowrap}',
+    '.bz-pkc input.bz-pkin{-webkit-appearance:none;appearance:none;display:block;box-sizing:border-box;flex:1 1 0;width:0 !important;min-width:0;height:76px;margin:0;padding:0 8px !important;text-align:center;font-family:inherit;font-size:42px !important;font-weight:700;color:' + P.tx + ';background:' + P.s2 + ';border:0;border-radius:25px !important;outline:none;box-shadow:none;caret-color:' + P.tx + '}',
+    '.bz-pkc input.bz-pkin::placeholder{color:' + P.mu + ';opacity:.7}',
+    '.bz-pkc input.bz-pkin:focus{box-shadow:0 0 0 3px ' + P.ln4 + '}',
+    'button.bz.bz-pkgo{-webkit-appearance:none;appearance:none;display:block;box-sizing:border-box;width:100%;min-width:0;height:100px;margin:0;padding:0 10px;border:0;border-radius:25px;font-family:inherit;font-size:32px;font-weight:700;letter-spacing:.02em;color:#fff;background:linear-gradient(180deg,#3f4dff,#1d22c4);box-shadow:0 14px 20px -14px rgba(20,25,160,.7),inset 0 3px 3px rgba(255,255,255,.25);cursor:pointer}',
+    '.bz-pkrow > button:not(.bz-pkgo),.bz-pkrow > input[type=button]{display:block;width:100% !important;min-width:0;height:100px !important;margin:0 !important;padding:0 8px !important;font-size:30px !important;white-space:nowrap}',
+    '.bz-avail-e{display:none !important}',
     // между подсказкой «Подтвердите количество…» и блоком «Скан» расстояние вдвое меньше
     '.bz-note + br,.bz-prompt + br{display:none}',
     '.bz-note + br + form,.bz-prompt + br + form,.bz-note + form,.bz-prompt + form{margin-top:33px}',
@@ -2497,32 +2499,45 @@
       var q = div('bz-qty');
       if (qtyIn) { var qr = div('bz-qrow'); qr.appendChild(span('', label)); qr.appendChild(qtyIn); q.appendChild(qr); }
       mainB.concat(others).forEach(function (e) { q.appendChild(e); });
-      // «Уп-вка»: сколько штук в упаковке; запоминается для этого товара и подставляется при следующем открытии
-      var pcode = (kv.filter(function (p) { return /Артикул/i.test(p[0]); })[0] || [])[1];
-      q.appendChild(span('bz-pkl', 'Уп-вка:'));
-      var pk = document.createElement('input');
-      pk.type = 'text'; pk.className = 'bz bz-pkin'; pk.placeholder = '—'; pk.autocomplete = 'off';
-      pk.setAttribute('inputmode', 'decimal'); pk.setAttribute('enterkeyhint', 'done'); pk.setAttribute('aria-label', 'Количество в упаковке');
-      pk.setAttribute('autocapitalize', 'none'); pk.spellcheck = false;
-      if (pcode && MK.pk && MK.pk[pcode]) { pk.value = MK.pk[pcode]; }
-      var savePk = function () {
-        var v = pk.value.replace(/[^\d.,]/g, '').slice(0, 9);
-        if (v !== pk.value) { pk.value = v; }
-        if (!pcode) { return; }
-        if (!MK.pk) { MK.pk = {}; }
-        if (v) { MK.pk[pcode] = v; } else { delete MK.pk[pcode]; }
-        saveMarks();
-      };
-      pk.addEventListener('input', savePk);
-      pk.addEventListener('change', savePk);
-      pk.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); pk.blur(); } });
-      q.appendChild(pk);
       box.appendChild(q);
     }
-    if (avail || editB) {
+    // Ряд «Уп-вка»: сколько штук в упаковке (запоминается для товара), синяя «Собрать» (собирает ровно одну упаковку) и «Редактировать»
+    var pcode = (kv.filter(function (p) { return /Артикул/i.test(p[0]); })[0] || [])[1];
+    var pk = document.createElement('input');
+    pk.type = 'text'; pk.className = 'bz bz-pkin'; pk.placeholder = '—'; pk.autocomplete = 'off';
+    pk.setAttribute('inputmode', 'decimal'); pk.setAttribute('enterkeyhint', 'done'); pk.setAttribute('aria-label', 'Количество в упаковке');
+    pk.setAttribute('autocapitalize', 'none'); pk.spellcheck = false;
+    if (pcode && MK.pk && MK.pk[pcode]) { pk.value = MK.pk[pcode]; }
+    var savePk = function () {
+      var v = pk.value.replace(/[^\d.,]/g, '').slice(0, 9);
+      if (v !== pk.value) { pk.value = v; }
+      if (!pcode) { return; }
+      if (!MK.pk) { MK.pk = {}; }
+      if (v) { MK.pk[pcode] = v; } else { delete MK.pk[pcode]; }
+      saveMarks();
+    };
+    pk.addEventListener('input', savePk);
+    pk.addEventListener('change', savePk);
+    pk.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); pk.blur(); } });
+    var prow = div('bz-pkrow'), pcell = div('bz-pkc');
+    pcell.appendChild(span('bz-pkl', 'Уп-вка:')); pcell.appendChild(pk); prow.appendChild(pcell);
+    var gb = document.createElement('button'); gb.type = 'button'; gb.className = 'bz bz-pkgo'; gb.textContent = 'Собрать'; gb.title = 'Собрать одну упаковку';
+    gb.addEventListener('click', function () {
+      var v = pk.value.replace(',', '.').trim();
+      if (!(parseFloat(v) > 0)) { flash('Впишите количество в упаковке'); try { pk.focus(); } catch (e) {} return; }
+      if (!qtyIn || !mainB[0]) { return; }
+      qtyIn.value = v;
+      try { qtyIn.dispatchEvent(new Event('input', { bubbles: true })); qtyIn.dispatchEvent(new Event('change', { bubbles: true })); } catch (e) {}
+      mainB[0].click();
+    });
+    prow.appendChild(gb);
+    if (editB) { prow.appendChild(editB); }
+    box.appendChild(prow);
+    if (avail || ct) {
+      // «Доступно на полке: …» — показываем, только если значение есть
       var av = div('bz-avail'), al = div('bz-avl'); al.appendChild(span('', avail)); if (ct) { al.appendChild(ct); } av.appendChild(al);
-      if (editB) { av.appendChild(editB); }
-      box.appendChild(av);
+      if (!ct || !ct.textContent.trim()) { av.classList.add('bz-avail-e'); }
+      box.insertBefore(av, prow);
     }
     // кнопки «Нет в наличии» и «Пропустить» собираем в один ряд под карточкой
     var acts = div('bz-acts'), pars = [];
@@ -2607,14 +2622,14 @@
       }
       b.style.gridColumn = span[k[0]];
       b.__ar = mk('span', 'display:inline-flex;margin-left:auto;'); b.appendChild(b.__ar);
-      b.addEventListener('click', function () { setKey(k[0]); sortOpen = false; layout(); });
+      b.addEventListener('click', function () { setKey(k[0]); });
       sbtn[k[0]] = b; chips.appendChild(b);
     });
     tools.appendChild(chips);
-    tools.appendChild(mk('div', 'margin-top:.55em;font-size:.78em;color:' + P.mu + ';', 'Нажмите на выбранный пункт ещё раз, чтобы развернуть порядок (↑ / ↓).'));
+    tools.appendChild(mk('div', 'margin-top:.55em;font-size:.78em;color:' + P.mu + ';', 'Нажмите на выбранный пункт ещё раз, чтобы развернуть порядок (↑ / ↓). Панель закроется кнопкой сортировки.'));
     bSort = btn(''); bSort.style.minWidth = '2.6em'; bSort.style.minHeight = '2.4em'; bSort.style.padding = '0'; bSort.title = 'Сортировка'; bSort.setAttribute('aria-label', 'Сортировка'); setIco(bSort, 'sort');
     bSort.style.display = 'none';
-    bSort.addEventListener('click', function () { sortOpen = !sortOpen; layout(); });
+    bSort.addEventListener('click', function () { sortOpen = !sortOpen; if (sortOpen && paintOn) { setPaint(false); } layout(); });
 
     var ib = function (label, title) { var b = btn(label); b.style.minWidth = '2.6em'; b.style.minHeight = '2.4em'; b.style.padding = '0'; b.title = title; b.setAttribute('aria-label', title); return b; };
     bCol = ib('', 'Свернуть');
@@ -2679,7 +2694,7 @@
     bLang.addEventListener('click', function () { langSet(st.lang === '' ? 'ru' : st.lang === 'ru' ? 'en' : ''); });
     bTheme.addEventListener('click', function () { st.light = !st.light; save(); applyTheme(); });
     bDark.addEventListener('click', function () { st.dark = !st.dark; save(); say('Обновляю…', false); location.reload(); });
-    bPal.addEventListener('click', function () { if (!paintOn && ordOn) { setOrd(false); } setPaint(!paintOn); });
+    bPal.addEventListener('click', function () { if (!paintOn && ordOn) { setOrd(false); } if (!paintOn && sortOpen) { sortOpen = false; layout(); } setPaint(!paintOn); });
     bOrd.addEventListener('click', function () { setOrd(!ordOn); });
     // В режиме окраски касание товара красит его и не открывает ссылку.
     document.addEventListener('click', function (e) {
