@@ -6,8 +6,8 @@
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
 // @grant        GM_setValue
-// @updateURL    https://raw.githubusercontent.com/blooder9/berezka-repository/main/berezka.js
-// @downloadURL  https://raw.githubusercontent.com/blooder9/berezka-repository/main/berezka.js
+// @updateURL    https://raw.githubusercontent.com/blooder9/berezka-repository/main/berezka-sort.js
+// @downloadURL  https://raw.githubusercontent.com/blooder9/berezka-repository/main/berezka-sort.js
 // ==/UserScript==
 (function bzMain() {
   'use strict';
