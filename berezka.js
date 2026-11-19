@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.59
+// @version      3.63
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -33,7 +33,7 @@
   };
   var P = {};
   Object.keys(PALS.dark).forEach(function (k) { P[k] = 'var(--bz-' + k + ')'; });
-  var VER = '3.59';
+  var VER = '3.63';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o', theme: 'dashdark', lang: '', light: false };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -1070,6 +1070,53 @@
       tmo(function () { a.remove(); URL.revokeObjectURL(url); }, 4000);
       flash('Скачивается: ' + name + ' · ' + Math.round(txt.length / 1024) + ' КБ');
     } catch (e) { flash('Не удалось скачать файл'); }
+  }
+  // Пароль на скачивание исходника (SHA-256, в открытом виде пароль в коде не хранится).
+  var DL_HASH = '7c61cf1423158284d873953ef9ccd57f10b1c244797c971fb011c71491b17987';
+  function sha256hex(s) {
+    try {
+      return crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)).then(function (buf) {
+        var b = new Uint8Array(buf), hex = '';
+        for (var i = 0; i < b.length; i++) { hex += (b[i] < 16 ? '0' : '') + b[i].toString(16); }
+        return hex;
+      });
+    } catch (e) { return Promise.resolve(''); }
+  }
+  function openPassGate(cb) {
+    closeModal();
+    var ov = mk('div', 'position:fixed;left:0;top:0;right:0;bottom:0;z-index:2147483647;background:rgba(0,0,0,.74);display:flex;padding:1em;overflow:auto;color:' + P.tx + ';font:15px/1.4 "Segoe UI",Roboto,Arial,sans-serif;');
+    ov.id = 'bz-modal';
+    var card = mk('div', 'width:100%;max-width:22em;margin:auto;background:' + P.s1 + ';border:1px solid ' + P.line + ';border-radius:1.1em;padding:1.1em;display:flex;flex-direction:column;gap:.6em;box-sizing:border-box;');
+    card.appendChild(mk('div', 'font-size:1.15em;font-weight:700;color:' + P.gold2 + ';', 'Пароль'));
+    card.appendChild(mk('div', 'font-size:.85em;color:' + P.mu + ';', 'Для скачивания скрипта нужен пароль.'));
+    var inp = document.createElement('input');
+    inp.type = 'password'; inp.className = 'bz'; inp.setAttribute('autocomplete', 'off'); inp.setAttribute('autocapitalize', 'off'); inp.setAttribute('autocorrect', 'off'); inp.setAttribute('spellcheck', 'false');
+    inp.style.cssText = 'all:initial;display:block;box-sizing:border-box;width:100%;height:2.6em;padding:0 .7em;font:inherit;color:' + P.tx + ';background:' + P.s2 + ';border:1px solid ' + P.line + ';border-radius:.6em;';
+    card.appendChild(inp);
+    var err = mk('div', 'font-size:.85em;color:' + P.err + ';min-height:1.2em;');
+    card.appendChild(err);
+    var row = mk('div', 'display:flex;gap:.5em;');
+    var ok = btn('Скачать'); ok.style.background = GRAD; ok.style.color = P.fg; ok.style.border = '0'; ok.style.flex = '1 1 0';
+    var cancel = btn('Отмена'); cancel.style.flex = '1 1 0';
+    row.appendChild(cancel); row.appendChild(ok);
+    card.appendChild(row);
+    ov.appendChild(card);
+    document.body.appendChild(ov);
+    tmo(function () { try { inp.focus(); } catch (e) {} }, 50);
+    var busy = false;
+    function submit() {
+      if (busy) { return; }
+      busy = true;
+      sha256hex(inp.value).then(function (h) {
+        busy = false;
+        if (h && h === DL_HASH) { closeModal(); cb(); }
+        else { err.textContent = 'Неверный пароль'; inp.value = ''; try { inp.focus(); } catch (e) {} }
+      });
+    }
+    ok.addEventListener('click', submit);
+    cancel.addEventListener('click', closeModal);
+    inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); submit(); } });
+    ov.addEventListener('click', function (e) { if (e.target === ov) { closeModal(); } });
   }
   function closeModal() { var m = document.getElementById('bz-modal'); if (m) { m.remove(); } }
   // Окно «Разделы и цвета»: 4 вида сборки (Сушняк, Морозка, Охлажденка, Без типа), у каждого свои названия разделов и свой цвет в последней строке
@@ -2743,7 +2790,7 @@
     var bNm = btn('✎ Разделы и цвета'); bNm.style.minHeight = '2.4em'; bNm.title = 'Названия разделов и свой цвет для каждого вида сборки';
     bNm.addEventListener('click', function () { openSections(curType()); });
     var bDl = btn('⬇ Скачать .txt'); bDl.style.minHeight = '2.4em'; bDl.title = 'Скачать скрипт со всеми цветами и порядком товаров текстовым файлом';
-    bDl.addEventListener('click', downloadSrc);
+    bDl.addEventListener('click', function () { openPassGate(downloadSrc); });
     l2.style.flexWrap = 'wrap'; hint.style.flex = '1 1 100%';
     [bNm, bDl].forEach(function (b) { b.style.flex = '1 1 0'; b.style.padding = '0 .3em'; b.style.fontSize = '.86em'; });
     l2.appendChild(hint); l2.appendChild(bNm); l2.appendChild(bDl);
