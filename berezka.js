@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.57
+// @version      3.58
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -33,7 +33,7 @@
   };
   var P = {};
   Object.keys(PALS.dark).forEach(function (k) { P[k] = 'var(--bz-' + k + ')'; });
-  var VER = '3.57';
+  var VER = '3.58';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o', theme: 'dashdark', lang: '', light: false };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -159,11 +159,7 @@
       pre + 'tr.bz-s-amb > td{' + bg + Q.ta + ' !important}',
       pre + 'tr.bz-s-grn > td{' + bg + Q.tg + ' !important}',
       pre + 'tr.bz-s-blu > td{' + bg + Q.tb + ' !important}',
-      pre + 'tr.bz-r > td:first-child{border-radius:16px 0 0 16px;font-size:26px;font-weight:600;color:' + Q.mu + ' !important;text-align:center;box-shadow:inset 7px 0 0 ' + Q.dim + '}',
-      pre + 'tr.bz-s-red > td:first-child{box-shadow:inset 7px 0 0 #d4655f}',
-      pre + 'tr.bz-s-amb > td:first-child{box-shadow:inset 7px 0 0 #e0a458}',
-      pre + 'tr.bz-s-grn > td:first-child{box-shadow:inset 7px 0 0 #58b08a}',
-      pre + 'tr.bz-s-blu > td:first-child{box-shadow:inset 7px 0 0 #6c9bd8}',
+      pre + 'tr.bz-r > td:first-child{border-radius:16px 0 0 16px;font-size:26px;font-weight:600;color:' + Q.mu + ' !important;text-align:center;border-left:0 !important;box-shadow:inset 7px 0 0 ' + Q.dim + ' !important}',
       pre + 'tr.bz-r > td:last-child{border-radius:0 16px 16px 0}',
       pre + 'tr.bz-r > td:nth-child(2){text-align:center;vertical-align:middle}',
       pre + 'tr.bz-r > td:nth-child(2)[data-sec]::before{content:attr(data-sec);display:block;margin:0 0 4px;font-family:inherit;font-size:26px;font-weight:600;line-height:1.2;letter-spacing:0;text-transform:none;color:' + Q.mu + '}',
