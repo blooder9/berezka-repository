@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.58
+// @version      3.59
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -33,7 +33,7 @@
   };
   var P = {};
   Object.keys(PALS.dark).forEach(function (k) { P[k] = 'var(--bz-' + k + ')'; });
-  var VER = '3.58';
+  var VER = '3.59';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o', theme: 'dashdark', lang: '', light: false };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -211,9 +211,10 @@
     '@keyframes bzflash{0%,60%{outline-color:rgba(214,179,106,1)}100%{outline-color:rgba(214,179,106,0)}}',
     'tr.bz-flash{outline:4px solid rgba(214,179,106,1);outline-offset:-2px;border-radius:22px;animation:bzflash 2.4s ease-out forwards}',
     '.bz-doc.bz-flash{outline:4px solid rgba(214,179,106,1);outline-offset:-2px;animation:bzflash 2.4s ease-out forwards}',
+    rowCss(P, '', 2),
+    // сушняк (кг, г) — оранжевый оттенок, напитки (л, мл) — синий; идут после цветов статуса, иначе те их перекрывают
     'tr.bz-w > td{background-image:linear-gradient(rgba(255,140,0,.3),rgba(255,140,0,.3)) !important}',
     'tr.bz-v > td{background-image:linear-gradient(rgba(64,160,255,.3),rgba(64,160,255,.3)) !important}',
-    rowCss(P, '', 2),
     'tr.bz-r > td[data-ord]{touch-action:none;-webkit-user-select:none;user-select:none;cursor:grab}',
     'tr.bz-r > td[data-ord]::after{content:"\\2807\\2807";display:block;margin-top:2px;font-size:30px;line-height:1;letter-spacing:-2px;color:' + P.gold2 + '}',
     'tr.bz-r.bz-drag{outline:3px solid ' + P.gold + ';outline-offset:-2px;border-radius:16px}',
