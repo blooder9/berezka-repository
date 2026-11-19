@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.52
+// @version      3.54
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -33,7 +33,7 @@
   };
   var P = {};
   Object.keys(PALS.dark).forEach(function (k) { P[k] = 'var(--bz-' + k + ')'; });
-  var VER = '3.52';
+  var VER = '3.54';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o', theme: 'dashdark', lang: '', light: false };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -131,6 +131,16 @@
   [readMarks('gm'), readMarks('ls'), SAVED].forEach(function (o) {
     if (o && o.m && (o.ts || 0) > (MK.ts || 0)) { MK = { ts: o.ts || 0, m: o.m, o: (o.o && typeof o.o === 'object') ? o.o : {}, n: (o.n && typeof o.n === 'object') ? o.n : {}, cu: (o.cu && typeof o.cu === 'object') ? o.cu : {}, pk: (o.pk && typeof o.pk === 'object') ? o.pk : {} }; }
   });
+  // Защита от потери: если в самой свежей копии пусто (ни цветов, ни разделов, ни порядка), а в другой копии данные есть,
+  // берём самую полную копию (так возвращаются данные из самого скрипта).
+  var mkWeight = function (o) { try { return JSON.stringify([o && o.m, o && o.o, o && o.n, o && o.cu]).length; } catch (e) { return 0; } };
+  if (mkWeight(MK) <= 16) {
+    var best = null;
+    [readMarks('gm'), readMarks('ls'), SAVED].forEach(function (o) { if (o && o.m && mkWeight(o) > (best ? mkWeight(best) : 16)) { best = o; } });
+    if (best) {
+      MK = { ts: Date.now(), m: best.m, o: (best.o && typeof best.o === 'object') ? best.o : {}, n: (best.n && typeof best.n === 'object') ? best.n : {}, cu: (best.cu && typeof best.cu === 'object') ? best.cu : {}, pk: (MK.pk && Object.keys(MK.pk).length) ? MK.pk : ((best.pk && typeof best.pk === 'object') ? best.pk : {}) };
+    }
+  }
   if (MK.ts) { writeMarks(); }
   function saveMarks() { MK.ts = Date.now(); return writeMarks(); }
   function getLast() { try { return localStorage.getItem(LKEY) || ''; } catch (e) { return ''; } }
@@ -151,7 +161,6 @@
       pre + 'tr.bz-s-blu > td{' + bg + Q.tb + ' !important}',
       pre + 'tr.bz-r > td:first-child{border-radius:16px 0 0 16px;font-size:26px;font-weight:600;color:' + Q.mu + ' !important;text-align:center;box-shadow:inset 7px 0 0 ' + Q.dim + '}',
       pre + 'tr.bz-s-red > td:first-child{box-shadow:inset 7px 0 0 #d4655f}',
-      pre + 'tr.bz-s-amb > td:first-child{box-shadow:inset 7px 0 0 #e0a458}',
       pre + 'tr.bz-s-grn > td:first-child{box-shadow:inset 7px 0 0 #58b08a}',
       pre + 'tr.bz-s-blu > td:first-child{box-shadow:inset 7px 0 0 #6c9bd8}',
       pre + 'tr.bz-r > td:last-child{border-radius:0 16px 16px 0}',
@@ -704,22 +713,24 @@
     H + 'table.bz-rt.bz-one tr.bz-rr{border-radius:20px;box-shadow:inset 7px 0 0 rgb(var(--c)),0 10px 22px -18px rgba(0,0,0,.5)}',
     // --- карточка товара: ряд «Уп-вки» | выбор пачками | «Редактировать»
     '.bz-qrow{display:flex;flex:none;align-items:center;gap:14px}',
-    '.bz-pkrow{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,.85fr) minmax(0,1fr);gap:14px;align-items:stretch}',
-    '.bz-pkc{display:flex;align-items:center;gap:10px;box-sizing:border-box;min-width:0;height:100px;padding:0 12px 0 20px;background:' + P.s1 + ';border-radius:25px;box-shadow:0 14px 30px -20px rgba(20,20,30,.35);font-weight:700;color:' + P.gold2 + '}',
-    '.bz-pkt{display:flex;flex:1 1 auto;flex-direction:column;justify-content:center;min-width:0;line-height:1.1}',
-    '.bz-pkl{flex:none;white-space:nowrap;font-size:23px;font-weight:600;color:' + P.mu + '}',
-    '.bz-pkr{white-space:nowrap;font-size:38px;font-weight:700;color:' + P.tx + '}',
-    '.bz-pkr small{margin-left:6px;font-size:27px;font-weight:700;color:' + P.gold + '}',
-    '.bz-pkr small.z{color:' + P.mu + '}',
-    '.bz-pkc input.bz-pkin{-webkit-appearance:none;appearance:none;display:block;box-sizing:border-box;flex:0 0 112px;width:112px !important;min-width:0;height:76px;margin:0;padding:0 6px !important;text-align:center;font-family:inherit;font-size:38px !important;font-weight:700;color:' + P.tx + ';background:' + P.s2 + ';border:0;border-radius:25px !important;outline:none;box-shadow:none;caret-color:' + P.tx + '}',
+    '.bz-pkrow{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:14px;align-items:stretch}',
+    '.bz-pkw{min-width:0}',
+    '.bz-pkc{display:flex;align-items:center;gap:12px;box-sizing:border-box;min-width:0;height:100px;padding:0 12px 0 22px;background:' + P.s1 + ';border-radius:25px;box-shadow:0 14px 30px -20px rgba(20,20,30,.35);font-size:32px;font-weight:700;color:' + P.gold2 + '}',
+    '.bz-pkl{flex:none;white-space:nowrap}',
+    '.bz-pkc input.bz-pkin{-webkit-appearance:none;appearance:none;display:block;box-sizing:border-box;flex:1 1 0;width:0 !important;min-width:0;height:76px;margin:0;padding:0 8px !important;text-align:center;font-family:inherit;font-size:42px !important;font-weight:700;color:' + P.tx + ';background:' + P.s2 + ';border:0;border-radius:25px !important;outline:none;box-shadow:none;caret-color:' + P.tx + '}',
     '.bz-pkc input.bz-pkin::placeholder{color:' + P.mu + ';opacity:.7}',
     '.bz-pkc input.bz-pkin:focus{box-shadow:0 0 0 3px ' + P.ln4 + '}',
-    'button.bz.bz-pkpick{-webkit-appearance:none;appearance:none;display:flex;flex-direction:column;align-items:center;justify-content:center;box-sizing:border-box;width:100%;min-width:0;height:100px;margin:0;padding:0 8px;border:0;border-radius:25px;font-family:inherit;line-height:1.1;background:' + P.s2 + ';color:' + P.tx + ';box-shadow:0 14px 30px -20px rgba(20,20,30,.35);cursor:pointer}',
-    'button.bz.bz-pkpick .l{font-size:23px;font-weight:600;color:' + P.mu + '}',
-    'button.bz.bz-pkpick .v{font-size:42px;font-weight:700}',
-    'button.bz.bz-pkpick.bz-on .l{color:inherit;opacity:.7}',
-    'button.bz.bz-pkpick:disabled{opacity:.45;cursor:default}',
-    '.bz-pkrow > button:not(.bz-pkpick),.bz-pkrow > input[type=button]{display:block;width:100% !important;min-width:0;height:100px !important;margin:0 !important;padding:0 8px !important;font-size:30px !important;white-space:nowrap}',
+    'button.bz.bz-pkbtn{-webkit-appearance:none;appearance:none;display:none;align-items:center;gap:14px;box-sizing:border-box;width:100%;min-width:0;height:100px;margin:0;padding:0 8px 0 24px;border:0;border-radius:25px;font-family:inherit;text-align:left;background:' + P.s2 + ';color:' + P.tx + ';box-shadow:0 14px 30px -20px rgba(20,20,30,.35);cursor:pointer}',
+    'button.bz.bz-pkbtn .l{flex:none;font-size:28px;font-weight:600;color:' + P.mu + '}',
+    'button.bz.bz-pkbtn .v{flex:1 1 auto;min-width:0;font-size:46px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    'button.bz.bz-pkbtn.bz-on .l{color:inherit;opacity:.7}',
+    '.bz-pke{flex:none;display:flex;align-items:center;justify-content:center;width:84px;height:84px;border-radius:22px;color:' + P.mu + ';background:rgba(128,128,140,.16)}',
+    '.bz-pke svg{width:34px;height:34px}',
+    'button.bz.bz-pkbtn.bz-on .bz-pke{color:inherit;background:rgba(128,128,140,.22)}',
+    '.bz-pkw.bz-m-btn .bz-pkc{display:none}',
+    '.bz-pkw.bz-m-btn button.bz.bz-pkbtn{display:flex}',
+    '.bz-qh{flex:0 0 100%;order:9;margin:-2px 0 0 2px;font-size:28px;font-weight:600;color:' + P.mu + '}',
+    '.bz-pkrow > button,.bz-pkrow > input[type=button]{display:block;width:100% !important;min-width:0;height:100px !important;margin:0 !important;padding:0 8px !important;font-size:30px !important;white-space:nowrap}',
     '.bz-avail-e{display:none !important}',
     // между подсказкой «Подтвердите количество…» и блоком «Скан» расстояние вдвое меньше
     '.bz-note + br,.bz-prompt + br{display:none}',
@@ -838,6 +849,7 @@
   var ICO = {
     up: '<path d="M6 14.5l6-6 6 6"/>',
     down: '<path d="M6 9.5l6 6 6-6"/>',
+    edit: '<path d="M4 20l1-4.2L16.6 4.2a2 2 0 0 1 2.8 0l.4.4a2 2 0 0 1 0 2.8L8.2 19z"/><path d="M14.5 6.3l3.2 3.2"/>',
     refresh: '<path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4.5v4.6h-4.6"/>',
     moon: '<path d="M20.2 14.2A8.2 8.2 0 0 1 9.8 3.8a8.2 8.2 0 1 0 10.4 10.4z"/>',
     sun: '<circle cx="12" cy="12" r="3.8"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/>',
@@ -2510,8 +2522,9 @@
     kv.forEach(function (p) { var d = div('bz-kv'); d.appendChild(span('k', p[0])); d.appendChild(span('v', p[1])); kvs.appendChild(d); });
     head.appendChild(nm); head.appendChild(kvs); box.appendChild(head);
     var kd = hlKind(nm.textContent); if (kd) { head.classList.add(kd); head.__bzk = kd; }
+    var qBox = null;
     if (qtyIn || mainB.length) {
-      var q = div('bz-qty');
+      var q = div('bz-qty'); qBox = q;
       if (qtyIn) { var qr = div('bz-qrow'); qr.appendChild(span('', label)); qr.appendChild(qtyIn); q.appendChild(qr); }
       mainB.concat(others).forEach(function (e) { q.appendChild(e); });
       box.appendChild(q);
@@ -2534,45 +2547,60 @@
     pk.addEventListener('input', savePk);
     pk.addEventListener('change', savePk);
     pk.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); pk.blur(); } });
-    var prow = div('bz-pkrow'), pcell = div('bz-pkc');
-    // «Уп-вки»: основное количество делится на упаковку, показываем число упаковок и в скобках остаток
-    var pt = div('bz-pkt'), pr = span('bz-pkr', '—');
-    pt.appendChild(span('bz-pkl', 'Уп-вки:')); pt.appendChild(pr);
-    pcell.appendChild(pt); pcell.appendChild(pk); prow.appendChild(pcell);
-    var gb = document.createElement('button'); gb.type = 'button'; gb.className = 'bz bz-pkpick';
-    var gl = span('l', 'Пачками'), gv = span('v', '—'); gb.appendChild(gl); gb.appendChild(gv);
-    var qOrig = qtyIn ? qtyIn.value : '', qBase = qtyIn ? parseFloat(String(qtyIn.value).replace(',', '.')) : NaN;
-    var tot = 0, sel = false;
+    var prow = div('bz-pkrow'), pw = div('bz-pkw'), pcell = div('bz-pkc');
+    pcell.appendChild(span('bz-pkl', 'Уп-вки:')); pcell.appendChild(pk);
+    // «Уп-вки»: пока значение редактируется — ячейка с полем; после ввода становится кнопкой.
+    // Нажали кнопку — в «Кол-во» встаёт количество одной упаковки, затем нажимается обычная «Собрать».
+    var gb = document.createElement('button'); gb.type = 'button'; gb.className = 'bz bz-pkbtn';
+    var gl = span('l', 'Уп-вки:'), gv = span('v', ''), ge = span('bz-pke', '');
+    ge.title = 'Изменить количество в упаковке'; setIco(ge, 'edit', '34px');
+    gb.appendChild(gl); gb.appendChild(gv); gb.appendChild(ge);
+    pw.appendChild(pcell); pw.appendChild(gb); prow.appendChild(pw);
+    var qOrig = qtyIn ? qtyIn.value : '', qBase = qtyIn ? parseFloat(String(qtyIn.value).replace(',', '.')) : NaN, sel = false;
     var fmt = function (n) { return String(Math.round(n * 1000) / 1000); };
+    var pval = function () { var p = parseFloat(pk.value.replace(',', '.')); return p > 0 ? p : 0; };
     var setQ = function (v) {
       if (!qtyIn) { return; }
       qtyIn.value = v;
       try { qtyIn.dispatchEvent(new Event('input', { bubbles: true })); qtyIn.dispatchEvent(new Event('change', { bubbles: true })); } catch (e) {}
     };
     var setSel = function (on) { sel = on; gb.classList.toggle('bz-on', on); gb.setAttribute('aria-pressed', on ? 'true' : 'false'); };
+    // подсказка под «Кол-во»: сколько целых упаковок помещается и остаток
+    var hint = div('bz-qh');
     var calc = function () {
-      var p = parseFloat(pk.value.replace(',', '.')), n = 0, rem = 0;
-      tot = 0;
-      pr.textContent = '';
-      if (p > 0 && qBase > 0) {
-        n = Math.floor(qBase / p + 1e-9); tot = Math.round(n * p * 1000) / 1000; rem = Math.round((qBase - tot) * 1000) / 1000;
-        pr.appendChild(document.createTextNode(String(n)));
-        var sm = document.createElement('small'); sm.textContent = '(+' + fmt(rem) + ')'; if (!(rem > 0)) { sm.className = 'z'; } pr.appendChild(sm);
-      } else { pr.textContent = '—'; }
-      gv.textContent = tot > 0 ? fmt(tot) : '—';
-      gb.disabled = !(tot > 0) || !qtyIn;
-      gb.title = tot > 0 ? 'Выбрать ' + fmt(tot) + ' (целыми упаковками), затем нажать «Собрать»' : 'Впишите количество в упаковке';
-      if (sel) { if (tot > 0) { setQ(fmt(tot)); } else { setSel(false); setQ(qOrig); } }
+      var p = pval();
+      gv.textContent = p ? fmt(p) : '';
+      if (p && qBase > 0) {
+        var n = Math.floor(qBase / p + 1e-9), rem = Math.round((qBase - n * p) * 1000) / 1000;
+        hint.textContent = 'Уп-вок ' + n + ' + ' + fmt(rem); hint.style.display = '';
+      } else { hint.textContent = ''; hint.style.display = 'none'; }
+      if (sel) { if (p) { setQ(fmt(p)); } else { setSel(false); setQ(qOrig); } }
+    };
+    var setMode = function (btn) {
+      pw.classList.toggle('bz-m-btn', btn);
+      if (!btn && sel) { setSel(false); setQ(qOrig); }
     };
     pk.addEventListener('input', calc);
     pk.addEventListener('change', calc);
-    gb.addEventListener('click', function () {
-      if (gb.disabled || !qtyIn) { return; }
-      if (sel) { setSel(false); setQ(qOrig); } else { setSel(true); setQ(fmt(tot)); }
+    pk.addEventListener('blur', function () { if (pval()) { setMode(true); } });
+    gb.addEventListener('click', function (e) {
+      if (e.target && e.target.closest && e.target.closest('.bz-pke')) {
+        setMode(false); try { pk.focus(); pk.select(); } catch (er) {}
+        return;
+      }
+      if (!pval() || !qtyIn) { return; }
+      if (sel) { setSel(false); setQ(qOrig); } else { setSel(true); setQ(fmt(pval())); }
     });
-    if (qtyIn) { qtyIn.addEventListener('input', function (e) { if (e.isTrusted && sel) { setSel(false); } }); }
+    if (qtyIn) {
+      qtyIn.addEventListener('input', function (e) {
+        if (!e.isTrusted) { return; }
+        if (sel) { setSel(false); }
+        qBase = parseFloat(String(qtyIn.value).replace(',', '.')); qOrig = qtyIn.value; calc();
+      });
+    }
+    setMode(!!pval());
     calc();
-    prow.appendChild(gb);
+    if (qBox) { qBox.appendChild(hint); }
     if (editB) { prow.appendChild(editB); }
     box.appendChild(prow);
     if (avail || ct) {
