@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.55
+// @version      3.56
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -33,7 +33,7 @@
   };
   var P = {};
   Object.keys(PALS.dark).forEach(function (k) { P[k] = 'var(--bz-' + k + ')'; });
-  var VER = '3.55';
+  var VER = '3.56';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o', theme: 'dashdark', lang: '', light: false };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -159,7 +159,7 @@
       pre + 'tr.bz-s-amb > td{' + bg + Q.ta + ' !important}',
       pre + 'tr.bz-s-grn > td{' + bg + Q.tg + ' !important}',
       pre + 'tr.bz-s-blu > td{' + bg + Q.tb + ' !important}',
-      pre + 'tr.bz-r > td:first-child{border-radius:16px 0 0 16px;font-size:26px;font-weight:600;color:' + Q.mu + ' !important;text-align:center;box-shadow:inset 7px 0 0 ' + Q.dim + '}',
+      pre + 'tr.bz-r > td:first-child{border-radius:16px 0 0 16px;font-size:26px;font-weight:600;color:' + Q.mu + ' !important;text-align:center;border-left:0 !important;box-shadow:inset 7px 0 0 ' + Q.dim + ' !important}',
       pre + 'tr.bz-r > td:last-child{border-radius:0 16px 16px 0}',
       pre + 'tr.bz-r > td:nth-child(2){text-align:center;vertical-align:middle}',
       pre + 'tr.bz-r > td:nth-child(2)[data-sec]::before{content:attr(data-sec);display:block;margin:0 0 4px;font-family:inherit;font-size:26px;font-weight:600;line-height:1.2;letter-spacing:0;text-transform:none;color:' + Q.mu + '}',
@@ -2719,6 +2719,7 @@
     var ph = mk('div', 'display:flex;align-items:center;gap:.55em;margin:.1em 0 .1em;');
     ph.appendChild(ico('brush', '1.3em'));
     ph.appendChild(mk('span', 'font-size:1.08em;font-weight:800;', 'Палитра'));
+    var pv = mk('span', 'font-size:.78em;font-weight:700;color:' + P.mu + ';padding:.1em .5em;border-radius:99px;background:' + P.s2 + ';', 'v' + VER); pv.id = 'bz-ver'; ph.appendChild(pv);
     ph.appendChild(mk('span', 'margin-left:auto;font-size:.84em;font-weight:600;color:' + P.mu + ';', 'выберите цвет и касайтесь товаров'));
     palRow.appendChild(ph);
     var sw = mk('div', 'display:grid;grid-template-columns:1fr 1fr;gap:.35em;');
