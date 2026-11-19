@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.63
+// @version      3.64
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -33,7 +33,7 @@
   };
   var P = {};
   Object.keys(PALS.dark).forEach(function (k) { P[k] = 'var(--bz-' + k + ')'; });
-  var VER = '3.63';
+  var VER = '3.64';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o', theme: 'dashdark', lang: '', light: false };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -3162,5 +3162,59 @@
   window.__bzOff = function () { window.removeEventListener('scroll', onScrollY); window.removeEventListener('click', softClick); window.removeEventListener('submit', softSubmit); window.removeEventListener('popstate', softPop); };
 
   function start() { try { build(); } finally { unhold(); } }
-  if (document.readyState === 'loading') { dl('DOMContentLoaded', start); } else { start(); }
+
+  // ---------- Проверка доступа (код хранится на устройстве, сверяется с сервером) ----------
+  var AUTH_URL = 'https://dawn-unit-b98a.alexandr9x9.workers.dev/';
+  var AUTH_KEY = 'bz-auth-v1';
+  function getToken() { try { return localStorage.getItem(AUTH_KEY) || ''; } catch (e) { return ''; } }
+  function setToken(t) { try { if (t) { localStorage.setItem(AUTH_KEY, t); } else { localStorage.removeItem(AUTH_KEY); } } catch (e) {} }
+  function verifyToken(tok) {
+    try {
+      return fetch(AUTH_URL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ token: tok }) })
+        .then(function (r) { return r.json(); })
+        .then(function (j) { return !!(j && j.ok); })
+        .catch(function () { return null; }); // null — сервер недоступен (не значит «отказано»)
+    } catch (e) { return Promise.resolve(null); }
+  }
+  function showAuthPrompt(onOk) {
+    if (document.getElementById('bz-auth')) { return; }
+    var ov = document.createElement('div');
+    ov.id = 'bz-auth';
+    ov.style.cssText = 'all:initial;position:fixed;right:14px;bottom:14px;z-index:2147483647;background:#1a1e25;color:#eceae4;border:1px solid #343a44;border-radius:14px;padding:12px;width:240px;box-sizing:border-box;font:14px/1.4 "Segoe UI",Roboto,Arial,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.5);';
+    var title = document.createElement('div'); title.style.cssText = 'all:initial;display:block;font:inherit;font-weight:700;color:inherit;margin-bottom:6px;'; title.textContent = 'Сортировка заказа';
+    var sub = document.createElement('div'); sub.style.cssText = 'all:initial;display:block;font-size:12px;color:#9aa0aa;margin-bottom:8px;'; sub.textContent = 'Введите код доступа';
+    var inp = document.createElement('input');
+    inp.type = 'password'; inp.setAttribute('autocomplete', 'off'); inp.setAttribute('autocapitalize', 'off'); inp.setAttribute('autocorrect', 'off'); inp.setAttribute('spellcheck', 'false');
+    inp.style.cssText = 'all:initial;display:block;box-sizing:border-box;width:100%;height:34px;padding:0 8px;border-radius:8px;border:1px solid #343a44;background:#12151a;color:#eceae4;font:14px/1.4 "Segoe UI",Roboto,Arial,sans-serif;margin-bottom:6px;';
+    var err = document.createElement('div'); err.style.cssText = 'all:initial;display:block;font-size:12px;color:#e58a84;min-height:16px;margin-bottom:4px;';
+    var go = document.createElement('button'); go.type = 'button'; go.textContent = 'Войти';
+    go.style.cssText = 'all:initial;display:block;box-sizing:border-box;width:100%;height:34px;border-radius:8px;border:0;background:linear-gradient(180deg,#e8cd92,#d6b36a 55%,#c29d54);color:#1a1406;font:14px/1.4 "Segoe UI",Roboto,Arial,sans-serif;font-weight:700;text-align:center;cursor:pointer;';
+    ov.appendChild(title); ov.appendChild(sub); ov.appendChild(inp); ov.appendChild(err); ov.appendChild(go);
+    (document.body || document.documentElement).appendChild(ov);
+    tmo(function () { try { inp.focus(); } catch (e) {} }, 50);
+    var busy = false;
+    function submit() {
+      if (busy || !inp.value) { return; }
+      busy = true; go.textContent = 'Проверка…'; err.textContent = '';
+      verifyToken(inp.value).then(function (ok) {
+        busy = false; go.textContent = 'Войти';
+        if (ok === true) { setToken(inp.value); ov.remove(); onOk(); }
+        else if (ok === false) { err.textContent = 'Неверный код'; inp.value = ''; try { inp.focus(); } catch (e) {} }
+        else { err.textContent = 'Нет связи с сервером проверки'; }
+      });
+    }
+    go.addEventListener('click', submit);
+    inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); submit(); } });
+  }
+  function bootAuth() {
+    var tok = getToken();
+    if (tok) {
+      // код уже вводили на этом устройстве — запускаемся сразу, проверяем в фоне (не мешаем работать при сбое сети)
+      start();
+      verifyToken(tok).then(function (ok) { if (ok === false) { setToken(''); } });
+    } else {
+      showAuthPrompt(start);
+    }
+  }
+  if (document.readyState === 'loading') { dl('DOMContentLoaded', bootAuth); } else { bootAuth(); }
 })();
