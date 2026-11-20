@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.71
+// @version      3.72
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -33,7 +33,7 @@
   };
   var P = {};
   Object.keys(PALS.dark).forEach(function (k) { P[k] = 'var(--bz-' + k + ')'; });
-  var VER = '3.71';
+  var VER = '3.72';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o', theme: 'dashdark', lang: '', light: false };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -3017,6 +3017,10 @@
       if (!sc || sc <= 0) { return; }
       var v = sc.toFixed(4), add = 'minimum-scale=' + v + ',maximum-scale=' + v;
       var ex = document.querySelector('meta[name=viewport]');
+      // Один и тот же тап по полю обычно вызывает lock() дважды подряд (pointerdown, затем focusin) —
+      // если тег создан нами самими (NZ_NEW), просто переписываем его содержимое, а не достраиваем
+      // поверх уже заблокированного значения как поверх «исходного» (иначе оно задваивалось бы).
+      if (ex && ex.hasAttribute(NZ_NEW)) { ex.setAttribute('content', add); return; }
       if (ex) {
         if (!ex.hasAttribute(NZ_ORIG)) { ex.setAttribute(NZ_ORIG, ex.getAttribute('content') || ''); }
         ex.setAttribute('content', (ex.getAttribute(NZ_ORIG) ? ex.getAttribute(NZ_ORIG) + ',' : '') + add);
@@ -3025,7 +3029,7 @@
         (document.head || document.documentElement).appendChild(vm);
       }
     };
-    var unlock = function () {
+    var unlock = function (delay) {
       clearTimeout(tm);
       tm = tmo(function () {
         if (isField(document.activeElement)) { return; }
@@ -3033,7 +3037,7 @@
         if (ex) { ex.setAttribute('content', ex.getAttribute(NZ_ORIG)); ex.removeAttribute(NZ_ORIG); return; }
         var vm = document.querySelector('meta[name=viewport][' + NZ_NEW + ']');
         if (vm) { vm.remove(); }
-      }, 700);
+      }, delay || 700);
     };
     dl('focusin', function (e) { if (isField(e.target) && !inBar(e.target)) { lock(); } }, true);
     dl('focusout', function (e) { if (isField(e.target)) { unlock(); } }, true);
@@ -3041,7 +3045,12 @@
       var t = e.target; if (!t || !t.closest || inBar(t)) { return; }
       var c = t.closest('input,textarea,select,button,#editBtn');
       if (!c) { return; }
-      if (isField(c)) { lock(); } else if (/редактир|изменит/i.test(c.value || c.textContent || '')) { lock(); unlock(); }
+      // Кнопка «Редактировать»/«Изменить» (чужая, сайтовая) часто открывает поле ввода не сразу
+      // и без автофокуса — пользователю нужно время, чтобы коснуться его самому. Короткая пауза
+      // здесь снимала защиту раньше, чем он успевал это сделать, и браузер успевал масштабировать
+      // страницу при реальном фокусе. Поэтому тут пауза длиннее; если поле получит фокус раньше —
+      // его собственный focusin снимет этот таймер (см. lock()) и ничего разблокировано не будет.
+      if (isField(c)) { lock(); } else if (/редактир|изменит/i.test(c.value || c.textContent || '')) { lock(); unlock(3000); }
     }, true);
   }
 
