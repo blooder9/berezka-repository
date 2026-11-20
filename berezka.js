@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.69
+// @version      3.70
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -33,7 +33,7 @@
   };
   var P = {};
   Object.keys(PALS.dark).forEach(function (k) { P[k] = 'var(--bz-' + k + ')'; });
-  var VER = '3.69';
+  var VER = '3.70';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o', theme: 'dashdark', lang: '', light: false };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -3036,8 +3036,17 @@
   // ---------- Переходы без перезагрузки страницы: нет белой вспышки между страницами ----------
   // Страница запрашивается в фоне и подменяется на месте, а скрипт сразу оформляет её заново.
   var SOFT = true;
-  function softBroken() { try { localStorage.setItem('bz-softoff', '1'); } catch (e) {} }   // если подмена страницы не удалась, дальше переходы обычные
-  function softAllowed() { try { return SOFT && localStorage.getItem('bz-softoff') !== '1'; } catch (e) { return SOFT; } }
+  var SOFT_RETRY_MS = 5 * 60 * 1000;   // один сбой не должен выключать мягкую навигацию навсегда — пробуем снова через 5 минут
+  function softBroken() { try { localStorage.setItem('bz-softoff', String(Date.now())); } catch (e) {} }   // если подмена страницы не удалась, временно переходы обычные
+  function softAllowed() {
+    if (!SOFT) { return false; }
+    try {
+      var v = localStorage.getItem('bz-softoff');
+      if (!v) { return true; }
+      if (Date.now() - (parseInt(v, 10) || 0) > SOFT_RETRY_MS) { localStorage.removeItem('bz-softoff'); return true; }
+      return false;
+    } catch (e) { return SOFT; }
+  }
   function pgKey(u) { return u.origin + u.pathname + u.search; }
   function softBar(on) {
     try {
