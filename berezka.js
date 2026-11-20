@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.68
+// @version      3.69
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -33,7 +33,7 @@
   };
   var P = {};
   Object.keys(PALS.dark).forEach(function (k) { P[k] = 'var(--bz-' + k + ')'; });
-  var VER = '3.68';
+  var VER = '3.69';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o', theme: 'dashdark', lang: '', light: false };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -1084,8 +1084,9 @@
   }
   function openPassGate(cb) {
     closeModal();
+    K = calcK();
     var ov = mk('div', 'position:fixed;left:0;top:0;right:0;bottom:0;z-index:2147483647;background:rgba(0,0,0,.74);display:flex;padding:1em;overflow:auto;color:' + P.tx + ';font:15px/1.4 "Segoe UI",Roboto,Arial,sans-serif;');
-    ov.id = 'bz-modal';
+    ov.id = 'bz-modal'; ov.style.fontSize = (15 * K) + 'px';
     var card = mk('div', 'width:100%;max-width:22em;margin:auto;background:' + P.s1 + ';border:1px solid ' + P.line + ';border-radius:1.1em;padding:1.1em;display:flex;flex-direction:column;gap:.6em;box-sizing:border-box;');
     card.appendChild(mk('div', 'font-size:1.15em;font-weight:700;color:' + P.gold2 + ';', 'Пароль'));
     card.appendChild(mk('div', 'font-size:.85em;color:' + P.mu + ';', 'Для скачивания скрипта нужен пароль.'));
