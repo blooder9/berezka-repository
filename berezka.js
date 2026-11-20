@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сортировка заказа Берёзка
 // @namespace    https://github.com/blooder9/my
-// @version      3.70
+// @version      3.71
 // @description  Сортировка товаров заказа и аккуратное тёмное оформление страниц wms.berezka.cy. Рассчитано на телефон.
 // @match        https://wms.berezka.cy/*
 // @run-at       document-start
@@ -33,7 +33,7 @@
   };
   var P = {};
   Object.keys(PALS.dark).forEach(function (k) { P[k] = 'var(--bz-' + k + ')'; });
-  var VER = '3.70';
+  var VER = '3.71';
   var st = { key: 'code', dir: -1, dark: true, col: false, tool: 'o', theme: 'dashdark', lang: '', light: false };
   try {
     var sv = JSON.parse(localStorage.getItem(SKEY) || '{}');
@@ -2999,28 +2999,40 @@
     if (bTheme) { bTheme.classList.toggle('bz-on', !!st.light); bTheme.title = st.light ? 'Тёмная тема' : 'Светлая тема'; bTheme.setAttribute('aria-label', bTheme.title); }
   }
   // Без увеличения при вводе текста: пока открыто поле, масштаб страницы закреплён на текущем значении (мета-тег живёт только это время).
+  // Обработчики вешаются на document один раз за всё время (document переживает переходы без перезагрузки, см. swapDoc),
+  // а вот <head>/<meta> при каждом таком переходе пересоздаются заново — поэтому lock()/unlock() каждый раз ищут
+  // актуальный мета-тег заново и хранят исходное содержимое в самом DOM (data-атрибут), а не в переменной замыкания:
+  // иначе после перехода они бы тихо правили уже отсоединённый от страницы узел и защита переставала работать.
   var NOZOOM = true;
+  var NZ_ORIG = 'data-bz-nz-orig', NZ_NEW = 'data-bz-nz-new';
   function noZoom() {
     var vv = window.visualViewport;
     if (!NOZOOM || !vv || window.__bzNZ) { return; }
     window.__bzNZ = 1;
-    var vm = null, ex = null, old = '', tm = 0;
+    var tm = 0;
     var isField = function (e) { return !!(e && e.tagName && /^(INPUT|TEXTAREA|SELECT)$/.test(e.tagName) && !/^(button|submit|checkbox|radio|hidden)$/i.test(e.type || '')); };
     var lock = function () {
       clearTimeout(tm);
       var sc = vv.scale;
       if (!sc || sc <= 0) { return; }
       var v = sc.toFixed(4), add = 'minimum-scale=' + v + ',maximum-scale=' + v;
-      if (vm) { vm.content = (ex ? old + ',' : '') + add; return; }
-      ex = document.querySelector('meta[name=viewport]');
-      if (ex) { old = ex.getAttribute('content') || ''; vm = ex; } else { vm = document.createElement('meta'); vm.name = 'viewport'; (document.head || document.documentElement).appendChild(vm); }
-      vm.content = (ex ? old + ',' : '') + add;
+      var ex = document.querySelector('meta[name=viewport]');
+      if (ex) {
+        if (!ex.hasAttribute(NZ_ORIG)) { ex.setAttribute(NZ_ORIG, ex.getAttribute('content') || ''); }
+        ex.setAttribute('content', (ex.getAttribute(NZ_ORIG) ? ex.getAttribute(NZ_ORIG) + ',' : '') + add);
+      } else {
+        var vm = document.createElement('meta'); vm.name = 'viewport'; vm.setAttribute(NZ_NEW, '1'); vm.setAttribute('content', add);
+        (document.head || document.documentElement).appendChild(vm);
+      }
     };
     var unlock = function () {
       clearTimeout(tm);
       tm = tmo(function () {
         if (isField(document.activeElement)) { return; }
-        if (vm) { if (ex) { ex.setAttribute('content', old); } else { vm.remove(); } vm = null; ex = null; }
+        var ex = document.querySelector('meta[name=viewport][' + NZ_ORIG + ']');
+        if (ex) { ex.setAttribute('content', ex.getAttribute(NZ_ORIG)); ex.removeAttribute(NZ_ORIG); return; }
+        var vm = document.querySelector('meta[name=viewport][' + NZ_NEW + ']');
+        if (vm) { vm.remove(); }
       }, 700);
     };
     dl('focusin', function (e) { if (isField(e.target) && !inBar(e.target)) { lock(); } }, true);
@@ -3117,6 +3129,9 @@
     if (mode === 'push' && to.href !== location.href) { history.pushState({ bz: 1 }, '', to.href); }
     else if (mode === 'replace' && to.href !== location.href) { history.replaceState({ bz: 1 }, '', to.href); }
     window.__bzLoc = pgKey(to);
+    // document.open() сбрасывает обработчики, навешанные на document (проверено), поэтому
+    // __bzNZ (как и __bzSort/__bzLang) обязателен к сбросу — иначе после первого же перехода
+    // без перезагрузки защита от масштабирования и прочее перестанут работать молча.
     window.__bzSort = 0; window.__bzNZ = 0; window.__bzLang = 0;
     document.open();
     var onErr = function (ev) { if (/already been declared|redeclaration/i.test(String(ev && ev.message))) { softBroken(); location.reload(); } };
